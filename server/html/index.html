@@ -1,70 +1,13 @@
-<html ng-app="app">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <script type="text/javascript">
+    <meta charset="utf-8">
+    <title>Having Fun</title>
+    <link rel="stylesheet" href="css/main.css">
 
-    var myWebSocket;
-
-
-    function connectToWS() {
-        var endpoint = document.getElementById("endpoint").value;
-        if (myWebSocket !== undefined) {
-            myWebSocket.close()
-        }
-
-        myWebSocket = new WebSocket(endpoint);
-
-        myWebSocket.onmessage = function(event) {
-            var leng;
-            if (event.data.size === undefined) {
-                leng = event.data.length
-            } else {
-                leng = event.data.size
-            }
-            console.log("onmessage. size: " + leng + ", content: " + event.data);
-        }
-
-        myWebSocket.onopen = function(evt) {
-            console.log("onopen.");
-        };
-
-        myWebSocket.onclose = function(evt) {
-            console.log("onclose.");
-        };
-
-        myWebSocket.onerror = function(evt) {
-            console.log("Error!");
-        };
-    }
-
-    function sendMsg() {
-        var message = document.getElementById("myMessage").value;
-        myWebSocket.send(message);
-    }
-
-    function closeConn() {
-        myWebSocket.close();
-    }
-
-    </script>
 </head>
 <body>
-
-    <form>
-        connection to: <input type="text" id="endpoint" name="endpoint" value="ws://localhost:9000/test/"  style="width: 200px" ><br>
-    </form>
-
-    <input type="button" onclick="connectToWS()" value="connect to WebSocket endpoint" /><br><br>
-
-    <form>
-        message: <input type="text" id="myMessage" name="myMessage" value="hi there!"><br>
-    </form>
-
-    <input type="button" onclick="sendMsg()" value="Send message" />
-
-    <input type="button" onclick="closeConn()" value="Close connection" />
-    <img src="cah.jpg" width="50" height="50" />
-    <img src="img/cah.jpg" width="50" height="50" />
-    <img src="/img/cah.jpg" width="50" height="50" />
-
+    <canvas id="mainGame"></canvas>
+    <script src="./js/game.js" type="module"></script>
 </body>
 </html>

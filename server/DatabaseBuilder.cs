@@ -1,16 +1,15 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Data.SQLite;
 
 internal class DatabaseBuilder
 {
-    private string databaseFile = "Game.db";
+    public static readonly string DatabaseFile = "Game.db";
 
-    private SqliteConnection connection;
+    public static readonly SQLiteConnection Connection = new($"Data Source={DatabaseFile}");
 
     public DatabaseBuilder()
     {
-        bool needToBuild = !File.Exists(databaseFile);
-        connection = new SqliteConnection($"Data Source={databaseFile}");
-            connection.Open();
+        bool needToBuild = !File.Exists(DatabaseFile);
+            Connection.Open();
         if (needToBuild)
         {
             BuildTables();
@@ -19,18 +18,28 @@ internal class DatabaseBuilder
     
     private void BuildTables()
     {
-        string q = @"CREATE TABLE 'User' (
-	            'UserId'	INTEGER NOT NULL UNIQUE,
-	            'UserName'	TEXT NOT NULL,
+        // define the the User table
+        string createUserTable = @"CREATE TABLE 'User' (
+	            'User_Id'	INTEGER NOT NULL UNIQUE,
+	            'UserName'	TEXT NOT NULL UNIQUE,
+	            'PasswordHash'	TEXT NOT NULL,
+	            'Experience'	INTEGER NOT NULL DEFAULT 0,
+	            'Level'	INTEGER NOT NULL DEFAULT 1,
+	            'Max_Health'	INTEGER NOT NULL DEFAULT 10,
 	            'Health'	INTEGER NOT NULL DEFAULT 10,
+	            'Max_Stamana'	INTEGER NOT NULL DEFAULT 10,
 	            'Stamana'	INTEGER NOT NULL DEFAULT 10,
 	            'Strength'	INTEGER NOT NULL DEFAULT 10,
 	            'Speed'	INTEGER NOT NULL DEFAULT 10,
-	            PRIMARY KEY('UserId' AUTOINCREMENT)
+	            'Map_id'	INTEGER NOT NULL DEFAULT 1,
+	            'X_Coordinate'	INTEGER NOT NULL DEFAULT 0,
+	            'Y_Coordinate'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
-        SqliteCommand cmd = connection.CreateCommand();
-        cmd.CommandText = q;
+        SQLiteCommand cmd = Connection.CreateCommand();
+        cmd.CommandText = createUserTable;
         cmd.ExecuteNonQuery();
+
     }
 }
 
