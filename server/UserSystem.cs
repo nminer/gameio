@@ -20,7 +20,7 @@ namespace server
         /// key map id
         /// value list of users in map.
         /// </summary>
-        private static Dictionary<int, List<User>> UsersLocated = new Dictionary<int, List<User>>();
+        private static Dictionary<Int64, List<User>> UsersLocated = new Dictionary<Int64, List<User>>();
 
         /// <summary>
         /// keep the dictionaries all in line.
@@ -111,7 +111,7 @@ namespace server
         /// <param name="newMapId"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public static void ChangeUsersLocation(User userToChange, int newMapId, int x, int y)
+        public static void ChangeUsersLocation(User userToChange, int newMapId, Int64 x, Int64 y)
         {
             if (userToChange.Map_Id != newMapId)
             {

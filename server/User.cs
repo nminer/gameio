@@ -18,9 +18,9 @@ namespace server
         /// <summary>
         /// The users id in the database.
         /// </summary>
-		public int UserId
+		public Int64 UserId
         {
-            get => (int)row["User_Id"];
+            get => (Int64)row["User_Id"];
         }
 
         /// <summary>
@@ -36,15 +36,15 @@ namespace server
         /// </summary>
 		public string Password
         {
-            get => (string)row["Password"];
+            get => (string)row["PasswordHash"];
         }
 
         /// <summary>
         /// The users level.
         /// </summary>
-		public int Level
+		public Int64 Level
         {
-            get => (int)row["Level"];
+            get => (Int64)row["Level"];
             set
             {
                 row["Level"] = value;
@@ -54,9 +54,9 @@ namespace server
         /// <summary>
         /// the max helth the player can have.
         /// </summary>
-		public int MaxHealth
+		public Int64 MaxHealth
         {
-            get => (int)row["Max_Health"];
+            get => (Int64)row["Max_Health"];
             set
             {
                 row["Max_Health"] = value;
@@ -66,9 +66,9 @@ namespace server
         /// <summary>
         /// the current helth of the player.
         /// </summary>
-		public int Health
+		public Int64 Health
         {
-            get => (int)row["Health"];
+            get => (Int64)row["Health"];
             set
             {
                 row["Health"] = value;
@@ -78,9 +78,9 @@ namespace server
         /// <summary>
         /// the players max stamana. used for running and hitting.
         /// </summary>
-        public int MaxStamana
+        public Int64 MaxStamana
         {
-            get => (int)row["Max_Stamana"];
+            get => (Int64)row["Max_Stamana"];
             set
             {
                 row["Max_Stamana"] = value;
@@ -90,9 +90,9 @@ namespace server
         /// <summary>
         /// the player current stamana.
         /// </summary>
-        public int Stamana
+        public Int64 Stamana
         {
-            get => (int)row["Stamana"];
+            get => (Int64)row["Stamana"];
             set
             {
                 row["Stamana"] = value;
@@ -102,9 +102,9 @@ namespace server
         /// <summary>
         /// players strength.
         /// </summary>
-        public int Strength
+        public Int64 Strength
         {
-            get => (int)row["Strength"];
+            get => (Int64)row["Strength"];
             set
             {
                 row["Strength"] = value;
@@ -114,9 +114,9 @@ namespace server
         /// <summary>
         /// players speed. how fast they move and hit.
         /// </summary>
-        public int Speed
+        public Int64 Speed
         {
-            get => (int)row["Speed"];
+            get => (Int64)row["Speed"];
             set
             {
                 row["Speed"] = value;
@@ -126,9 +126,9 @@ namespace server
         /// <summary>
         /// what map the player is on. 
         /// </summary>
-        public int Map_Id
+        public Int64 Map_Id
         {
-            get => (int)row["Map_Id"];
+            get => (Int64)row["Map_Id"];
             set
             {
                 row["Map_Id"] = value;
@@ -138,9 +138,9 @@ namespace server
         /// <summary>
         /// the x cood on the current map. this is from the rop left of the map.
         /// </summary>
-        public int X_Coord
+        public Int64 X_Coord
         {
-            get => (int)row["X_Coordinate"];
+            get => (Int64)row["X_Coordinate"];
             set
             {
                 row["X_Coordinate"] = value;
@@ -150,18 +150,18 @@ namespace server
         /// <summary>
         /// the y cood on the current map. this is from the rop left of the map.
         /// </summary>
-        public int Y_Coord
+        public Int64 Y_Coord
         {
-            get => (int)row["Y_Coordinate"];
+            get => (Int64)row["Y_Coordinate"];
             set
             {
                 row["Y_Coordinate"] = value;
             }
         }
 
-        public int Direction
+        public Int64 Direction
         {
-            get => (int)row["Direction"];
+            get => (Int64)row["Direction"];
             set
             {
                 if (value >= 0 && value <= 8)
@@ -188,13 +188,13 @@ namespace server
         /// Load a user from its user id in the database.
         /// </summary>
         /// <param name="userId"></param>
-        public User(int userId)
+        public User(Int64 userId)
         {
             LoaderUser(userId);
         }
 
 
-        private void LoaderUser(int userId)
+        private void LoaderUser(Int64 userId)
         {
             adapter = new SQLiteDataAdapter();
             builder = new SQLiteCommandBuilder(adapter);
@@ -249,10 +249,10 @@ namespace server
                 return null;
             }
             // insert new user
-            string insertNewUser = $"INSERT User (UserName, PasswordHash) VALUES($name, $pass);";
+            string insertNewUser = $"INSERT INTO User (UserName, PasswordHash) VALUES($name, $pass);";
             SQLiteCommand command = new SQLiteCommand(insertNewUser, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", userName);
-            command.Parameters.AddWithValue("$pass", BCrypt.Net.BCrypt.HashPassword(password);
+            command.Parameters.AddWithValue("$pass", BCrypt.Net.BCrypt.HashPassword(password));
             try
             {
                 if (command.ExecuteNonQuery() > 0)
