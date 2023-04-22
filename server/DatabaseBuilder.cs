@@ -34,6 +34,7 @@ internal class DatabaseBuilder
 	            'Map_id'	INTEGER NOT NULL DEFAULT 1,
 	            'X_Coordinate'	INTEGER NOT NULL DEFAULT 0,
 	            'Y_Coordinate'	INTEGER NOT NULL DEFAULT 0,
+	            'Direction'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
         SQLiteCommand cmd = Connection.CreateCommand();

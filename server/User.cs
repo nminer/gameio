@@ -13,7 +13,8 @@ using BCrypt.Net;
 
 namespace server
 {
-    internal class User {
+    class User
+    {
         /// <summary>
         /// The users id in the database.
         /// </summary>
@@ -42,19 +43,19 @@ namespace server
         /// The users level.
         /// </summary>
 		public int Level
-		{
-			get => (int)row["Level"];
-			set
-			{
-				row["Level"] = value;
-			}
-		}
+        {
+            get => (int)row["Level"];
+            set
+            {
+                row["Level"] = value;
+            }
+        }
 
         /// <summary>
         /// the max helth the player can have.
         /// </summary>
 		public int MaxHealth
-		{
+        {
             get => (int)row["Max_Health"];
             set
             {
@@ -158,42 +159,58 @@ namespace server
             }
         }
 
+        public int Direction
+        {
+            get => (int)row["Direction"];
+            set
+            {
+                if (value >= 0 && value <= 8)
+                {
+                    row["Direction"] = value;
+                }
+                else
+                {
+                    row["Direction"] = 0;
+                }
+
+            }
+        }
 
         private SQLiteDataAdapter adapter;
 
-		private SQLiteCommandBuilder builder;
+        private SQLiteCommandBuilder builder;
 
-		private DataSet data;
+        private DataSet data;
 
-		private DataRow row;
+        private DataRow row;
 
         /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
         /// <param name="userId"></param>
         public User(int userId)
-		{
+        {
             LoaderUser(userId);
         }
 
 
-		private void LoaderUser(int userId)
-		{
+        private void LoaderUser(int userId)
+        {
             adapter = new SQLiteDataAdapter();
             builder = new SQLiteCommandBuilder(adapter);
             data = new DataSet();
             string findUser = $"SELECT * FROM User WHERE User_Id=$id;";
-            SQLiteCommand command  = new SQLiteCommand(findUser, DatabaseBuilder.Connection);
+            SQLiteCommand command = new SQLiteCommand(findUser, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$id", userId);
             adapter.SelectCommand = command;
-            
-			adapter.Fill(data);
-			//if (!(data.Tables.Count > 0 && data.Tables[0].Rows.Count > 0))
-			//{
 
-			//}
-			row = data.Tables[0].Rows[0];
-		}
+            adapter.Fill(data);
+            //if (!(data.Tables.Count > 0 && data.Tables[0].Rows.Count > 0))
+            //{
+
+            //}
+            row = data.Tables[0].Rows[0];
+        }
 
 
         /// <summary>
@@ -204,26 +221,27 @@ namespace server
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        static User? LogIn(string userName, string password)
-		{
+        static public User LogIn(string userName, string password)
+        {
             SQLiteDataReader dataReader = CheckUserName(userName);
             if (!dataReader.HasRows)
             {
-				return null;
-			}
-			dataReader.Read();
-			int id = dataReader.GetInt32(0);
-			User tempUser = new User(id);
+                throw new Exception("Invalid login.");
+            }
+            dataReader.Read();
+            int id = dataReader.GetInt32(0);
+            User tempUser = new User(id);
             if (BCrypt.Net.BCrypt.Verify(password, tempUser.Password))
             {
                 return tempUser;
-            } else
+            }
+            else
             {
                 throw new Exception("Invalid login.");
             }
         }
 
-        static User? Create(string userName, string password)
+        static public User? Create(string userName, string password)
         {
             SQLiteDataReader dataReader = CheckUserName(userName);
             if (dataReader.HasRows)
@@ -234,7 +252,7 @@ namespace server
             string insertNewUser = $"INSERT User (UserName, PasswordHash) VALUES($name, $pass);";
             SQLiteCommand command = new SQLiteCommand(insertNewUser, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", userName);
-            command.Parameters.AddWithValue("$pass", password);
+            command.Parameters.AddWithValue("$pass", BCrypt.Net.BCrypt.HashPassword(password);
             try
             {
                 if (command.ExecuteNonQuery() > 0)
@@ -256,7 +274,7 @@ namespace server
         /// </summary>
         /// <param name="userName"></param>
         /// <returns></returns>
-        static private SQLiteDataReader CheckUserName (string userName)
+        static private SQLiteDataReader CheckUserName(string userName)
         {
             SQLiteCommand cmd = DatabaseBuilder.Connection.CreateCommand();
             string findUser = $"SELECT User_Id FROM User WHERE UserName='{userName}'";
@@ -265,17 +283,11 @@ namespace server
             return dataReader;
         }
 
-        static string hashPasswod(string password)
-		{
-			return password;
-		}
-
-
-		public int SaveUser()
-		{
-			builder.ConflictOption = ConflictOption.OverwriteChanges;
-			builder.GetUpdateCommand();
-			return adapter.Update(data);
+        public int SaveUser()
+        {
+            builder.ConflictOption = ConflictOption.OverwriteChanges;
+            builder.GetUpdateCommand();
+            return adapter.Update(data);
         }
 
     }
