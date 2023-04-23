@@ -55,7 +55,8 @@ namespace server
                     try
                     {
                         User? loggedInUser = UserSystem.Login(loginData["username"], loginData["password"]);
-                        //ctx.Response.Headers.Add("Set-Cookie", "sessionId=38afes7a8; Max-Age=86400;");
+                        string sessionId = UserSystem.AssignSessionId(loggedInUser);
+                        ctx.Response.Headers.Add("Set-Cookie", $"sessionId={sessionId}; Max-Age=86400;");
                         //await ctx.Response.Send(GetRedirect("/game.html")); 
                         //return true;
                         ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
