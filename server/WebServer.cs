@@ -1,4 +1,11 @@
 ﻿using WatsonWebserver;
+//using static System.Net.WebRequestMethods;
+using System.IO;
+using System.Runtime.InteropServices;
+using BCrypt.Net;
+using System;
+using System.Text;
+
 namespace server
 {
     /// <summary>
@@ -38,8 +45,32 @@ namespace server
         static async Task<bool> PreRoutingHandler(HttpContext ctx)
         {
             string urlfull = ctx.Request.Url.RawWithQuery;
+            if (urlfull == "/" && ctx.Request.Method == WatsonWebserver.HttpMethod.POST)
+            {
+                // this means we are posting a log in
+                string data = ctx.Request.DataAsString;
+                if (data.Contains("username") && data.Contains("password"))
+                {
+                    Dictionary<string, string> loginData = GetUserAndPass(data);
+                    try
+                    {
+                        User? loggedInUser = UserSystem.Login(loginData["username"], loginData["password"]);
+                        //ctx.Response.Headers.Add("Set-Cookie", "sessionId=38afes7a8; Max-Age=86400;");
+                        //await ctx.Response.Send(GetRedirect("/game.html")); 
+                        //return true;
+                        ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
+                        ctx.Request.Url.RawWithQuery = urlfull + "game.html";
+                        return false;
+                    }
+                    catch (Exception ex)
+                    {
+                        await ctx.Response.Send(ex.Message);
+                        return true;
+                    }                  
+                }
+            }
             FileAttributes attr = File.GetAttributes("./html" + urlfull);
-            ctx.Response.Headers.Add("Set-Cookie", "sessionId=38afes7a8; Max-Age=86400;");
+            
             if (attr.HasFlag(FileAttributes.Directory))
             {
                 if (File.Exists("./html" + urlfull + "index.html"))
@@ -53,6 +84,37 @@ namespace server
             }
             return false;  // allow the connection
         }
+
+        private static byte[] GetRedirect(string url)
+        {
+            string returnHtml = "<!DOCTYPE html>" +
+                            "<html lang=\"en\" >" +
+                            "<head>" +
+                            "<meta charset=\"utf-8\">" +
+                            "<title> Having Fun </title>" +
+                            $"<meta http-equiv=\"Refresh\" content=\"0; url='{url}'\" />"+
+                            "</head>" +
+                            "<body>" +
+                            "</body>" +
+                            "</html>";
+            return Encoding.ASCII.GetBytes(returnHtml);
+
+        }
+
+        private static Dictionary<string, string> GetUserAndPass(string data)
+        {
+            Dictionary<string, string> returnKvp = new Dictionary<string, string>();
+            foreach (string keyValuePairs in data.Split('&'))
+            {
+                string[] kvp = keyValuePairs.Split('=');
+                if (kvp.Length == 2)
+                {
+                    returnKvp.Add(kvp[0], kvp[1]);
+                }
+            }
+            return returnKvp;
+        }
+
 
         /// <summary>
         /// This is not used but could be used to do some default routing 

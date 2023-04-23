@@ -10,6 +10,10 @@ namespace server
 {
     static class UserSystem
     {
+        private static Dictionary<string, User> SessionIdToUser = new Dictionary<string, User>();
+        private static Dictionary<string, string> UserNameToSession = new Dictionary<string, string>();
+        private static object SessionUserLock = new object();
+
         /// <summary>
         /// All logged in users.
         /// </summary>
@@ -46,12 +50,18 @@ namespace server
                 {
                     User loggedInUser = User.LogIn(username, password);
                     LoggedInUsers.Add(username, loggedInUser);
-                    AddUserToLocation(loggedInUser);
+                    //AddUserToLocation(loggedInUser);
                     return loggedInUser;
                 }
             }
         }
 
+        public static bool FinalizeLogin(User user)
+        {
+            //LoggedInUsers.Add(user.UserName, user);
+            AddUserToLocation(user);
+            return true;
+        }
         /// <summary>
         /// add passed in user to the location dictionary 
         /// </summary>
@@ -81,6 +91,7 @@ namespace server
                 if (!LoggedInUsers.ContainsKey(username)) { return false; }
                 User user = LoggedInUsers[username];
                 RemoveUserFromLocation(user);
+                RemoveUserFromSession(user);
                 return LoggedInUsers.Remove(username);
             }
         }
@@ -104,6 +115,18 @@ namespace server
             }
         }
 
+        private static void RemoveUserFromSession(User userToRemove)
+        {
+            lock (SessionUserLock)
+            {
+                if (UserNameToSession.ContainsKey(userToRemove.UserName))
+                {
+                    string keyToRemove = UserNameToSession[userToRemove.UserName];
+                    UserNameToSession.Remove(userToRemove.UserName);
+                    SessionIdToUser.Remove(keyToRemove);
+                }
+            }
+        }
         /// <summary>
         /// set the user to a new location map and coords
         /// </summary>
@@ -158,6 +181,30 @@ namespace server
             return Login(userName, password);
         }
 
+
+        public static string AssignSessionId(User user)
+        {
+            string id = "";
+            lock (SessionUserLock)
+            {
+                do
+                {
+                    StringBuilder builder = new StringBuilder();
+                    Enumerable
+                       .Range(65, 26)
+                        .Select(e => ((char)e).ToString())
+                        .Concat(Enumerable.Range(97, 26).Select(e => ((char)e).ToString()))
+                        .Concat(Enumerable.Range(0, 10).Select(e => e.ToString()))
+                        .OrderBy(e => Guid.NewGuid())
+                        .Take(11)
+                        .ToList().ForEach(e => builder.Append(e));
+                    id = builder.ToString();
+                } while (SessionIdToUser.ContainsKey(id));
+                SessionIdToUser.Add(id, user);  
+                UserNameToSession.Add(user.UserName, id);
+            }
+            return id;
+        }
 
     }
 }

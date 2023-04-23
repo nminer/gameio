@@ -4,7 +4,7 @@ Console.WriteLine("Hello, World!");
 
 DatabaseBuilder db = new DatabaseBuilder();
 
-UserSystem.CreateNewUser("nminer", "caya");
+//UserSystem.CreateNewUser("nminer", "caya");
 SocketServer wsServer = new SocketServer(9000);
 wsServer.start();
 WebServer webserver = new WebServer(9000);
