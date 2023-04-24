@@ -1,20 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8">
-    <title>Having Fun</title>
-    <link rel="stylesheet" href="css/main.css">
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="./css/login.css" />
+    <link rel="stylesheet" href="./css/common.css" />
+    <script src="./js/TweenMax.min.js"></script>
 </head>
 <body>
-    <form method="post">
-        <div class="container">
-            <label>Username : </label>
-            <input type="text" placeholder="Enter Username" name="username" required>
+    <div id="soundbtn" class="button" onclick="soundonoff();">
+        <img id="soundon" class="soundImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAABTBJREFUaEPtmXuIVFUYwH/fOClqWFKI62PLwnbuuFqS0UOJilIyLQgUNCwtw8g/0h4QWmYPdf+Q0oIMK0uNoKKX1vZWe9nLCkx3Zl0KUkijoj/SpN2Z/eLcOXM9u85zd+5ua3v/O3PuPef7fa/znW+EE+SRE4SDXpD/miV7LfK/sYg2MYIUY4iyQ0bzT9jgobiWNnIBrXwIDEKolxjX9DgQbaAWYQdwmhU+LR7RHgWiTZxNik+AYa7g4pWe5rWJfqR4AagTj29LVUDFXEsbGU4rnwKj2m9eFkiC5cADQAphOTWsFEGLAVUERBs5nVY+BuK5NiwVRJPUoOwG+gbrCJtJMV9qaS4E02kQbWIQKbYB5+fbqGSQ7UQZyt3AMqB/sJ7yMh6zRGjNu0cxkxWa1wP05zDvApcW1FYZMWLW0SQTUN5sF2uPicedFQfRPfQlyusoU4spo5hFdDeDiXDEdR/dQzVRPkMZ6aw/XTzeyum+xYTINa9KHxK8iDCzlO+LgiR4DTB2myMxdmXX1H14tLIT5VT72yFaiMs4/jwuoZQiiPuOKkIj61Hml/ptIRBNcD3wql3rKMpsifNGAJPkBtRPx9lnlXgs6TxIgtXAXaVCmPeKgLwPXOWs14xwtcT8BOI/mvDdKVsdHCbCKKnhd1eG47KW7uIkTuYWlAuBgSiPSpwv7YJTwA/usp6CIJlM9TBwr7PoIaKMk9H85u+7l/FE/MMxI6+wSGKszQviQwxkOzAxeEmYKTFe8RdMMgOTCst8isWIVZIBWRUsrayTOLc7VjEWujxjIr6WuK9oR0xnoEluQ1nXRs4QQPwyJM08Umxok6kSbAGm2/1bSFMttRyySrwZ5dlAtihDshbLGMkFSfAcMDd0kGNlyBekmSy1HLZWOQdIABGr+cUSZ40/l7kWHAhkizBVangnO24PYtxmRpgguoc4ffg+KEOEZyTGrTldCLaKx7XO3C9AlR0vFY+V3QeSZCLKE8D4wIUiDMtmIW3gfoSH7Nx+8TjDAfkcuMRaa63EWdRtINbfR6H85ETqFRLzkwzawI0IG+3cUfEY4IBsBabZ8SbxuKl7QfZxFml+7NEg2sgk37WU8yxIMxGGB66V8CvfB+3cz+JxZk7XEtZIjMXdZpHjgh3Wi8cCR1jjYpfZ8RbxuC5PsC8R79i5093pdyfNTJZzOWJjx1ysGoL065zg+gMjibK/1PRrNPNUmOnXngnmXj6XI2yQCbT4v5liNOkfiNlgbiZFtYzlV5sE5iM8bWVTIgxx6622FjElygC2IUxyArFrSpQkS1EecfZ9UmIszONyX4nHRa7CcxeNA5kHXNwlRWNGeSsQ7nEEO0iEcU4CMNfob5yi8Q6J8XhBkDZulWOglS/jPwCudLYyXckp4vnNDP/RBupNaW+Hf5lOjXj80TmQcC9WfyPMkpgfK1mIOQibAqGVFRLnvvY67lAXJaSrrslYcyTOdwHEXsYQwZQlp9jfDtLCmIpcdYNNwm4+JPyD0DT8RgSZSpkmcepzuX+HLBLAhNUOyjTBjXsNdYReLV6bhNCGp1MgfiBmGnQfARPyJYpSboj+WubaW8VC1C/Pg2IR4SVqmB1agy6wTKVapgnMxcq0TPs5SnmeNAtCb5k6MJVuYpsTf5l41BU7Esx8p13L3aSCfytsRqlzM1gxmIqC2MOr5//R47iZyTrvAYOBt8ULCsFiiu3wfMUt4pzIVQhjSbOjWKB2WHrnw9BAKiFcOWv0gpSjra54t9ciXaHlcvY4YSzyL3Z1GVHsKcxvAAAAAElFTkSuQmCC" />
+        <img id="soundoff" style="display: none;" class="soundImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAt9JREFUaEPt2T9oE1EcwPHvL0krthVR0Lo4KIp3KCq46FgHUfBP/YuCq5sipQ4K7lbcdHexWFsrKDi4qLMgSrV4qVYXQUR0Eyq06ZM7ryEJL3m5JGd+BjPeu9z9Pvn93u+9uwgd8pEOcfAfUiuTxiDkGQKGEPpYZIwVDMt65tKqgJZnxEzTTY5xDIMVQY+Iz5V/AhIhMkwgHLEEPCs+m9VDIkSWSeBQlWAXxSerGhIj7gOHawUqfnrNpek5Ui8iBKqFJEGohSRFqITUMbGtU0VVaTWKUJWRZhBqIDHiAXCw0bWg7aVlPrCMBR4C+xtFpJ4R85nl/OQ6cBZYVRaocFI8Jk3ADeBSM4j0IQG3gPPWILvol018MwGfgA3aIT+A1dYgPTIiGBOwGC7M2iGmWoBLk9MEVD0nCa5yspuAV0COAvtkG19t1zLTrCPLY2BefPZUjbVWkH8BMgVsB/IUGKjExIjngAe8xmNXWCE2jLQVMsta5nkGbAXeIwyIx5cwUPOWfnI8jcdmEPYujamDRAFbMMxTSIKIOmI7M7L0y1aUUD4+HpaTteRUZqSIKc9MeNhZTqUgFRmxzInwUNmccXVHFZCOKC1bdyLHQrVupnMdqdFibd1Mbfs1AUkWxCnx2akzI+94QYZuFjjg2KI8AX6Jz+5akI7ZNN4ELlilGdbIFr6bgI/ARlcLdI2n+oQYP1iNxA9W5dt5YVA8HpmAa8BlV6Cu8VQhrptHi9Wf97rOV6Kua7UdEmFe0kUfE5a/C1zxF8dVQFqBUQMpYnoZB47WnYr4RFWQZjDqII1iVEJKMPeAY/WUmVpIhDFkyTMKnHZhVENKMHeAM7Uw6iElZTYGHK+CmROfHlfWGh1v+u1h6Y2jRbOXu8AJS0BvxGdHo4G6vtdSSDEzPYwinCq7uXBRPMINaiqflkPiOZNhhmEM54CVwG08ropQSEXRihfTaQWW9LqpZCRpEK04v2MgvwHKEz9CEzRb6gAAAABJRU5ErkJggg==" />
+    </div>
+    <div class="mainbox">
+        <div class="loginbox">
+
+            <div class="logo"></div>
+            <p><%= error %></p>
+            <form action="./" method="post">
+                <label for="user">User Name:</label><br />
+                <input type="text" name="username" id="user" autofocus /><br />
+                <label for="user">Password:</label><br />
+                <input type="password" name="password" /><br />
+                <button type="submit">Log In</button>
+            </form>
+
             <br />
-            <label>Password : </label>
-            <input type="password" placeholder="Enter Password" name="password" required>
-            <button type="submit">Login</button>
+            <br />
+            or
+            <br />
+            <br />
+            <a class="button" href="/signup">Register</a>
         </div>
-    </form>
+    </div>
+    <div class="fire"></div>
+    <script src="./js/sparks.js"></script>
+    <script src="./js/sound.js"></script>
+    <script src="./js/login.js"></script>
 </body>
 </html>

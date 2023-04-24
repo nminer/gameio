@@ -1,0 +1,189 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    background-image: url("../img/main/woodbg.jpg");
+    background-size: cover;
+    -moz-box-shadow: inset 0 0 500px #000000;
+    -webkit-box-shadow: inset 0 0 500px #000000;
+    box-shadow: inset 0 0 500px #000000;
+}
+
+#soundbtn {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    overflow: hidden;
+}
+
+.soundImg {
+    width: 20px;
+    height: 20px;
+}
+
+.spark {
+    background-color: #DE4A00;
+    font-family: 'Helvetica', sans-serif;
+    visibility: hidden;
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 30%;
+    box-shadow: 0 0 20px #AB00;
+}
+
+.fire {
+    position: absolute;
+    width: 100%;
+    height: 50px;
+    bottom: -10px;
+    left: 0;
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0), rgba(241,90,34,1), rgba(255,0,0,1));
+    box-shadow: 0 0 10px #AB00;
+    -webkit-animation-name: flicker;
+    animation-name: flicker;
+    -webkit-animation-duration: 13s;
+    animation-duration: 13s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+}
+
+.mainbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.loginbox {
+    width: 670px;
+    height: 450px;
+    background-image: linear-gradient(to bottom left, #d5ab35, #c88700, #943535);
+    background-image: url("../img/main/loginbg.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    padding: 50px;
+}
+
+.logo {
+    width: 220px;
+    height: 150px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-image: url("../img/main/logo.png");
+}
+
+@keyframes flicker {
+    from {
+        opacity: 0.5;
+    }
+
+    4% {
+        opacity: 0.7;
+    }
+
+    8% {
+        opacity: 0.45;
+    }
+
+    12% {
+        opacity: 0.65;
+    }
+
+    16% {
+        opacity: 0.30;
+    }
+
+    20% {
+        opacity: 0.5;
+    }
+
+    24% {
+        opacity: 0.6;
+    }
+
+    28% {
+        opacity: 0.25;
+    }
+
+    32% {
+        opacity: 0.30;
+    }
+
+    36% {
+        opacity: 0.55;
+    }
+
+    40% {
+        opacity: 0.4;
+    }
+
+    44% {
+        opacity: 0.6;
+    }
+
+    48% {
+        opacity: 0.35;
+    }
+
+    52% {
+        opacity: 0.20;
+    }
+
+    56% {
+        opacity: 0.70;
+    }
+
+    60% {
+        opacity: 0.5;
+    }
+
+    64% {
+        opacity: 0.65;
+    }
+
+    68% {
+        opacity: .35;
+    }
+
+    72% {
+        opacity: 0.5;
+    }
+
+    76% {
+        opacity: 0.4;
+    }
+
+    80% {
+        opacity: .65;
+    }
+
+    84% {
+        opacity: 0.40;
+    }
+
+    88% {
+        opacity: 0.35;
+    }
+
+    92% {
+        opacity: 0.6;
+    }
+
+    96% {
+        opacity: 0.3;
+    }
+
+    to {
+        opacity: 0.5;
+    }
+}

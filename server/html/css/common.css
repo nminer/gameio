@@ -1,0 +1,129 @@
+input {
+    border-style: solid;
+    border-color: #c88700;
+    background-image: linear-gradient(to bottom right, #d5ab35, #c88700, #943535);
+}
+
+    textarea:focus, input:focus {
+        outline: none;
+        border-style: solid;
+        border-color: #562909;
+    }
+
+.button {
+    background: #C35C00;
+    background-image: -webkit-linear-gradient(top, #C35C00, #462009);
+    background-image: -moz-linear-gradient(top, #C35C00, #462009);
+    background-image: -ms-linear-gradient(top, #C35C00, #462009);
+    background-image: -o-linear-gradient(top, #C35C00, #462009);
+    background-image: -webkit-gradient(to bottom, #C35C00, #462009);
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    color: #FFD700;
+    font-family: Open Sans;
+    font-size: 17px;
+    font-weight: 100;
+    text-shadow: 1px 1px 20px #000000;
+    border: solid #562909 3px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+}
+
+    .button:hover {
+        border: solid #562909 3px;
+        background: #462009;
+        background-image: -webkit-linear-gradient(top, #462009, #C35C00);
+        background-image: -moz-linear-gradient(top, #462009, #C35C00);
+        background-image: -ms-linear-gradient(top, #462009, #C35C00);
+        background-image: -o-linear-gradient(top, #462009, #C35C00);
+        background-image: -webkit-gradient(to bottom, #462009, #C35C00);
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+        text-decoration: none;
+    }
+
+button {
+    background: #C35C00;
+    background-image: -webkit-linear-gradient(top, #C35C00, #462009);
+    background-image: -moz-linear-gradient(top, #C35C00, #462009);
+    background-image: -ms-linear-gradient(top, #C35C00, #462009);
+    background-image: -o-linear-gradient(top, #C35C00, #462009);
+    background-image: -webkit-gradient(to bottom, #C35C00, #462009);
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    color: #FFD700;
+    font-family: Open Sans;
+    font-size: 17px;
+    font-weight: 100;
+    text-shadow: 1px 1px 20px #000000;
+    border: solid #562909 3px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+}
+
+    button:hover {
+        border: solid #562909 3px;
+        background: #462009;
+        background-image: -webkit-linear-gradient(top, #462009, #C35C00);
+        background-image: -moz-linear-gradient(top, #462009, #C35C00);
+        background-image: -ms-linear-gradient(top, #462009, #C35C00);
+        background-image: -o-linear-gradient(top, #462009, #C35C00);
+        background-image: -webkit-gradient(to bottom, #462009, #C35C00);
+        -webkit-border-radius: 0;
+        -moz-border-radius: 0;
+        border-radius: 0;
+        text-decoration: none;
+    }
+
+
+/* flex resizing */
+flex {
+    display: flex;
+    /*   overflow: hidden;*/
+}
+
+    /* flex-item > flex {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+} */
+
+    flex.h {
+        flex-direction: row;
+    }
+
+    flex.v {
+        flex-direction: column;
+    }
+
+flex-item {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    overflow: auto;
+}
+
+flex > flex-resizer {
+    flex: 0 0 10px;
+    /* background: white; */
+    /* background-color: #aaa; */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+flex.h > flex-resizer {
+    cursor: ew-resize;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='black'/></svg>"), linear-gradient(to right, #d5ab35, #c88700, #943535);
+}
+
+flex.v > flex-resizer {
+    cursor: ns-resize;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='10'><path d='M0 2 h30 M0 5 h30 M0 8 h30' fill='none' stroke='black'/></svg>"), linear-gradient(#d5ab35, #c88700, #943535);
+}
