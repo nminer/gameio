@@ -1,5 +1,10 @@
 ﻿
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Data.SqlClient;
+using System.Runtime.InteropServices;
 using System.Text;
+using WatsonWebserver;
 using WatsonWebsocket;
 namespace server
 {
@@ -11,7 +16,7 @@ namespace server
         /// <summary>
         /// the server
         /// </summary>
-        private WatsonWsServer wsserver;
+        private static WatsonWsServer wsserver;
 
         /// <summary>
         /// create a new Socketserver with passed in port.
@@ -19,7 +24,7 @@ namespace server
         /// <param name="port"></param>
         public SocketServer(int port)
         {
-            wsserver = new WatsonWsServer("localhost", port);
+            wsserver = new WatsonWsServer("127.0.0.1", port);
             wsserver.ClientConnected += ClientConnected;
             wsserver.ClientDisconnected += ClientDisconnected;
             wsserver.MessageReceived += ClientMessage;
@@ -51,13 +56,55 @@ namespace server
         static void ClientDisconnected(object sender, DisconnectionEventArgs args)
         {
             Console.WriteLine("Client disconnected: " + args.Client.ToString());
+            User? user = UserSystem.GetUserFromSocketId(args.Client.Guid.ToString());
+            if (user == null) { return; }
+            UserSystem.Logout(user.UserName);
         }
 
 
         static void ClientMessage(object sender, MessageReceivedEventArgs args)
         {
-            Console.WriteLine("Client Message: " + Encoding.UTF8.GetString(args.Data));
+            string message = Encoding.UTF8.GetString(args.Data);
+            Console.WriteLine("Client Message: " + message);
+            JObject json = JObject.Parse(message);
+            if (json == null || json.First == null) 
+            {
+                return;
+            }
+            switch (json.First.Path)
+            {
+                case "message":
+                    SendOutMessage(args.Client.Guid.ToString(), json);
+                    break;
+                case "setId":
+                    User? user = UserSystem.AssignSocketToSession((string)json["setId"], args.Client.Guid.ToString());
+                    if (user != null)
+                    {
+                        wsserver.SendAsync(args.Client.Guid, JsonConvert.SerializeObject(new {setUser = user.UserName}));
+                    }
+                    break;
+            }
+            //foreach (ClientMetadata clientData in wsserver.ListClients())
+            //{
+            //    wsserver.SendAsync(clientData.Guid, message);
+            //}
+                
+            
         }
+
+
+        static void SendOutMessage(string socketId, JObject jsonMessage)
+        {
+            User? user = UserSystem.GetUserFromSocketId(socketId);
+            if (user == null) { return; }
+            string data = JsonConvert.SerializeObject(new {user = user.UserName, message = (string)jsonMessage["message"] });
+            foreach (ClientMetadata clientData in wsserver.ListClients())
+            {
+                wsserver.SendAsync(clientData.Guid, data);
+            }
+        }
+
+
     }
 
 }

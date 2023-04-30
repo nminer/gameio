@@ -1,13 +1,15 @@
 ﻿using server;
+int port = 9000;
 
 Console.WriteLine("Hello, World!");
 
 DatabaseBuilder db = new DatabaseBuilder();
 
-//UserSystem.CreateNewUser("nminer", "caya");
-SocketServer wsServer = new SocketServer(9000);
+UserSystem.CreateNewUser("nminer", "caya");
+UserSystem.CreateNewUser("test", "test");
+SocketServer wsServer = new SocketServer(port + 2);
 wsServer.start();
-WebServer webserver = new WebServer(9000);
+WebServer webserver = new WebServer(port);
 webserver.start();
 
 

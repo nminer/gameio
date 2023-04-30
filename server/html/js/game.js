@@ -1,5 +1,21 @@
 // Natalie's and Nathan's game
 //import playerImg from '../img/player/maincharacter.png';
+
+const inboxPeople = document.querySelector(".inbox__people");
+const players = document.querySelector("#players");
+const inputField = document.querySelector(".message_form__input");
+const messageForm = document.querySelector(".message_form");
+const messageBox = document.querySelector(".messages__history");
+const fallback = document.querySelector(".fallback");
+//the last user to private message.
+let lastReply = "";
+let lastTell = "";
+
+// keep all the sent messages in.
+let messages = [];
+// message search posision.
+let msgPos = 0;
+
 const canvas = document.querySelector('#mainGame');
 const c = canvas.getContext('2d');
 
@@ -9,8 +25,33 @@ canvas.height = innerHeight;
 
 var myWebSocket;
 
+var sessionId = getCookie("sessionId");
+var userName = "";
+
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function SetSessionId() {
+    var sendData = { setId: sessionId };
+        myWebSocket.send(JSON.stringify(sendData));
+}
+
 function connectToWS() {
-    var endpoint = "ws://localhost:9000/";
+    var port = parseInt(document.location.port) + 2
+    var endpoint = "ws://" + document.location.hostname + ":" + port;
     if (myWebSocket !== undefined) {
         myWebSocket.close()
     }
@@ -25,10 +66,17 @@ function connectToWS() {
             leng = event.data.size
         }
         console.log("onmessage. size: " + leng + ", content: " + event.data);
+        var data = JSON.parse(event.data);
+        if (data.hasOwnProperty("setUser")) {
+            userName = data["setUser"];
+            return;
+        }
+        addNewMessage(data);
     }
 
     myWebSocket.onopen = function (evt) {
         console.log("onopen.");
+        SetSessionId();
     };
 
     myWebSocket.onclose = function (evt) {
@@ -65,6 +113,9 @@ addEventListener('keydown', (event) => {
     // console.log(keyCode);
     var keyCode = event.keyCode;
     console.log(keyCode);
+    if (document.activeElement === inputField) {
+        return;
+    }
     switch (keyCode) {
         case 65: // left
             keys.left = true
@@ -143,10 +194,82 @@ function animate() {
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
         // Put your drawing code here
-        myWebSocket.send(JSON.stringify(keys));
+
+
+        // myWebSocket.send(JSON.stringify(keys));
 
     }
 }
 
+
+//===================== Messaging =======================
+const addNewMessage = ({ user, message }) => {
+    const time = new Date();
+    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
+
+    const receivedMsg = `
+  <div class="incoming__message">
+    <div class="received__message">
+      <div class="message__info">
+        <span class="message__author">${user}: </span>
+        <span class="time_date">${formattedTime}</span>
+      </div>
+      <p>${message}</p>
+    </div>
+  </div>`;
+
+    const myMsg = `
+  <div class="outgoing__message">
+    <div class="sent__message">
+      <div class="message__info">
+        <span class="message__author">You: </span>
+        <span class="time_date">${formattedTime}</span>
+      </div>
+      <p>${message}</p>
+    </div>
+  </div>`;
+
+    messageBox.innerHTML += user === userName ? myMsg : receivedMsg;
+};
+
+messageForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!inputField.value) {
+        return;
+    }
+    messages.unshift(inputField.value);
+    msgPos = -1;
+    if (messages.length > 50) {
+        messages.pop();
+    }
+
+    let sendData = {
+        message: inputField.value,
+    };
+    if (inputField.value.startsWith("/rt ")) {
+        sendData.reply = lastTell;
+    }
+    if (inputField.value.startsWith("/r ")) {
+        sendData.reply = lastReply;
+    }
+    if (inputField.value.startsWith("/t ")) {
+        lastTell = inputField.value.substr(3, inputField.value.indexOf(',') - 3);
+    }
+    //socket.emit("chat message", sendData,);
+    
+    myWebSocket.send(JSON.stringify(sendData));
+
+    inputField.value = "";
+});
+
+
+
+
+
+
+
+
 connectToWS();
 startAnimating(60);
+
+

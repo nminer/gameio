@@ -1,0 +1,224 @@
+
+
+/* width */
+::-webkit-scrollbar {
+    width: 20px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    background-image: linear-gradient(to bottom right, #943535, #451e1e, #943535);
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    /*background: red; */
+    background-image: linear-gradient(to right, #d5ab35, #c88700, #943535);
+    border-radius: 10px;
+}
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background-image: linear-gradient(to right, #f1c344, #d9960a, #a53f3f);
+    }
+
+/* beeded to clear the corner of any color. */
+::-webkit-scrollbar-corner {
+}
+
+body {
+    margin: 0;
+    background-image: url("../img/main/bodyBG.jpg");
+}
+
+#mainGame {
+    margin: 0;
+    padding: 0;
+    background-color: red;
+    width: 100%;
+    height: 100%
+}
+
+.container {
+/*    display: flex;
+    flex-direction: column;*/
+    background-color: aquamarine;
+    align-items: stretch;
+    height:100vh;
+}
+
+.topbar {
+    /*    display: flex;
+    flex-direction: row;*/
+    height: 30px;
+    background-image: linear-gradient(to bottom left, #d5ab35, #c88700, #943535);
+}
+
+.topdiv {
+    height: 5px;
+    background-image: linear-gradient(#d5ab35, #c88700, #943535);
+}
+
+.soundImg {
+    width: 20px;
+    height: 20px;
+}
+
+#soundbtn {
+    margin:1px 2px 1px 5px;
+}
+
+.bar-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bar-center {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.bar-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game_page {
+    flex-grow: 1;
+    background-image: url("../img/main/bodyBG.jpg");
+}
+
+.inbox {
+    display: flex;
+    flex-direction: row;
+    background-color: #808080;
+    background: url("../img/main/darkinboxBG.jpg");
+    height: 0px;
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: 0.08em;
+}
+
+.inbox__messages {
+    display: flex;
+    flex-flow: column;
+    flex-shrink: 0;
+    flex-grow: 1;
+    background: url("../img/main/darkinboxBG.jpg");
+    background-position: left top;
+    overflow-y: scroll;
+    flex-direction: column-reverse;
+    -moz-box-shadow: inset 0 0 40px #000000;
+    -webkit-box-shadow: inset 0 0 40px #000000;
+    box-shadow: inset 0 0 40px #000000;
+}
+
+.inbox__people {
+    -moz-box-shadow: inset 0 0 20px #000000;
+    -webkit-box-shadow: inset 0 0 20px #000000;
+    box-shadow: inset 0 0 20px #000000;
+}
+
+.messages__history {
+    display: flex;
+    flex-direction: column;
+}
+
+.message_form {
+    display: flex;
+/*    flex-shrink: 0;
+    flex-grow: 0;*/
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.message_form__input {
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+.message_form__input::placeholder {
+    color: #ac742a;
+}
+
+.incoming__message {
+    color: #f4f1e0;
+}
+
+.outgoing__message {
+    color: #d5ab35;
+}
+
+.private__message {
+    color: #ff6a00;
+}
+
+.server__message {
+    color: #ff0000;
+}
+
+.sent__message {    
+    flex-shrink: 0;
+    flex-grow: 1;
+    padding: 0em .3em 0em .3em;
+}
+
+.received__message {
+    flex-shrink: 0;
+    flex-grow: 1;
+    padding: 0em .3em 0em .3em;
+}
+
+.received__message p {
+    padding: 0em .2em .2em .8em;
+    margin: 0;
+}
+
+.sent__message p {
+    padding: 0em .2em .2em .8em;
+    margin: 0;
+}
+
+.message__info {
+    display:flex;
+    font-size: .8em;
+    font-style: italic;
+}
+
+.message__author {
+    font-style: italic;
+    font-weight: bold;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+#player {
+    display: flex;
+    flex-direction: column;
+}
+
+.inbox__people h4 {
+    color: #d9960a;
+    align-items: center;
+    display: flex;
+    margin: 20px;
+    text-shadow: 2px 2px 8px #000000;
+}
+
+.inbox__people h5 {
+    color: #f3c33c;
+    align-items: center;
+    display: flex;
+    margin: 5px 5px 5px 20px;
+}
+    .inbox__people h5:hover {
+        color: #f2d482;
+        text-shadow: 2px 2px 8px #000000;
+        margin: 5px 5px 5px 22px;
+        cursor: pointer;
+    }
+

@@ -12,6 +12,8 @@ namespace server
     {
         private static Dictionary<string, User> SessionIdToUser = new Dictionary<string, User>();
         private static Dictionary<string, string> UserNameToSession = new Dictionary<string, string>();
+        private static Dictionary<string, string> UserNameToSocketId = new Dictionary<string, string>();
+        private static Dictionary<string, User> SocketIdToUser = new Dictionary<string, User>();
         private static object SessionUserLock = new object();
 
         /// <summary>
@@ -44,15 +46,12 @@ namespace server
             {
                 if (LoggedInUsers.ContainsKey(username))
                 {
-                    return null;
+                    Logout(username);
                 }
-                else
-                {
-                    User loggedInUser = User.LogIn(username, password);
-                    LoggedInUsers.Add(username, loggedInUser);
-                    //AddUserToLocation(loggedInUser);
-                    return loggedInUser;
-                }
+                User loggedInUser = User.LogIn(username, password);
+                LoggedInUsers.Add(username, loggedInUser);
+                //AddUserToLocation(loggedInUser);
+                return loggedInUser;
             }
         }
 
@@ -92,6 +91,7 @@ namespace server
                 User user = LoggedInUsers[username];
                 RemoveUserFromLocation(user);
                 RemoveUserFromSession(user);
+                RemoveUserFromSocket(user);
                 return LoggedInUsers.Remove(username);
             }
         }
@@ -115,6 +115,10 @@ namespace server
             }
         }
 
+        /// <summary>
+        /// remove the user form the session data.
+        /// </summary>
+        /// <param name="userToRemove"></param>
         private static void RemoveUserFromSession(User userToRemove)
         {
             lock (SessionUserLock)
@@ -127,6 +131,22 @@ namespace server
                 }
             }
         }
+
+        private static void RemoveUserFromSocket(User userToRemove)
+        {
+            lock (SessionUserLock)
+            {
+                if (UserNameToSocketId.ContainsKey(userToRemove.UserName))
+                {
+                    string keyToRemove = UserNameToSocketId[userToRemove.UserName];
+                    UserNameToSocketId.Remove(userToRemove.UserName);
+                    SocketIdToUser.Remove(keyToRemove);
+                }
+            }
+        }
+
+
+
         /// <summary>
         /// set the user to a new location map and coords
         /// </summary>
@@ -204,6 +224,30 @@ namespace server
                 UserNameToSession.Add(user.UserName, id);
             }
             return id;
+        }
+
+        public static User? AssignSocketToSession(string sessionId, string socketId)
+        {
+            lock (SessionUserLock)
+            {
+                if (SessionIdToUser.ContainsKey(sessionId))
+                {
+                    User user = SessionIdToUser[sessionId];
+                    SocketIdToUser.Add(socketId, user);
+                    UserNameToSocketId.Add(user.UserName, sessionId);
+                    return user;
+                }
+            }
+            return null;    
+        }
+
+        public static User? GetUserFromSocketId(string socketId)
+        {
+            lock (SessionUserLock)
+            {
+                if (!SocketIdToUser.ContainsKey(socketId)) { return null; }
+                 return SocketIdToUser[socketId];
+            }      
         }
 
     }
