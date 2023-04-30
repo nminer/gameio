@@ -22,9 +22,9 @@ namespace server
         /// create a new Socketserver with passed in port.
         /// </summary>
         /// <param name="port"></param>
-        public SocketServer(int port)
+        public SocketServer(List<string> hostNames, int port)
         {
-            wsserver = new WatsonWsServer("127.0.0.1", port);
+            wsserver = new WatsonWsServer(hostNames, port);
             wsserver.ClientConnected += ClientConnected;
             wsserver.ClientDisconnected += ClientDisconnected;
             wsserver.MessageReceived += ClientMessage;

@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using BCrypt.Net;
 using System;
 using System.Text;
+using System.Net.Sockets;
+using System.Net;
 
 namespace server
 {
@@ -19,9 +21,9 @@ namespace server
         /// </summary>
         private Server webserver;
 
-        public WebServer(int port)
+        public WebServer(List<string> hostNames, int port)
         {
-            webserver = new Server("127.0.0.1", port, false);
+            webserver = new Server(hostNames, port, false);
             // set the directory where all the files are
             webserver.Routes.Content.BaseDirectory = "./html/";
             // add all the files from the above base directory.
@@ -156,6 +158,22 @@ namespace server
                 }
             }
             return;
+        }
+
+
+        public static string? GetIpAddress()
+        {
+            string? localIP = null;
+            using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+            {
+                socket.Connect("8.8.8.8", 65530);
+                IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
+                if (endPoint != null)
+                {
+                    localIP = endPoint.Address.ToString();
+                }
+            }
+            return localIP;
         }
     }
 }
