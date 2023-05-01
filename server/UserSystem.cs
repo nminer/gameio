@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -12,7 +13,7 @@ namespace server
     {
         private static Dictionary<string, User> SessionIdToUser = new Dictionary<string, User>();
         private static Dictionary<string, string> UserNameToSession = new Dictionary<string, string>();
-        private static Dictionary<string, string> UserNameToSocketId = new Dictionary<string, string>();
+        private static Dictionary<string, Guid> UserNameToSocketId = new Dictionary<string, Guid>();
         private static Dictionary<string, User> SocketIdToUser = new Dictionary<string, User>();
         private static object SessionUserLock = new object();
 
@@ -138,9 +139,9 @@ namespace server
             {
                 if (UserNameToSocketId.ContainsKey(userToRemove.UserName))
                 {
-                    string keyToRemove = UserNameToSocketId[userToRemove.UserName];
+                    Guid keyToRemove = UserNameToSocketId[userToRemove.UserName];
                     UserNameToSocketId.Remove(userToRemove.UserName);
-                    SocketIdToUser.Remove(keyToRemove);
+                    SocketIdToUser.Remove(keyToRemove.ToString());
                 }
             }
         }
@@ -226,15 +227,15 @@ namespace server
             return id;
         }
 
-        public static User? AssignSocketToSession(string sessionId, string socketId)
+        public static User? AssignSocketToSession(string sessionId, Guid socketId)
         {
             lock (SessionUserLock)
             {
                 if (SessionIdToUser.ContainsKey(sessionId))
                 {
                     User user = SessionIdToUser[sessionId];
-                    SocketIdToUser.Add(socketId, user);
-                    UserNameToSocketId.Add(user.UserName, sessionId);
+                    SocketIdToUser.Add(socketId.ToString(), user);
+                    UserNameToSocketId.Add(user.UserName, socketId);
                     return user;
                 }
             }
@@ -248,6 +249,15 @@ namespace server
                 if (!SocketIdToUser.ContainsKey(socketId)) { return null; }
                  return SocketIdToUser[socketId];
             }      
+        }
+
+        public static Guid? GetSocketIdFromUserName( string userName)
+        {
+            lock (SessionUserLock)
+            {
+                if (!UserNameToSocketId.ContainsKey(userName)) { return null; }
+                return UserNameToSocketId[userName];
+            }
         }
 
     }

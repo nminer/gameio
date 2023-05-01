@@ -71,8 +71,19 @@ function connectToWS() {
             userName = data["setUser"];
             return;
         }
-        addNewMessage(data);
+        Messages(data)
     }
+
+    function Messages(data) {
+        if (data.hasOwnProperty("privateMessage")) {
+            addNewPrivateMessage(data);
+        } else if (data.hasOwnProperty("serverMessage")) {
+            addNewServerMessage(data);
+        } else {
+            addNewMessage(data);
+        }
+    }
+
 
     myWebSocket.onopen = function (evt) {
         console.log("onopen.");
@@ -117,6 +128,9 @@ addEventListener('keydown', (event) => {
         return;
     }
     switch (keyCode) {
+        case 13: // enter
+            inputField.focus();
+            event.preventDefault();
         case 65: // left
             keys.left = true
             break;
@@ -142,6 +156,9 @@ addEventListener('keydown', (event) => {
 
 addEventListener('keyup', (event) => {
     var keyCode = event.keyCode;
+    if (document.activeElement === inputField) {
+        return;
+    }
     switch (keyCode) {
         case 65: // left
             keys.left = false
@@ -163,6 +180,27 @@ addEventListener('keyup', (event) => {
             break;
         case 69: //e ,  use objects
             keys.use = false
+    }
+});
+
+inputField.addEventListener("keyup", (e) => {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '38') { //up key
+        msgPos++;
+        if (msgPos < messages.length && msgPos >= 0) {
+            inputField.value = messages[msgPos];
+        } else {
+            msgPos--;
+        }
+    } else if (keyCode == '40') { //down key
+        msgPos--;
+        if (msgPos < messages.length && msgPos >= 0) {
+            inputField.value = messages[msgPos];
+        } else {
+            msgPos++;
+        }
+    } else {
+        msgPos = -1;
     }
 });
 
@@ -232,7 +270,57 @@ const addNewMessage = ({ user, message }) => {
     messageBox.innerHTML += user === userName ? myMsg : receivedMsg;
 };
 
+const addNewPrivateMessage = ({ user, privateMessage }) => {
+    const time = new Date();
+    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
+    if (user != userName) {
+        lastReply = user;
+    }
+    const receivedMsg = `
+  <div class="private__message">
+    <div class="received__message">
+      <div class="message__info">
+        <span class="message__author">${user}: </span>
+        <span class="time_date">${formattedTime}</span>
+      </div>
+      <p>${privateMessage}</p>
+    </div>
+  </div>`;
+
+    const myMsg = `
+  <div class="private__message">
+    <div class="sent__message">
+      <div class="message__info">
+        <span class="message__author">You think to yourself: </span>
+        <span class="time_date">${formattedTime}</span>
+      </div>
+      <p>${privateMessage}</p>
+    </div>
+  </div>`;
+
+    messageBox.innerHTML += user === userName ? myMsg : receivedMsg;
+};
+
+const addNewServerMessage = ({ user, serverMessage }) => {
+    const time = new Date();
+    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
+
+    const receivedMsg = `
+  <div class="server__message">
+    <div class="received__message">
+      <div class="message__info">
+        <span class="message__author">${user}: </span>
+        <span class="time_date">${formattedTime}</span>
+      </div>
+      <p>${serverMessage}</p>
+    </div>
+  </div>`;
+
+    messageBox.innerHTML += receivedMsg;
+};
+
 messageForm.addEventListener("submit", (e) => {
+    inputField.blur();
     e.preventDefault();
     if (!inputField.value) {
         return;
@@ -247,13 +335,21 @@ messageForm.addEventListener("submit", (e) => {
         message: inputField.value,
     };
     if (inputField.value.startsWith("/rt ")) {
-        sendData.reply = lastTell;
-    }
-    if (inputField.value.startsWith("/r ")) {
-        sendData.reply = lastReply;
-    }
-    if (inputField.value.startsWith("/t ")) {
+        sendData = {
+            privateMessage: inputField.value.slice(4),
+            reciver: lastTell,
+        };
+    } else if (inputField.value.startsWith("/r ")) {
+        sendData = {
+            privateMessage: inputField.value.slice(3),
+            reciver: lastReply,
+        };
+    } else if (inputField.value.startsWith("/t ")) {
         lastTell = inputField.value.substr(3, inputField.value.indexOf(',') - 3);
+        sendData = {
+            privateMessage: inputField.value.slice(inputField.value.indexOf(',') + 1).trimStart(),
+            reciver: lastTell,
+        };
     }
     //socket.emit("chat message", sendData,);
     

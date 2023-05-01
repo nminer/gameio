@@ -101,7 +101,6 @@ const addNewServerMessage = ({ user, message }) => {
     </div>
   </div>`;
 
-
     messageBox.innerHTML += receivedMsg;
 };
 

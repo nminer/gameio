@@ -76,13 +76,17 @@ namespace server
                 case "message":
                     SendOutMessage(args.Client.Guid.ToString(), json);
                     break;
+                case "privateMessage":
+                    SendPrivateMessage(args.Client.Guid.ToString(), json);
+                    break;
                 case "setId":
-                    User? user = UserSystem.AssignSocketToSession((string)json["setId"], args.Client.Guid.ToString());
+                    User? user = UserSystem.AssignSocketToSession((string)json["setId"], args.Client.Guid);
                     if (user != null)
                     {
                         wsserver.SendAsync(args.Client.Guid, JsonConvert.SerializeObject(new {setUser = user.UserName}));
                     }
                     break;
+
             }
             //foreach (ClientMetadata clientData in wsserver.ListClients())
             //{
@@ -92,6 +96,37 @@ namespace server
             
         }
 
+        /// <summary>
+        /// send a private message from one user to another.
+        /// </summary>
+        /// <param name="socketId">senders sockt id string</param>
+        /// <param name="jsonMessage">the json object with the private message</param>
+        static void SendPrivateMessage(string socketId, JObject jsonMessage)
+        {
+            string message = (string)jsonMessage["privateMessage"];
+            string reciverUserName = (string)jsonMessage["reciver"];
+            User? user = UserSystem.GetUserFromSocketId(socketId);
+            Guid? senderGuid = UserSystem.GetSocketIdFromUserName(user.UserName);
+            Guid? reciverSocketId = UserSystem.GetSocketIdFromUserName(reciverUserName);
+            if (reciverSocketId.HasValue && user != null && senderGuid.HasValue)
+            {
+                Guid sendto = reciverSocketId.Value; 
+                // send the message to the user.
+                string data = JsonConvert.SerializeObject(new { user = user.UserName, privateMessage = message });
+                wsserver.SendAsync(sendto, data);
+                if (sendto != senderGuid.Value)
+                {
+                    // send the message back to the sender to display.
+                    string returnData = JsonConvert.SerializeObject(new { user = "You - " + reciverUserName, privateMessage = message });
+                    wsserver.SendAsync(senderGuid.Value, returnData);
+                }
+            } else if (user != null && senderGuid.HasValue)
+            {
+                // server message that the user is not on.
+                SendServerMessage($"{reciverUserName} is not logged in.", "Server", senderGuid.Value);
+            }
+
+        }
 
         static void SendOutMessage(string socketId, JObject jsonMessage)
         {
@@ -104,7 +139,22 @@ namespace server
             }
         }
 
+        public static void SendServerMessage(string message, string fromUserName, Guid? socketId = null)
+        {
+            if (string.IsNullOrEmpty(message)) { return; };
+            string data = JsonConvert.SerializeObject(new { user = fromUserName, serverMessage = message });
+            if (socketId.HasValue)
+            {
+                wsserver.SendAsync(socketId.Value, data);
+            } else
+            {
+                foreach (ClientMetadata clientData in wsserver.ListClients())
+                {
+                    wsserver.SendAsync(clientData.Guid, data);
+                }
+            }
 
+        }
     }
 
 }
