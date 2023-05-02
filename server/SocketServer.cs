@@ -58,7 +58,15 @@ namespace server
             Console.WriteLine("Client disconnected: " + args.Client.ToString());
             User? user = UserSystem.GetUserFromSocketId(args.Client.Guid.ToString());
             if (user == null) { return; }
-            UserSystem.Logout(user.UserName);
+            if (UserSystem.Logout(user.UserName))
+            {
+                SendServerMessage($"{user.UserName} has logged out.", "Server");
+                string data = JsonConvert.SerializeObject(new { userDisconnect = user.UserName });
+                foreach (ClientMetadata clientData in wsserver.ListClients())
+                {
+                    wsserver.SendAsync(clientData.Guid, data);
+                }
+            }
         }
 
 
@@ -83,7 +91,31 @@ namespace server
                     User? user = UserSystem.AssignSocketToSession((string)json["setId"], args.Client.Guid);
                     if (user != null)
                     {
+                        // we have a user for the token
                         wsserver.SendAsync(args.Client.Guid, JsonConvert.SerializeObject(new {setUser = user.UserName}));
+                        SendServerMessage($"{user.UserName} has logged in.", "Server");
+                        string data = JsonConvert.SerializeObject(new { userConnect = user.UserName });
+                        foreach (ClientMetadata clientData in wsserver.ListClients())
+                        {
+                            wsserver.SendAsync(clientData.Guid, data);
+                            if (clientData.Guid != args.Client.Guid)
+                            {
+                                // add all logged in user to new users list.
+                                User? loggedInUser = UserSystem.GetUserFromSocketId(clientData.Guid.ToString());
+                                if (loggedInUser != null)
+                                {
+                                    string addUserData = JsonConvert.SerializeObject(new { userConnect = loggedInUser.UserName });
+                                    wsserver.SendAsync(args.Client.Guid, addUserData);
+                                }
+                            }
+                        }
+
+                    } 
+                    else
+                    {
+                        // no user for the token make them sign in again.
+                        wsserver.DisconnectClient(args.Client.Guid);
+                        Console.WriteLine("Client was closed: No user for set id token.");
                     }
                     break;
 
@@ -141,6 +173,7 @@ namespace server
 
         public static void SendServerMessage(string message, string fromUserName, Guid? socketId = null)
         {
+            Console.WriteLine("Client Message: " + message);
             if (string.IsNullOrEmpty(message)) { return; };
             string data = JsonConvert.SerializeObject(new { user = fromUserName, serverMessage = message });
             if (socketId.HasValue)

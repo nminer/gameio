@@ -79,6 +79,11 @@ function connectToWS() {
             addNewPrivateMessage(data);
         } else if (data.hasOwnProperty("serverMessage")) {
             addNewServerMessage(data);
+        } else if (data.hasOwnProperty("userConnect")) {
+            addToUsersBox(data["userConnect"]);
+        } else if (data.hasOwnProperty("userDisconnect")) { 
+            var userName = data["userDisconnect"]
+            document.querySelector(`.${userName}-userlist`).remove();
         } else {
             addNewMessage(data);
         }
@@ -92,6 +97,7 @@ function connectToWS() {
 
     myWebSocket.onclose = function (evt) {
         console.log("onclose.");
+        window.location = "./";
     };
 
     myWebSocket.onerror = function (evt) {
@@ -239,6 +245,14 @@ function animate() {
     }
 }
 
+const addToUsersBox = (userName) => {
+    if (!!document.querySelector(`.${userName}-userlist`)) {
+        return;
+    }
+
+    const userBox = `<h5 class="chat_ib ${userName}-userlist" onclick="tellUser('${userName}')">${userName}</h5>`;
+    players.innerHTML += userBox;
+};
 
 //===================== Messaging =======================
 const addNewMessage = ({ user, message }) => {
@@ -358,7 +372,11 @@ messageForm.addEventListener("submit", (e) => {
     inputField.value = "";
 });
 
-
+function tellUser(user) {
+    inputField.focus();
+    inputField.value = "";
+    inputField.value = "/t " + user + ",";
+}
 
 
 

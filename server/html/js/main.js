@@ -232,6 +232,5 @@ payListOfSounds(backgoundsounds, -1, true, false);
 function tellUser(user) {
     inputField.focus();
     inputField.value = "";
-    inputField.value = "/t " + user + ",";
-    
+    inputField.value = "/t " + user + ",";   
 }
