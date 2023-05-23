@@ -89,10 +89,16 @@ namespace server
             lock (UserLock)
             {
                 if (!LoggedInUsers.ContainsKey(username)) { return false; }
+                Guid? id = GetSocketIdFromUserName(username);
                 User user = LoggedInUsers[username];
                 RemoveUserFromLocation(user);
                 RemoveUserFromSession(user);
                 RemoveUserFromSocket(user);
+                if (id != null)
+                {
+                    GameServer.PlayerLeave(id.Value, user);
+                }
+                
                 return LoggedInUsers.Remove(username);
             }
         }
@@ -236,6 +242,7 @@ namespace server
                     User user = SessionIdToUser[sessionId];
                     SocketIdToUser.Add(socketId.ToString(), user);
                     UserNameToSocketId.Add(user.UserName, socketId);
+                    GameServer.PlayerJoing(socketId, user);
                     return user;
                 }
             }
@@ -251,7 +258,7 @@ namespace server
             }      
         }
 
-        public static Guid? GetSocketIdFromUserName( string userName)
+        public static Guid? GetSocketIdFromUserName(string userName)
         {
             lock (SessionUserLock)
             {

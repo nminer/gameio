@@ -19,10 +19,22 @@ SocketServer wsServer = new SocketServer(hostNames, port + 2);
 wsServer.start();
 WebServer webserver = new WebServer(hostNames, port);
 webserver.start();
+GameServer.StartPlayerUpdate();
 Console.WriteLine("Server up on:");
 Console.WriteLine(string.Join(", ", hostNames.ToArray()));
 Console.WriteLine("port: " + port);
 
 
-Console.WriteLine("Press ENTER to exit");
-Console.ReadLine();
+Console.WriteLine("Type 'exit' to stop server and exit");
+bool exitLoop = false;
+while (!exitLoop)
+{
+    string line = Console.ReadLine();
+    if (line != null && line.Equals("exit")) {
+        exitLoop = true;
+    } else
+    {
+        SocketServer.SendServerMessage(line, "Server");
+    }
+}
+

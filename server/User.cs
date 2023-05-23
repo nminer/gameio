@@ -10,6 +10,8 @@ using System.Data.Common;
 using System.Data;
 using System.Reflection.PortableExecutable;
 using BCrypt.Net;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace server
 {
@@ -289,6 +291,15 @@ namespace server
             builder.GetUpdateCommand();
             return adapter.Update(data);
         }
+
+        /// <summary>
+        /// returns json string for user.
+        /// </summary>
+        /// <returns></returns>
+        public string GetJson()
+        {
+            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction});
+        } 
 
     }
 }

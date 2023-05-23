@@ -23,6 +23,6 @@ let backgoundsounds =
         { file: 'campfire.mp3', location: 'sounds/login/' },
     ];
 
-payListOfSounds(nightsounds, -1, true, true, .3);
-payListOfSounds(nightsounds2, -1, true, true, .2);
-payListOfSounds(backgoundsounds, -1, true, false);
+payListOfSounds(nightsounds, -1, Array.apply(null, Array(nightsounds.length)), true, true, .3);
+payListOfSounds(nightsounds2, -1, Array.apply(null, Array(nightsounds2.length)), true, true, .2);
+payListOfSounds(backgoundsounds, -1, Array.apply(null, Array(backgoundsounds.length)), true, false);

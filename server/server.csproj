@@ -71,6 +71,9 @@
     <None Update="html\img\main\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\main\silver-glitter-background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\main\woodbg.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

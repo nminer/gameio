@@ -12,15 +12,29 @@ let playingList = [];
  * @param {any} repeat  true if want to keep calling random noises.
  * @param {any} randomVolume true if want random value for noise files.
  */
-function payListOfSounds(sounds, lastPlayed, repeat, randomVolume, sacaleVolume = -1) {
+function payListOfSounds(sounds, lastPlayed, loaddedsounds, repeat, randomVolume, sacaleVolume = -1) {
     let max = sounds.length;
     let r = Math.floor(Math.random() * max);
     while (r == lastPlayed) {
         r = Math.floor(Math.random() * max);
     }
     lastPlayed = r;
-    let name = sounds[r].location + sounds[r].file;
-    let audio = new Audio(name);
+    if (loaddedsounds[r] == null) {
+        let name = sounds[r].location + sounds[r].file;
+        let audio = new Audio(name);
+        loaddedsounds[r] = audio;
+        if (repeat) {
+            audio.addEventListener("ended", function () {
+                payListOfSounds(sounds, lastPlayed, loaddedsounds, repeat, randomVolume, sacaleVolume);
+                let index = playingList.indexOf(audio);
+                if (index > -1) {
+                    playingList.splice(index, 1);
+                }
+            });
+        }
+    }
+    let audio = loaddedsounds[r];
+    audio
     if (sacaleVolume != -1) {
         audio.volume = sacaleVolume;
     }
@@ -31,15 +45,7 @@ function payListOfSounds(sounds, lastPlayed, repeat, randomVolume, sacaleVolume 
             audio.volume = Math.random();
         }
     }
-    if (repeat) {
-        audio.addEventListener("ended", function () {
-            payListOfSounds(sounds, lastPlayed, repeat, randomVolume, sacaleVolume);
-            let index = playingList.indexOf(audio);
-            if (index > -1) {
-                playingList.splice(index, 1);
-            }
-        });
-    }
+    audio.currentTime = 0;
     let p = audio.play();
     if (p !== undefined) {
         if (!playing) {
@@ -47,7 +53,7 @@ function payListOfSounds(sounds, lastPlayed, repeat, randomVolume, sacaleVolume 
         }
         playingList.push(audio);
         p.catch(_ => {
-            setTimeout(function () { payListOfSounds(sounds, lastPlayed, repeat, randomVolume, sacaleVolume); }, 1000);
+            setTimeout(function () { payListOfSounds(sounds, lastPlayed, loaddedsounds, repeat, randomVolume, sacaleVolume); }, 1000);
             let index = playingList.indexOf(audio);
             if (index > -1) {
                 playingList.splice(index, 1);

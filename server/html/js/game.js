@@ -28,6 +28,8 @@ var myWebSocket;
 var sessionId = getCookie("sessionId");
 var userName = "";
 
+var lastSentKeys = "";
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -84,7 +86,7 @@ function connectToWS() {
         } else if (data.hasOwnProperty("userDisconnect")) { 
             var userName = data["userDisconnect"]
             document.querySelector(`.${userName}-userlist`).remove();
-        } else {
+        } else if (data.hasOwnProperty("user")) {
             addNewMessage(data);
         }
     }
@@ -137,6 +139,7 @@ addEventListener('keydown', (event) => {
         case 13: // enter
             inputField.focus();
             event.preventDefault();
+            return;
         case 65: // left
             keys.left = true
             break;
@@ -158,6 +161,7 @@ addEventListener('keydown', (event) => {
         case 69: //e ,  use objects
             keys.use = true
     }
+    sendKeys();
 });
 
 addEventListener('keyup', (event) => {
@@ -182,12 +186,21 @@ addEventListener('keyup', (event) => {
             keys.shift = false
             break;
         case 70: //f , this will hit
-            //keys.hit = false
+            keys.hit = false
             break;
         case 69: //e ,  use objects
             keys.use = false
     }
+    sendKeys();
 });
+
+function sendKeys() {
+    var newKeys = JSON.stringify(keys);
+    if (newKeys != lastSentKeys) {
+        myWebSocket.send(newKeys);
+        lastSentKeys = newKeys;
+    }   
+}
 
 inputField.addEventListener("keyup", (e) => {
     var keyCode = e.keyCode || e.which;

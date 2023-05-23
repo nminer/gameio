@@ -173,7 +173,7 @@ namespace server
 
         public static void SendServerMessage(string message, string fromUserName, Guid? socketId = null)
         {
-            Console.WriteLine("Client Message: " + message);
+            Console.WriteLine($"Client ({fromUserName}) Message: " + message);
             if (string.IsNullOrEmpty(message)) { return; };
             string data = JsonConvert.SerializeObject(new { user = fromUserName, serverMessage = message });
             if (socketId.HasValue)
@@ -188,6 +188,32 @@ namespace server
             }
 
         }
+
+        private static String GetTimestamp(DateTime value)
+        {
+            return value.ToString("yyyyMMddHHmmssffff");
+        }
+
+        public static void SendOutUpdate(Guid socketId, string jsonUpdate)
+        {
+            User? user = UserSystem.GetUserFromSocketId(socketId.ToString());
+            if (user == null) { return; }
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.Formatting = Formatting.None;
+                writer.WriteStartObject();
+                writer.WritePropertyName("update");
+                writer.WriteValue(GetTimestamp(DateTime.Now));
+                writer.WritePropertyName("frame");
+                writer.WriteRawValue(jsonUpdate);
+                writer.WriteEndObject();
+            }
+            //string data = JsonConvert.SerializeObject(new { update = GetTimestamp(DateTime.Now), frame = jsonUpdate });
+            wsserver.SendAsync(socketId, sb.ToString());
+        }
+
     }
 
 }
