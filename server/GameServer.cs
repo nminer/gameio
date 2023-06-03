@@ -12,15 +12,23 @@ namespace server
 
     static class GameServer
     {
-        private static int Rate = 500;
+        private static int FrameRate = 50;
+        private static int UpdateRate = 50;
 
         /// <summary>
         /// Logged in users
         /// </summary>
         private static Dictionary<Guid, User> socketIdToUser = new Dictionary<Guid, User>();
 
+        /// <summary>
+        /// timer to send frames to players
+        /// </summary>
+        private static Timer? PlayerFrameUpdateTimer;
 
-        private static Timer? PlayerUpdateTimer;
+        /// <summary>
+        /// timer to update game (moves monsters...)
+        /// </summary>
+        private static Timer? GameUpdateTimer;
 
         public static void PlayerJoing(Guid socketId, User user)
         {
@@ -34,13 +42,25 @@ namespace server
 
         public static void StartPlayerUpdate()
         {
-            if (PlayerUpdateTimer == null)
+            if (PlayerFrameUpdateTimer == null)
             {
-                PlayerUpdateTimer = new Timer(new TimerCallback(UpdatePlayers),null,0,Rate);
+                PlayerFrameUpdateTimer = new Timer(new TimerCallback(UpdatePlayersFrames),null,0,FrameRate);
+            }
+            if (GameUpdateTimer == null)
+            {
+                GameUpdateTimer = new Timer(new TimerCallback(UpdateGame), null, 0, UpdateRate);
             }
         }
 
-        private static void UpdatePlayers(object? state)
+        private static void UpdateGame(object? state)
+        {
+            foreach (User user in socketIdToUser.Values)
+            {
+                user.TickGameUpdate();
+            }
+        }
+
+        private static void UpdatePlayersFrames(object? state)
         {
             // build the state of the games.
             // right now just players update
@@ -50,7 +70,7 @@ namespace server
             {
                 writer.Formatting = Formatting.None;
                 writer.WriteStartObject();
-                writer.WritePropertyName("Players");
+                writer.WritePropertyName("players");
                 writer.WriteStartArray();
                 foreach (User user in socketIdToUser.Values)
                 {

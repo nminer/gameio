@@ -12,11 +12,14 @@ using System.Reflection.PortableExecutable;
 using BCrypt.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 namespace server
 {
     class User
     {
+        private UserControls controls = new UserControls();
+
         /// <summary>
         /// The users id in the database.
         /// </summary>
@@ -140,9 +143,9 @@ namespace server
         /// <summary>
         /// the x cood on the current map. this is from the rop left of the map.
         /// </summary>
-        public Int64 X_Coord
+        public Double X_Coord
         {
-            get => (Int64)row["X_Coordinate"];
+            get => (Double)row["X_Coordinate"];
             set
             {
                 row["X_Coordinate"] = value;
@@ -152,9 +155,9 @@ namespace server
         /// <summary>
         /// the y cood on the current map. this is from the rop left of the map.
         /// </summary>
-        public Int64 Y_Coord
+        public Double Y_Coord
         {
-            get => (Int64)row["Y_Coordinate"];
+            get => (Double)row["Y_Coordinate"];
             set
             {
                 row["Y_Coordinate"] = value;
@@ -299,7 +302,71 @@ namespace server
         public string GetJson()
         {
             return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction});
-        } 
+        }
 
+        public void UpdateFromPlayer(JObject movement)
+        {
+            controls.Up = bool.Parse((string)movement["up"]);
+            controls.Down = bool.Parse((string)movement["down"]);
+            controls.Left = bool.Parse((string)movement["left"]);
+            controls.Right = bool.Parse((string)movement["right"]);
+            controls.Hit = bool.Parse((string)movement["hit"]);
+            controls.Use = bool.Parse((string)movement["use"]);
+        }
+
+        /// <summary>
+        /// update tick for user.
+        /// </summary>
+        public void TickGameUpdate()
+        {
+            double newX = X_Coord;
+            double newY = Y_Coord;
+            double newDirection = Direction;
+            double moveKeys = controls.CountDirectionKeys();
+            if (moveKeys > 0)
+            {
+                double speedMove = (Speed / 5) / moveKeys;
+                if (controls.Up)
+                {
+                    newY -= speedMove;
+                }
+                if (controls.Down)
+                {
+                    newY += speedMove;
+                }
+                if (controls.Left)
+                {
+                    newX -= speedMove;
+                }
+                if (controls.Right)
+                {
+                    newX += speedMove;
+                }
+                // add in colletion detection with map here
+                Y_Coord = newY;
+                X_Coord = newX;
+            }
+        }
+
+        internal class UserControls
+        {
+            public volatile bool Up = false;
+            public volatile bool Down = false;
+            public volatile bool Left = false;
+            public volatile bool Right = false;
+            public volatile bool Use = false;
+            public volatile bool Hit = false;
+
+            public int CountDirectionKeys()
+            {
+                int count = 0;
+                if (Up) { count++; }
+                if (Down) { count++; }
+                if (Left) { count++; }
+                if (Right) { count++; }
+                return count;
+            }
+
+        }
     }
 }

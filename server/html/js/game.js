@@ -30,6 +30,10 @@ var userName = "";
 
 var lastSentKeys = "";
 
+// the last frame from server.
+var lastUpdateFrame = "";
+var lastUpdateTime = 0;
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -48,7 +52,7 @@ function getCookie(cname) {
 
 function SetSessionId() {
     var sendData = { setId: sessionId };
-        myWebSocket.send(JSON.stringify(sendData));
+    myWebSocket.send(JSON.stringify(sendData));
 }
 
 function connectToWS() {
@@ -83,11 +87,14 @@ function connectToWS() {
             addNewServerMessage(data);
         } else if (data.hasOwnProperty("userConnect")) {
             addToUsersBox(data["userConnect"]);
-        } else if (data.hasOwnProperty("userDisconnect")) { 
+        } else if (data.hasOwnProperty("userDisconnect")) {
             var userName = data["userDisconnect"]
             document.querySelector(`.${userName}-userlist`).remove();
         } else if (data.hasOwnProperty("user")) {
             addNewMessage(data);
+        } else if (data.hasOwnProperty("update")) {
+            lastUpdateTime = data["update"];
+            lastUpdateFrame = data["frame"];
         }
     }
 
@@ -107,6 +114,7 @@ function connectToWS() {
     };
 }
 
+//old test send
 function sendMsg() {
     var message = document.getElementById("myMessage").value;
     myWebSocket.send(message);
@@ -197,9 +205,12 @@ addEventListener('keyup', (event) => {
 function sendKeys() {
     var newKeys = JSON.stringify(keys);
     if (newKeys != lastSentKeys) {
-        myWebSocket.send(newKeys);
+        sendData = {
+            movement: keys
+        };
+        myWebSocket.send(JSON.stringify(sendData));
         lastSentKeys = newKeys;
-    }   
+    }
 }
 
 inputField.addEventListener("keyup", (e) => {
@@ -251,10 +262,27 @@ function animate() {
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
         // Put your drawing code here
-
+        c.clearRect(0, 0, canvas.width, canvas.height);
+        c.fillStyle = 'black';
+        c.fillRect(0, 0, canvas.width, canvas.height);
 
         // myWebSocket.send(JSON.stringify(keys));
+        //find the current player
+        var curPlayer = null;
+        var players = lastUpdateFrame["players"];
+        for (user in players) {
+            if (user["username"] == userName) {
+                curPlayer = user;
+                break;
+            }
+        }
+        if (curPlayer = null) return;
 
+        for (let i = 0; i < players.length; i++) {
+            let user = players[i];
+            c.fillStyle = 'red';
+            c.fillRect(user["x"], user["y"], 10, 20);
+        }
     }
 }
 
@@ -346,6 +374,7 @@ const addNewServerMessage = ({ user, serverMessage }) => {
     messageBox.innerHTML += receivedMsg;
 };
 
+// send user message
 messageForm.addEventListener("submit", (e) => {
     inputField.blur();
     e.preventDefault();

@@ -1,7 +1,9 @@
 ﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Data.SqlClient;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using WatsonWebserver;
@@ -88,35 +90,10 @@ namespace server
                     SendPrivateMessage(args.Client.Guid.ToString(), json);
                     break;
                 case "setId":
-                    User? user = UserSystem.AssignSocketToSession((string)json["setId"], args.Client.Guid);
-                    if (user != null)
-                    {
-                        // we have a user for the token
-                        wsserver.SendAsync(args.Client.Guid, JsonConvert.SerializeObject(new {setUser = user.UserName}));
-                        SendServerMessage($"{user.UserName} has logged in.", "Server");
-                        string data = JsonConvert.SerializeObject(new { userConnect = user.UserName });
-                        foreach (ClientMetadata clientData in wsserver.ListClients())
-                        {
-                            wsserver.SendAsync(clientData.Guid, data);
-                            if (clientData.Guid != args.Client.Guid)
-                            {
-                                // add all logged in user to new users list.
-                                User? loggedInUser = UserSystem.GetUserFromSocketId(clientData.Guid.ToString());
-                                if (loggedInUser != null)
-                                {
-                                    string addUserData = JsonConvert.SerializeObject(new { userConnect = loggedInUser.UserName });
-                                    wsserver.SendAsync(args.Client.Guid, addUserData);
-                                }
-                            }
-                        }
-
-                    } 
-                    else
-                    {
-                        // no user for the token make them sign in again.
-                        wsserver.DisconnectClient(args.Client.Guid);
-                        Console.WriteLine("Client was closed: No user for set id token.");
-                    }
+                    SetId(args.Client.Guid, json);
+                    break;
+                case "movement":
+                    PlayerMove(args.Client.Guid, json);
                     break;
 
             }
@@ -126,6 +103,47 @@ namespace server
             //}
                 
             
+        }
+        static void PlayerMove(Guid guid, JObject jsonMessage)
+        {
+            User? user = UserSystem.GetUserFromSocketId(guid.ToString());
+            if (user != null)
+            {
+               user.UpdateFromPlayer((JObject)jsonMessage["movement"]);
+            }
+        }
+
+        static void SetId(Guid guid, JObject jsonMessage)
+        {
+            User? user = UserSystem.AssignSocketToSession((string)jsonMessage["setId"], guid);
+            if (user != null)
+            {
+                // we have a user for the token
+                wsserver.SendAsync(guid, JsonConvert.SerializeObject(new { setUser = user.UserName }));
+                SendServerMessage($"{user.UserName} has logged in.", "Server");
+                string data = JsonConvert.SerializeObject(new { userConnect = user.UserName });
+                foreach (ClientMetadata clientData in wsserver.ListClients())
+                {
+                    wsserver.SendAsync(clientData.Guid, data);
+                    if (clientData.Guid != guid)
+                    {
+                        // add all logged in user to new users list.
+                        User? loggedInUser = UserSystem.GetUserFromSocketId(clientData.Guid.ToString());
+                        if (loggedInUser != null)
+                        {
+                            string addUserData = JsonConvert.SerializeObject(new { userConnect = loggedInUser.UserName });
+                            wsserver.SendAsync(guid, addUserData);
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                // no user for the token make them sign in again.
+                wsserver.DisconnectClient(guid);
+                Console.WriteLine("Client was closed: No user for set id token.");
+            }
         }
 
         /// <summary>
