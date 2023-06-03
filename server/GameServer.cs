@@ -12,8 +12,8 @@ namespace server
 
     static class GameServer
     {
-        private static int FrameRate = 50;
-        private static int UpdateRate = 50;
+        private static int FrameRate = 20;
+        private static int UpdateRate = 20;
 
         /// <summary>
         /// Logged in users

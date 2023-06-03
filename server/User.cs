@@ -20,12 +20,20 @@ namespace server
     {
         private UserControls controls = new UserControls();
 
+        private object dbDataLock = new object();
+
         /// <summary>
         /// The users id in the database.
         /// </summary>
 		public Int64 UserId
         {
-            get => (Int64)row["User_Id"];
+            get 
+            { 
+                lock(dbDataLock)
+                {
+                    return (Int64)row["User_Id"];
+                }
+            }
         }
 
         /// <summary>
@@ -33,7 +41,13 @@ namespace server
         /// </summary>
 		public string UserName
         {
-            get => (string)row["UserName"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (string)row["UserName"];
+                }
+            }
         }
 
         /// <summary>
@@ -41,7 +55,13 @@ namespace server
         /// </summary>
 		public string Password
         {
-            get => (string)row["PasswordHash"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (string)row["PasswordHash"];
+                }
+            }
         }
 
         /// <summary>
@@ -49,10 +69,19 @@ namespace server
         /// </summary>
 		public Int64 Level
         {
-            get => (Int64)row["Level"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Level"];
+                }
+            }
             set
             {
-                row["Level"] = value;
+                lock (dbDataLock)
+                {
+                    row["Level"] = value;
+                }
             }
         }
 
@@ -61,10 +90,19 @@ namespace server
         /// </summary>
 		public Int64 MaxHealth
         {
-            get => (Int64)row["Max_Health"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Max_Health"];
+                }
+            }
             set
             {
-                row["Max_Health"] = value;
+                lock (dbDataLock)
+                {
+                    row["Max_Health"] = value;
+                }
             }
         }
 
@@ -73,10 +111,19 @@ namespace server
         /// </summary>
 		public Int64 Health
         {
-            get => (Int64)row["Health"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Health"];
+                }
+            }
             set
             {
-                row["Health"] = value;
+                lock (dbDataLock)
+                {
+                    row["Health"] = value;
+                }
             }
         }
 
@@ -85,10 +132,19 @@ namespace server
         /// </summary>
         public Int64 MaxStamana
         {
-            get => (Int64)row["Max_Stamana"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Max_Stamana"];
+                }
+            }
             set
             {
-                row["Max_Stamana"] = value;
+                lock (dbDataLock)
+                {
+                    row["Max_Stamana"] = value;
+                }
             }
         }
 
@@ -97,10 +153,19 @@ namespace server
         /// </summary>
         public Int64 Stamana
         {
-            get => (Int64)row["Stamana"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Stamana"];
+                }
+            }
             set
             {
-                row["Stamana"] = value;
+                lock (dbDataLock)
+                {
+                    row["Stamana"] = value;
+                }
             }
         }
 
@@ -109,10 +174,19 @@ namespace server
         /// </summary>
         public Int64 Strength
         {
-            get => (Int64)row["Strength"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Strength"];
+                }
+            }
             set
             {
-                row["Strength"] = value;
+                lock (dbDataLock)
+                {
+                    row["Strength"] = value;
+                }
             }
         }
 
@@ -121,10 +195,19 @@ namespace server
         /// </summary>
         public Int64 Speed
         {
-            get => (Int64)row["Speed"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Speed"];
+                }
+            }
             set
             {
-                row["Speed"] = value;
+                lock (dbDataLock)
+                {
+                    row["Speed"] = value;
+                }
             }
         }
 
@@ -133,10 +216,19 @@ namespace server
         /// </summary>
         public Int64 Map_Id
         {
-            get => (Int64)row["Map_Id"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Map_Id"];
+                }
+            }
             set
             {
-                row["Map_Id"] = value;
+                lock (dbDataLock)
+                {
+                    row["Map_Id"] = value;
+                }
             }
         }
 
@@ -145,10 +237,19 @@ namespace server
         /// </summary>
         public Double X_Coord
         {
-            get => (Double)row["X_Coordinate"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Double)row["X_Coordinate"];
+                }
+            }
             set
             {
-                row["X_Coordinate"] = value;
+                lock (dbDataLock)
+                {
+                    row["X_Coordinate"] = value;
+                }
             }
         }
 
@@ -157,16 +258,31 @@ namespace server
         /// </summary>
         public Double Y_Coord
         {
-            get => (Double)row["Y_Coordinate"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Double)row["Y_Coordinate"];
+                }
+            }
             set
             {
-                row["Y_Coordinate"] = value;
+                lock (dbDataLock)
+                {
+                    row["Y_Coordinate"] = value;
+                }
             }
         }
 
         public Int64 Direction
         {
-            get => (Int64)row["Direction"];
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Direction"];
+                }
+            }
             set
             {
                 if (value >= 0 && value <= 8)
@@ -201,20 +317,23 @@ namespace server
 
         private void LoaderUser(Int64 userId)
         {
-            adapter = new SQLiteDataAdapter();
-            builder = new SQLiteCommandBuilder(adapter);
-            data = new DataSet();
-            string findUser = $"SELECT * FROM User WHERE User_Id=$id;";
-            SQLiteCommand command = new SQLiteCommand(findUser, DatabaseBuilder.Connection);
-            command.Parameters.AddWithValue("$id", userId);
-            adapter.SelectCommand = command;
+            lock (dbDataLock)
+            {
+                adapter = new SQLiteDataAdapter();
+                builder = new SQLiteCommandBuilder(adapter);
+                data = new DataSet();
+                string findUser = $"SELECT * FROM User WHERE User_Id=$id;";
+                SQLiteCommand command = new SQLiteCommand(findUser, DatabaseBuilder.Connection);
+                command.Parameters.AddWithValue("$id", userId);
+                adapter.SelectCommand = command;
 
-            adapter.Fill(data);
-            //if (!(data.Tables.Count > 0 && data.Tables[0].Rows.Count > 0))
-            //{
+                adapter.Fill(data);
+                //if (!(data.Tables.Count > 0 && data.Tables[0].Rows.Count > 0))
+                //{
 
-            //}
-            row = data.Tables[0].Rows[0];
+                //}
+                row = data.Tables[0].Rows[0];
+            }
         }
 
 

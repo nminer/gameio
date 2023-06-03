@@ -16,8 +16,10 @@ let messages = [];
 // message search posision.
 let msgPos = 0;
 
+const canvasWindow = document.querySelector('.game_page');
 const canvas = document.querySelector('#mainGame');
 const c = canvas.getContext('2d');
+
 
 // set up our canvas to be full width and hight
 canvas.width = innerWidth;
@@ -248,6 +250,11 @@ function startAnimating(fps) {
     animate();
 }
 
+window.addEventListener('resize', resizeCanvas, false);
+function resizeCanvas() {
+    canvas.width = canvasWindow.scrollWidth;
+    canvas.height = canvasWindow.scrollHeight;
+}
 // the animation loop calculates time elapsed since the last loop
 // and only draws if your specified fps interval is achieved
 function animate() {
