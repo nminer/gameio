@@ -212,6 +212,11 @@ namespace server
             return value.ToString("yyyyMMddHHmmssffff");
         }
 
+        /// <summary>
+        /// send out the frame/update to a user
+        /// </summary>
+        /// <param name="socketId"></param>
+        /// <param name="jsonUpdate"></param>
         public static void SendOutUpdate(Guid socketId, string jsonUpdate)
         {
             User? user = UserSystem.GetUserFromSocketId(socketId.ToString());
@@ -230,6 +235,13 @@ namespace server
             }
             //string data = JsonConvert.SerializeObject(new { update = GetTimestamp(DateTime.Now), frame = jsonUpdate });
             wsserver.SendAsync(socketId, sb.ToString());
+        }
+
+        public static void SendOutMap(Guid socketId, Map map)
+        {
+            User? user = UserSystem.GetUserFromSocketId(socketId.ToString());
+            if (user == null) { return; }
+            wsserver.SendAsync(socketId, map.GetJson());
         }
 
     }

@@ -37,10 +37,23 @@ internal class DatabaseBuilder
 	            'Direction'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
-        SQLiteCommand cmd = Connection.CreateCommand();
-        cmd.CommandText = createUserTable;
-        cmd.ExecuteNonQuery();
+        SQLiteCommand cmdUser = Connection.CreateCommand();
+        cmdUser.CommandText = createUserTable;
+        cmdUser
+            .ExecuteNonQuery();
 
+		// define maps table 
+        string createMapsTable = @"CREATE TABLE 'Maps' (
+	            'Map_Id'	INTEGER NOT NULL UNIQUE,
+	            'MapName'	TEXT NOT NULL UNIQUE,
+	            'ImagePath'	TEXT NOT NULL,
+	            'Height'	INTEGER NOT NULL DEFAULT 0,
+	            'Width'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('Map_Id' AUTOINCREMENT)
+            );";
+        SQLiteCommand cmdMap = Connection.CreateCommand();
+        cmdMap.CommandText = createMapsTable;
+        cmdMap.ExecuteNonQuery();
     }
 }
 

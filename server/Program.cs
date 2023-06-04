@@ -8,6 +8,8 @@ DatabaseBuilder db = new DatabaseBuilder();
 UserSystem.CreateNewUser("nminer", "caya");
 UserSystem.CreateNewUser("test", "test");
 
+//Map.Create("Home", "img/maps/houseinside.png");
+
 List<string> hostNames = new List<string> { "127.0.0.1", "localhost" };
 string? localip = WebServer.GetIpAddress();
 if (localip != null)

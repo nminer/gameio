@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using server;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,12 @@ namespace server
         /// <summary>
         /// Logged in users
         /// </summary>
-        private static Dictionary<Guid, User> socketIdToUser = new Dictionary<Guid, User>();
+        private static ConcurrentDictionary<Guid, User> socketIdToUser = new ConcurrentDictionary<Guid, User>();
+
+        /// <summary>
+        /// keeps a list of maps
+        /// </summary>
+        private static ConcurrentDictionary<Int64, Map> mapIdToMaps = new ConcurrentDictionary<Int64, Map>();
 
         /// <summary>
         /// timer to send frames to players
@@ -32,12 +38,32 @@ namespace server
 
         public static void PlayerJoing(Guid socketId, User user)
         {
-            socketIdToUser.Add(socketId, user);
+            socketIdToUser.TryAdd(socketId, user);
+            //add the user to the map.
+            Int64 mapId = user.Map_Id;
+            if (!mapIdToMaps.ContainsKey(mapId))
+            {
+                Map newMap = new Map(mapId);
+                if (newMap != null)
+                {
+                    mapIdToMaps.TryAdd(mapId, newMap);
+                }          
+            }
+            if (mapIdToMaps.ContainsKey(mapId)) {
+                SocketServer.SendOutMap(socketId, mapIdToMaps[mapId]);
+                // will need to get the x and y at this point.
+                // coords need to be checked to make sure user can be placed in the right place or near by.
+                mapIdToMaps[mapId].AddUser(user, user.X_Coord, user.Y_Coord);
+            }
         }
 
-        public static void PlayerLeave(Guid socketId, User user) 
+        public static void PlayerLeave(Guid socketId, User user)
         {
-            socketIdToUser.Remove(socketId);
+            socketIdToUser.TryRemove(socketId, out _);
+            if (mapIdToMaps.ContainsKey(user.Map_Id))
+            {
+                mapIdToMaps[user.Map_Id].RemoveUser(user);
+            }
         }
 
         public static void StartPlayerUpdate()

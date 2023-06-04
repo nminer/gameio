@@ -97,6 +97,8 @@ function connectToWS() {
         } else if (data.hasOwnProperty("update")) {
             lastUpdateTime = data["update"];
             lastUpdateFrame = data["frame"];
+        } else if (data.hasOwnProperty("mapName")) {
+            loadMap(data);
         }
     }
 
@@ -236,7 +238,51 @@ inputField.addEventListener("keyup", (e) => {
     }
 });
 
+//=============================== Map ========================
+/**
+ * Map class hold the back ground image for the world
+ * Maps top left (0,0)
+ * 
+ */
+class Map {
 
+    /**
+     * create a new world with a background.
+     * @param {number} width
+     * @param {number} height
+     * @param {Image} image
+     */
+    constructor(width, height, image) {
+        this.width = width;
+        this.height = height;
+        this.image = image;
+    }
+
+    /**
+     * call to draw the map on the canvas
+     * @param {number} x players x position
+     * @param {number} y players y position
+     */
+    draw(x, y) {
+        c.drawImage(this.image,
+            x,
+            y,
+            this.width,
+            this.height);
+    }
+}
+currentMap = null;
+function loadMap(data) {
+    var worldbackground = new Image();
+    worldbackground.src = "./" + data["image"];
+    var height = data["height"];
+    var width = data["width"];
+    currentMap = new Map(width, height, worldbackground);
+}
+
+
+
+//============================================================
 var stop = false;
 var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
@@ -269,21 +315,26 @@ function animate() {
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
         then = now - (elapsed % fpsInterval);
         // Put your drawing code here
+        resizeCanvas();
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.fillStyle = 'black';
         c.fillRect(0, 0, canvas.width, canvas.height);
 
+        if (lastUpdateFrame == null) return;
+        if (currentMap == null) return;
+        currentMap.draw(0,0)
         // myWebSocket.send(JSON.stringify(keys));
         //find the current player
         var curPlayer = null;
         var players = lastUpdateFrame["players"];
-        for (user in players) {
+        for (let i = 0; i < players.length; i++) {
+            let user = players[i];
             if (user["username"] == userName) {
                 curPlayer = user;
                 break;
             }
         }
-        if (curPlayer = null) return;
+        if (curPlayer == null) return;
 
         for (let i = 0; i < players.length; i++) {
             let user = players[i];
