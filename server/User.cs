@@ -13,6 +13,7 @@ using BCrypt.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using server.mapObjects;
 
 namespace server
 {
@@ -21,6 +22,12 @@ namespace server
         private UserControls controls = new UserControls();
 
         private object dbDataLock = new object();
+
+        public double Height = 80;
+
+        public double Width = 80;
+
+        public Circle Solid = new Circle(new Point(0, 0), 12);
 
         /// <summary>
         /// The users id in the database.
@@ -249,6 +256,7 @@ namespace server
                 lock (dbDataLock)
                 {
                     row["X_Coordinate"] = value;
+                    Solid.Center.X = value;
                 }
             }
         }
@@ -270,6 +278,7 @@ namespace server
                 lock (dbDataLock)
                 {
                     row["Y_Coordinate"] = value;
+                    Solid.Center.Y = value;
                 }
             }
         }
@@ -438,6 +447,7 @@ namespace server
         /// </summary>
         public void TickGameUpdate()
         {
+            Map map = GameServer.GetMapById(Map_Id);
             double newX = X_Coord;
             double newY = Y_Coord;
             double newDirection = Direction;

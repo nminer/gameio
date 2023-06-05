@@ -322,7 +322,7 @@ function animate() {
 
         if (lastUpdateFrame == null) return;
         if (currentMap == null) return;
-        currentMap.draw(0,0)
+        
         // myWebSocket.send(JSON.stringify(keys));
         //find the current player
         var curPlayer = null;
@@ -335,11 +335,19 @@ function animate() {
             }
         }
         if (curPlayer == null) return;
-
+        var centerx = canvas.width / 2;
+        var centery = canvas.height / 2;
+        var offsetx = centerx - curPlayer["x"];
+        var offsety = centery - curPlayer["y"];
+        currentMap.draw(offsetx, offsety);
+        c.fillStyle = 'blue';
+        c.fillRect(centerx, centery, 10, 20);
         for (let i = 0; i < players.length; i++) {
             let user = players[i];
-            c.fillStyle = 'red';
-            c.fillRect(user["x"], user["y"], 10, 20);
+            if (user["username"] != userName) {
+                c.fillStyle = 'red';
+                c.fillRect(user["x"] + offsetx, user["y"] + offsety, 10, 20);
+            }
         }
     }
 }

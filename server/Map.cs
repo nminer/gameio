@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using server.mapObjects;
 
 namespace server
 {
@@ -95,6 +96,8 @@ namespace server
             }
         }
 
+        private List<ISolid> solds = new List<ISolid>();
+
         /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
@@ -118,6 +121,8 @@ namespace server
                 adapter.SelectCommand = command;
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
+                // add the solid outline.
+                solds.Add(new Solid(new Point(0, 0), Height, Width));
             }
         }
 

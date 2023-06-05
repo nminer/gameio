@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,21 +41,24 @@ namespace server
         {
             socketIdToUser.TryAdd(socketId, user);
             //add the user to the map.
-            Int64 mapId = user.Map_Id;
+            Map map = GetMapById(user.Map_Id);
+            SocketServer.SendOutMap(socketId, map);
+            // will need to get the x and y at this point.
+            // coords need to be checked to make sure user can be placed in the right place or near by.
+            map.AddUser(user, user.X_Coord, user.Y_Coord);
+        }
+
+        public static Map GetMapById(Int64 mapId)
+        {
             if (!mapIdToMaps.ContainsKey(mapId))
             {
                 Map newMap = new Map(mapId);
                 if (newMap != null)
                 {
                     mapIdToMaps.TryAdd(mapId, newMap);
-                }          
+                }
             }
-            if (mapIdToMaps.ContainsKey(mapId)) {
-                SocketServer.SendOutMap(socketId, mapIdToMaps[mapId]);
-                // will need to get the x and y at this point.
-                // coords need to be checked to make sure user can be placed in the right place or near by.
-                mapIdToMaps[mapId].AddUser(user, user.X_Coord, user.Y_Coord);
-            }
+            return mapIdToMaps[mapId];
         }
 
         public static void PlayerLeave(Guid socketId, User user)
