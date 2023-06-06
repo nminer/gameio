@@ -84,9 +84,9 @@ namespace server
 
         private static void UpdateGame(object? state)
         {
-            foreach (User user in socketIdToUser.Values)
+            foreach (Map map in mapIdToMaps.Values)
             {
-                user.TickGameUpdate();
+                map.TickGameUpdate();
             }
         }
 

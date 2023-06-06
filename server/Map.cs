@@ -96,7 +96,14 @@ namespace server
             }
         }
 
-        private List<ISolid> solds = new List<ISolid>();
+        /// <summary>
+        /// keep the solids thread friendly.
+        /// </summary>
+        private object solidsLock = new object();
+        /// <summary>
+        /// a list of solid objects on the map.
+        /// </summary>
+        private List<ISolid> solids = new List<ISolid>();
 
         /// <summary>
         /// Load a user from its user id in the database.
@@ -122,7 +129,11 @@ namespace server
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
                 // add the solid outline.
-                solds.Add(new Solid(new Point(0, 0), Height, Width));
+                
+            }
+            lock(solidsLock)
+            {
+                solids.Add(new Solid(new Point(0, 0), Height, Width));
             }
         }
 
@@ -206,6 +217,68 @@ namespace server
         public string GetJson()
         {
             return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath });
+        }
+
+        public void TickGameUpdate()
+        {
+            lock (listLock)
+            {
+                // get each user and check for movement.
+                foreach (var user in users)
+                {
+                    Point nextMoveStep = user.GetNetMoveAmount();
+                    // if we are note moveing skip this user.
+                    if (nextMoveStep.X == 0 && nextMoveStep.Y == 0) { continue; }
+                    bool canMove = true;
+                    Point nextMove = new Point(user.X_Coord + nextMoveStep.X, user.Y_Coord + nextMoveStep.Y);
+                    Circle tempUser = new Circle(nextMove, user.Solid.Radius);
+                        canMove = !CheckCollisionWithSolids(tempUser);
+                    // if full move failed(canMove = false) check for just x move 
+                    if (!canMove)
+                    {
+                        tempUser.Center.Y = user.Y_Coord;
+                        canMove = !CheckCollisionWithSolids(tempUser);
+                    }
+                    // if full move and x move fail check for just y move
+                    if (!canMove)
+                    {
+                        tempUser.Center.X = user.X_Coord;
+                        tempUser.Center.Y = user.Y_Coord + nextMoveStep.Y;
+                        canMove = !CheckCollisionWithSolids(tempUser);
+                    }
+                    if (canMove)
+                    {
+                        // set the user new position
+                        user.X_Coord = tempUser.Center.X;
+                        user.Y_Coord = tempUser.Center.Y;
+                    }
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// returne true if we have a collision
+        /// </summary>
+        /// <param name="circle"></param>
+        /// <returns></returns>
+        private bool CheckCollisionWithSolids(Circle circle)
+        {
+            lock (solidsLock)
+            {
+                foreach (Solid solid in solids)
+                {
+                    foreach (Line line in solid.Lines())
+                    {
+                        if (ModCollision.DoesLineInterceptCircle(line, circle))
+                        {
+                            // we hit a solid and can not move.
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 

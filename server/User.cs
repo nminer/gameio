@@ -445,36 +445,33 @@ namespace server
         /// <summary>
         /// update tick for user.
         /// </summary>
-        public void TickGameUpdate()
+        public Point GetNetMoveAmount()
         {
             Map map = GameServer.GetMapById(Map_Id);
-            double newX = X_Coord;
-            double newY = Y_Coord;
+            double moveX = 0;
+            double moveY = 0;
             double newDirection = Direction;
             double moveKeys = controls.CountDirectionKeys();
-            if (moveKeys > 0)
+            if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
+            double speedMove = (Speed / 5) / moveKeys;
+            if (controls.Up)
             {
-                double speedMove = (Speed / 5) / moveKeys;
-                if (controls.Up)
-                {
-                    newY -= speedMove;
-                }
-                if (controls.Down)
-                {
-                    newY += speedMove;
-                }
-                if (controls.Left)
-                {
-                    newX -= speedMove;
-                }
-                if (controls.Right)
-                {
-                    newX += speedMove;
-                }
-                // add in colletion detection with map here
-                Y_Coord = newY;
-                X_Coord = newX;
+                moveY -= speedMove;
             }
+            if (controls.Down)
+            {
+                moveY += speedMove;
+            }
+            if (controls.Left)
+            {
+                moveX -= speedMove;
+            }
+            if (controls.Right)
+            {
+                moveX += speedMove;
+            }
+            // return the x and the y
+            return new Point(moveX, moveY);          
         }
 
         internal class UserControls

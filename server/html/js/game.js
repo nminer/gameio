@@ -341,12 +341,12 @@ function animate() {
         var offsety = centery - curPlayer["y"];
         currentMap.draw(offsetx, offsety);
         c.fillStyle = 'blue';
-        c.fillRect(centerx, centery, 10, 20);
+        c.fillRect(centerx - 10, centery - 40, 20, 50);
         for (let i = 0; i < players.length; i++) {
             let user = players[i];
             if (user["username"] != userName) {
                 c.fillStyle = 'red';
-                c.fillRect(user["x"] + offsetx, user["y"] + offsety, 10, 20);
+                c.fillRect(user["x"] + offsetx - 10, user["y"] + offsety - 40, 20, 50);
             }
         }
     }
