@@ -111,6 +111,12 @@
     <None Update="html\js\TweenMax.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\register\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\register\successful.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\sounds\birds\bird1.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -273,5 +279,9 @@
     <Folder Include="html\img\main\" />
     <Folder Include="html\img\maps\" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cd $(TargetDir)&#xD;&#xA;RD /S /Q html" />
+  </Target>
 
 </Project>

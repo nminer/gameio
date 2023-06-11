@@ -202,10 +202,9 @@ namespace server
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static User? CreateNewUser(string userName, string password)
-        {
+        public static void CreateNewUser(string userName, string password)
+        {        
             User.Create(userName, password);
-            return Login(userName, password);
         }
 
 

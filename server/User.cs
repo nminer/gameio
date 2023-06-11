@@ -374,31 +374,22 @@ namespace server
             }
         }
 
-        static public User? Create(string userName, string password)
+        static public void Create(string userName, string password)
         {
             SQLiteDataReader dataReader = CheckUserName(userName);
             if (dataReader.HasRows)
             {
-                return null;
+                throw new Exception("User name already in use.");
             }
             // insert new user
             string insertNewUser = $"INSERT INTO User (UserName, PasswordHash) VALUES($name, $pass);";
             SQLiteCommand command = new SQLiteCommand(insertNewUser, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", userName);
             command.Parameters.AddWithValue("$pass", BCrypt.Net.BCrypt.HashPassword(password));
-            try
+            if (command.ExecuteNonQuery() != 1)
             {
-                if (command.ExecuteNonQuery() > 0)
-                {
-                    // user log in to return new user.
-                    return LogIn(userName, password);
-                }
+                throw new Exception("Could Not create user name and pass.");
             }
-            catch (Exception)
-            {
-                return null;
-            }
-            return null;
         }
 
         /// <summary>

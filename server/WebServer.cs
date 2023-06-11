@@ -7,6 +7,7 @@ using System;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace server
 {
@@ -46,8 +47,11 @@ namespace server
         /// <returns></returns>
         static async Task<bool> PreRoutingHandler(HttpContext ctx)
         {
-            string urlfull = ctx.Request.Url.RawWithQuery;
-            if (urlfull == "/" && ctx.Request.Method == WatsonWebserver.HttpMethod.POST)
+            //string urlfull = ctx.Request.Url.RawWithQuery;
+            Dictionary<string, string> variables = new Dictionary<string, string>();
+            variables.Add("title", "Dark Days");
+            // log a user in.
+            if (ctx.Request.Url.RawWithQuery == "/" && ctx.Request.Method == WatsonWebserver.HttpMethod.POST)
             {
                 // this means we are posting a log in
                 string data = ctx.Request.DataAsString;
@@ -62,30 +66,102 @@ namespace server
                         //await ctx.Response.Send(GetRedirect("/game.html")); 
                         //return true;
                         ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
-                        ctx.Request.Url.RawWithQuery = urlfull + "game.html";
-                        return false;
+                        ctx.Request.Url.RawWithQuery = ctx.Request.Url.RawWithQuery + "game.html";
+                        //return false;
                     }
                     catch (Exception ex)
                     {
-                        await ctx.Response.Send(ex.Message);
-                        return true;
-                    }                  
+                        //await ctx.Response.Send(ex.Message);
+                        //return true;
+                        variables.Add("name", loginData["username"]);
+                        variables.Add("error", ex.Message);
+                    }
                 }
             }
-            FileAttributes attr = File.GetAttributes("./html" + urlfull);
-            
+            // register a new user.
+            else if (ctx.Request.Url.RawWithQuery.StartsWith("/register") && ctx.Request.Method == WatsonWebserver.HttpMethod.POST)
+            {
+                string data = ctx.Request.DataAsString;
+                Dictionary<string, string> loginData = GetUserAndPass(data);
+                variables.Add("name", loginData["username"]);
+                variables.Add("password", loginData["password"]);
+                try
+                {
+                    UserSystem.CreateNewUser(loginData["username"], loginData["password"]);
+                    ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
+                    ctx.Request.Url.RawWithQuery = "/";
+                    
+                    variables.Add("error", "User Registered!");
+                    //return false;
+                }
+                catch (Exception ex)
+                {
+                    ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
+                    variables.Add("error", ex.Message);
+                    //ctx.Request.Url.RawWithQuery = "/";
+                    //return true;
+                }
+            }
+            FileAttributes attr = File.GetAttributes("./html" + ctx.Request.Url.RawWithQuery);
+
             if (attr.HasFlag(FileAttributes.Directory))
             {
-                if (File.Exists("./html" + urlfull + "index.html"))
+                if (!ctx.Request.Url.RawWithQuery.EndsWith("/"))
                 {
-                    ctx.Request.Url.RawWithQuery = urlfull + "index.html";
+                    ctx.Request.Url.RawWithQuery += "/";
                 }
-                else if (File.Exists("./html" + urlfull + "index.htm"))
+                if (File.Exists("./html" + ctx.Request.Url.RawWithQuery + "index.html"))
                 {
-                    ctx.Request.Url.RawWithQuery = urlfull + "index.htm";
+                    ctx.Request.Url.RawWithQuery = ctx.Request.Url.RawWithQuery + "index.html";
+                }
+                else if (File.Exists("./html" + ctx.Request.Url.RawWithQuery + "index.htm"))
+                {
+                    ctx.Request.Url.RawWithQuery = ctx.Request.Url.RawWithQuery + "index.htm";
                 }
             }
+            // run server side edits to any html.
+            return await PreprocessPage(ctx, variables);
+        }
+
+        private static async Task<bool> PreprocessPage(HttpContext ctx, Dictionary<string, string> variables)
+        {
+            // run server side edits to any html.
+            if (ctx.Request.Url.RawWithQuery.EndsWith(".html") && File.Exists("./html" + ctx.Request.Url.RawWithQuery))
+            {
+                string data = File.ReadAllText("./html" + ctx.Request.Url.RawWithQuery);
+                data = ReplaceVariables(data, variables);
+                byte[] bytes = Encoding.ASCII.GetBytes(data);
+                Stream s = new MemoryStream(bytes);
+                ctx.Response.StatusCode = 200;
+                ctx.Response.ChunkedTransfer = true;
+                byte[] buffer = new byte[4096];
+                while (true)
+                {
+                    int bytesRead = await s.ReadAsync(buffer, 0, buffer.Length);
+                    if (bytesRead > 0)
+                    {
+                        await ctx.Response.SendChunk(buffer, bytesRead);
+                    }
+                    else
+                    {
+                        await ctx.Response.SendFinalChunk(null, 0);
+                        break;
+                    }
+                }
+                return true;
+            }
+
             return false;  // allow the connection
+        }
+
+
+        private static string ReplaceVariables(string pageString, Dictionary<string,string> variables)
+        {
+            foreach (KeyValuePair<string,string> variable in variables)
+            {
+                pageString = Regex.Replace(pageString, $"<%=\\s*{variable.Key}\\s*%>", variable.Value);
+            }
+            return Regex.Replace(pageString, "<%=.*?%>", "");
         }
 
         private static byte[] GetRedirect(string url)

@@ -20,7 +20,7 @@
             <p><%= error %></p>
             <form action="./" method="post">
                 <label for="user">User Name:</label><br />
-                <input type="text" name="username" id="user" autofocus /><br />
+                <input type="text" name="username" id="user" value="<%= name %>" autofocus /><br />
                 <label for="user">Password:</label><br />
                 <input type="password" name="password" /><br />
                 <button type="submit">Log In</button>
@@ -31,7 +31,7 @@
             or
             <br />
             <br />
-            <a class="button" href="/signup">Register</a>
+            <a class="button" href="/register">Register</a>
         </div>
     </div>
     <div class="fire"></div>

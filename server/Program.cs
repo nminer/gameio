@@ -5,8 +5,8 @@ Console.WriteLine("Here we go! Hello, World!");
 
 DatabaseBuilder db = new DatabaseBuilder();
 
-UserSystem.CreateNewUser("nminer", "caya");
-UserSystem.CreateNewUser("test", "test");
+//UserSystem.CreateNewUser("nminer", "caya");
+//UserSystem.CreateNewUser("test", "test");
 
 //Map.Create("Home", "img/maps/houseinside.png");
 
