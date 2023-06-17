@@ -298,15 +298,17 @@ namespace server
             }
             set
             {
-                if (value >= 0 && value <= 8)
+                lock (dbDataLock)
                 {
-                    row["Direction"] = value;
+                    if (value >= 0 && value <= 359)
+                    {
+                        row["Direction"] = value;
+                    }
+                    else
+                    {
+                        row["Direction"] = 0;
+                    }
                 }
-                else
-                {
-                    row["Direction"] = 0;
-                }
-
             }
         }
 
