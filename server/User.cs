@@ -19,6 +19,9 @@ namespace server
 {
     class User
     {
+        private const double MIN_SPEED = 0.0;
+        private const double MAX_SPEED = 100.0;
+
         private UserControls controls = new UserControls();
 
         private object dbDataLock = new object();
@@ -452,7 +455,9 @@ namespace server
             //double newDirection = Direction;
             double moveKeys = controls.CountDirectionKeys();
             //if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
-            double speedMove = (Speed / 5) / moveKeys;
+            //double speedMove = (Speed / 5) / moveKeys;
+            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 0, 10, Speed);
+            double speedMove = modspeed / moveKeys;
             if (controls.Up)
             {
                 moveY -= speedMove;

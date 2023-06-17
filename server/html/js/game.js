@@ -360,7 +360,12 @@ class CharAnimation {
             width, height);
     }
 }
-
+function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
+    let oldRange = oldMax - oldMin;
+    let newRange = newMax - newMin;
+    let newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+    return newValue;
+}
 //========================== Player ==========================
 class Player {
     /**
@@ -386,7 +391,8 @@ class Player {
      * linked with speed this on is used in the animations.
      */
     getSlowdown() {
-            return 10 - this.speed/2;
+            //return 10 - this.speed/2;
+        return 10 - convertRange(0, 100, 0, 10, this.speed);
     }
 
 
