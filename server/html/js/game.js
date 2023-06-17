@@ -397,8 +397,8 @@ class Player {
         //c.fillStyle = 'red';
         //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
         c.fillStyle = 'rgba(0,0,0,.2)';
-        drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 18, 35, 15);
-        this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 60, this.width, this.height);
+        drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
+        this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66, this.width, this.height);
         this.animation.step();
     }
 }
@@ -545,6 +545,7 @@ function animate() {
         var offsety = centery - curPlayer.Y;
         // get the map drawn
         currentMap.draw(offsetx, offsety);
+        drawList = [];
         // draw the players
         var playersToRemove = [];
         for (const p of playerLookup.values()) {
@@ -552,12 +553,24 @@ function animate() {
                 playersToRemove.push(p.Id);
                 continue;
             }
-            p.draw(offsetx, offsety);
+            //p.draw(offsetx, offsety);
+            drawList.push(p);
         };
         // remove players that are not on the map any more.
         for (let i = 0; i < playersToRemove.length; i++) {
             playerLookup.delete(playerLookup[i]);
         }
+        // reorder the draw list
+        drawList = drawList.sort((firstEl, secondEl) => {
+            if (firstEl.Y < secondEl.Y) {
+                return -1;
+            }
+            return 1;
+        }); 
+        // draw everythign
+        drawList.forEach((d) => {
+            d.draw(offsetx, offsety);
+        })
     }
 }
 
