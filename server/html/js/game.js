@@ -237,9 +237,35 @@ inputField.addEventListener("keyup", (e) => {
         msgPos = -1;
     }
 });
+//========================== Text class ==========================
+class DisplayText {
+    /**
+     * 
+     * @param {string} text the text to display
+     * @param {int} r 0-255 color
+     * @param {int} g 0-255 color
+     * @param {int} b 0-255 color
+     * @param {double} fade <= 1 how much to fade the text
+     */
+    constructor(text, fontsize, r, g, b, fade) {
+        this.text = text;
+        this.fontsize = fontsize;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.fade = fade;
+    }
 
+    draw(x, y) {
+        c.font = this.fontsize + 'px Comic Sans MS';
+        c.textAlign = "center";
+        c.fillStyle = 'rgba(' + this.r + ', ' + this.g + ', ' + this.b + ', ' + this.fade + ')';
 
-//========================== Animation ==========================
+        c.fillText(this.text,  x, y);
+    }
+}
+
+//========================== Image loading ==========================
 /**
  * the image loader holds all the loaded images
  */
@@ -264,9 +290,7 @@ class ImageLoader {
     }
 }
 
-
-
-
+//========================== Animation ==========================
 /**
  * class for animating sprite sheets.
  */
@@ -351,8 +375,12 @@ class Player {
         this.loadAnimation();
         this.animation = this.animations.standDown
         this.speed = 1;
+        this.name = new DisplayText(this.Id, 14, 35, 163, 255, .7);
     }
 
+    setAsPlayer() {
+        this.name = new DisplayText(this.Id, 14, 145, 191, 224, .7);
+    }
 
     /**
      * linked with speed this on is used in the animations.
@@ -396,6 +424,7 @@ class Player {
     draw(xOffset, yOffset) {
         //c.fillStyle = 'red';
         //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
+        this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
         c.fillStyle = 'rgba(0,0,0,.2)';
         drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
         this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66, this.width, this.height);
@@ -534,6 +563,7 @@ function animate() {
             playerLookup.get(userFrame["username"]).updateFrame(userFrame);
             if (userFrame["username"] == userName) {
                 curPlayer = playerLookup.get(userFrame["username"]);
+                curPlayer.setAsPlayer();
             }
         }
         // lost the player???
