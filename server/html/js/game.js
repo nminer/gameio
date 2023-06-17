@@ -73,7 +73,7 @@ function connectToWS() {
         } else {
             leng = event.data.size
         }
-        console.log("onmessage. size: " + leng + ", content: " + event.data);
+        //console.log("onmessage. size: " + leng + ", content: " + event.data);
         var data = JSON.parse(event.data);
         if (data.hasOwnProperty("setUser")) {
             userName = data["setUser"];
@@ -238,13 +238,203 @@ inputField.addEventListener("keyup", (e) => {
     }
 });
 
-//=============================== Map ========================
+
+//========================== Animation ==========================
+/**
+ * the image loader holds all the loaded images
+ */
+class ImageLoader {
+    /**
+     * key path to image, value is the loaded image.
+     */
+    static LoadedImages = new Map();
+
+    /**
+     * 
+     * @param {string} path the path to the image
+     */
+    static GetImage(path) {
+        if (ImageLoader.LoadedImages.has(path)) {
+            return ImageLoader.LoadedImages.get(path);
+        }
+        var imageToAdd = new Image();
+        imageToAdd.src = path;
+        ImageLoader.LoadedImages.set(path, imageToAdd);
+        return imageToAdd;
+    }
+}
+
+
+
+
+/**
+ * class for animating sprite sheets.
+ */
+class CharAnimation {
+    /**
+     * call step to go to next image in the animations.
+     * call draw to draw the image/frame to canvas.
+     * @param {Image} image sprite sheet
+     * @param {number} frames number of frames to be animated.
+     * @param {number} x x for where to start the animation from
+     * @param {number} y y for where to start the animation from
+     * @param {number} width width of each frame
+     * @param {number} height height of each frame
+     * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
+     */
+    constructor(image, frames, x, y, width, height, slowdown, after, eachfram) {
+        this.image = image;
+        this.frames = frames;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.currentFrame = 0;
+        this.drawX = x;
+        this.drawY = y;
+        this.slowdown = slowdown;
+        this.countSlowdown = 0;
+        this.after = after;
+        this.eachFram = eachfram;
+    }
+
+    /**
+     * step to the next image/frame in the animation.
+     */
+    step() {
+        this.countSlowdown += 1;
+        if (this.countSlowdown >= this.slowdown.getSlowdown()) {
+            this.currentFrame += 1;
+            this.countSlowdown = 0;
+            if (typeof this.eachFram !== 'undefined') {
+                this.eachFram();
+            }
+        }
+        if (this.currentFrame >= this.frames) {
+            this.currentFrame = 0;
+            this.after();
+        }
+        this.drawX = this.x + (this.width * this.currentFrame);
+    }
+
+    /**
+     * draw the frame to canvas.
+     * at the given x,y and at the passed in height and width.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     */
+    draw(x, y, width, height) {
+        c.drawImage(this.image,
+            this.drawX,
+            this.drawY,
+            this.width,
+            this.height,
+            x,
+            y,
+            width, height);
+    }
+}
+
+//========================== Player ==========================
+class Player {
+    /**
+     * the Player will have an x and y coord.
+     * current animation / action
+     * 
+     */
+    constructor(id) {
+        this.Id = id;
+        this.width = 80; // hight the sprite is displayed
+        this.height = 80; // width the sprite is displayed
+        this.loadAnimation();
+        this.animation = this.animations.standDown
+        this.speed = 1;
+    }
+
+
+    /**
+     * linked with speed this on is used in the animations.
+     */
+    getSlowdown() {
+            return 10 - this.speed/2;
+    }
+
+
+    loadAnimation() {
+        let playerImage = ImageLoader.GetImage("./img/player/1playerbase.png")
+        let none = () => { };
+        const idelSlow = { getSlowdown: function () { return Math.random() * (50 - 20) + 20; } };
+        this.animations =
+        {
+            walkDown: new CharAnimation(playerImage, 8, 64, 640, 64, 64, this, none),
+            walkUp: new CharAnimation(playerImage, 8, 64, 512, 64, 64, this, none),
+            walkLeft: new CharAnimation(playerImage, 8, 64, 576, 64, 64, this, none),
+            walkRight: new CharAnimation(playerImage, 8, 64, 704, 64, 63, this, none),
+            standDown2: new CharAnimation(playerImage, 2, 0, 128, 64, 64, idelSlow, none),
+            standDown: new CharAnimation(playerImage, 1, 0, 640, 64, 64, this, none),
+            standUp: new CharAnimation(playerImage, 1, 0, 512, 64, 64, this, none),
+            standLeft: new CharAnimation(playerImage, 1, 0, 576, 64, 64, this, none),
+            standRight: new CharAnimation(playerImage, 1, 0, 704, 64, 63, this, none),
+            swingDown: new CharAnimation(playerImage, 5, 64, 896, 64, 64, this, none),
+            swingUp: new CharAnimation(playerImage, 5, 64, 768, 64, 64, this, none),
+            swingLeft: new CharAnimation(playerImage, 5, 64, 832, 64, 64, this, none),
+            swingRight: new CharAnimation(playerImage, 5, 64, 960, 64, 63, this, none),
+        }
+    }
+
+    // take in the fram from the server and update its stats.
+    // and anminmation.
+    updateFrame(frame) {
+        this.X = frame["x"];
+        this.Y = frame["y"];
+        this.animation = this.animations[frame["animation"]];
+        this.speed = frame["speed"];
+    }
+
+    draw(xOffset, yOffset) {
+        //c.fillStyle = 'red';
+        //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
+        c.fillStyle = 'rgba(0,0,0,.2)';
+        drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 18, 35, 15);
+        this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 60, this.width, this.height);
+        this.animation.step();
+    }
+}
+
+function drawEllipseByCenter(ctx, cx, cy, w, h) {
+    drawEllipse(ctx, cx - w / 2.0, cy - h / 2.0, w, h);
+}
+
+function drawEllipse(ctx, x, y, w, h) {
+    var kappa = .5522848,
+        ox = (w / 2) * kappa, // control point offset horizontal
+        oy = (h / 2) * kappa, // control point offset vertical
+        xe = x + w,           // x-end
+        ye = y + h,           // y-end
+        xm = x + w / 2,       // x-middle
+        ym = y + h / 2;       // y-middle
+
+    ctx.beginPath();
+    ctx.moveTo(x, ym);
+    ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
+    ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
+    ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+    ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+    ctx.closePath(); // not used correctly, see comments (use to close off open path)
+    //ctx.stroke();
+    //ctx.fi
+    ctx.fill();
+}
+
+//============================ Map ===========================
 /**
  * Map class hold the back ground image for the world
  * Maps top left (0,0)
  * 
  */
-class Map {
+class GameMap {
 
     /**
      * create a new world with a background.
@@ -271,13 +461,19 @@ class Map {
             this.height);
     }
 }
-currentMap = null;
+let currentMap = null;
+// player name to player objects for current map.
+// name:Player
+const playerLookup = new Map();
+
 function loadMap(data) {
-    var worldbackground = new Image();
-    worldbackground.src = "./" + data["image"];
+    //var worldbackground = new Image();
+    //worldbackground.src = "./" + data["image"];
+    var worldbackground = ImageLoader.GetImage("./" + data["image"]);
     var height = data["height"];
     var width = data["width"];
-    currentMap = new Map(width, height, worldbackground);
+    currentMap = new GameMap(width, height, worldbackground);
+    playerLookup.clear();
 }
 
 
@@ -327,27 +523,40 @@ function animate() {
         //find the current player
         var curPlayer = null;
         var players = lastUpdateFrame["players"];
+        tempNames = [];
         for (let i = 0; i < players.length; i++) {
-            let user = players[i];
-            if (user["username"] == userName) {
-                curPlayer = user;
-                break;
+            let userFrame = players[i];
+            tempNames.push(userFrame["username"]);
+            if (!playerLookup.has(userFrame["username"])) {
+                playerLookup.set(userFrame["username"], new Player(userFrame["username"]));
+            }
+            // update the players frame
+            playerLookup.get(userFrame["username"]).updateFrame(userFrame);
+            if (userFrame["username"] == userName) {
+                curPlayer = playerLookup.get(userFrame["username"]);
             }
         }
+        // lost the player???
         if (curPlayer == null) return;
+
         var centerx = canvas.width / 2;
         var centery = canvas.height / 2;
-        var offsetx = centerx - curPlayer["x"];
-        var offsety = centery - curPlayer["y"];
+        var offsetx = centerx - curPlayer.X;
+        var offsety = centery - curPlayer.Y;
+        // get the map drawn
         currentMap.draw(offsetx, offsety);
-        c.fillStyle = 'blue';
-        c.fillRect(centerx - 10, centery - 40, 20, 50);
-        for (let i = 0; i < players.length; i++) {
-            let user = players[i];
-            if (user["username"] != userName) {
-                c.fillStyle = 'red';
-                c.fillRect(user["x"] + offsetx - 10, user["y"] + offsety - 40, 20, 50);
+        // draw the players
+        var playersToRemove = [];
+        for (const p of playerLookup.values()) {
+            if (!tempNames.includes(p.Id)) {
+                playersToRemove.push(p.Id);
+                continue;
             }
+            p.draw(offsetx, offsety);
+        };
+        // remove players that are not on the map any more.
+        for (let i = 0; i < playersToRemove.length; i++) {
+            playerLookup.delete(playerLookup[i]);
         }
     }
 }

@@ -27,7 +27,11 @@ namespace server
 
         public double Width = 80;
 
-        public Circle Solid = new Circle(new Point(0, 0), 12);
+        public Circle Solid = new Circle(new Point(0, 0), 15);
+
+        private string[] Animations = {"walkDown", "walkUp", "walkLeft", "walkRight", "standDown", "standUp", "standLeft", "standRight", "swingDown", "swingUp", "swingLeft", "swingRight" };
+
+        private string AnimationName = "standDown";
 
         /// <summary>
         /// The users id in the database.
@@ -420,7 +424,7 @@ namespace server
         /// <returns></returns>
         public string GetJson()
         {
-            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction});
+            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction, speed = Speed, animation = AnimationName});
         }
 
         public void UpdateFromPlayer(JObject movement)
@@ -431,19 +435,21 @@ namespace server
             controls.Right = bool.Parse((string)movement["right"]);
             controls.Hit = bool.Parse((string)movement["hit"]);
             controls.Use = bool.Parse((string)movement["use"]);
+
         }
 
         /// <summary>
-        /// update tick for user.
+        /// update tick for user and animation.
+        /// return next amount to move as relitive point
         /// </summary>
         public Point GetNetMoveAmount()
         {
-            Map map = GameServer.GetMapById(Map_Id);
+            //Map map = GameServer.GetMapById(Map_Id);
             double moveX = 0;
             double moveY = 0;
-            double newDirection = Direction;
+            //double newDirection = Direction;
             double moveKeys = controls.CountDirectionKeys();
-            if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
+            //if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
             double speedMove = (Speed / 5) / moveKeys;
             if (controls.Up)
             {
@@ -461,6 +467,40 @@ namespace server
             {
                 moveX += speedMove;
             }
+            // set next animation.
+            if (moveX > 0)
+            {
+                AnimationName = "walkRight";
+                Direction = 270;
+            } else if (moveX < 0)
+            {
+                AnimationName = "walkLeft";
+                Direction = 90;
+            } else if (moveY > 0)
+            {
+                AnimationName = "walkDown";
+                Direction = 0;
+            } else if (moveY < 0)
+            {
+                AnimationName = "walkUp";
+                Direction = 180;
+            } else
+            {
+                if (Direction < 45 || Direction > 315)
+                {
+                    AnimationName = "standDown";
+                } else if (Direction >= 45 && Direction <= 135)
+                {
+                    AnimationName = "standLeft";
+                } else if (Direction > 135 && Direction <= 225)
+                {
+                    AnimationName = "standUp";
+                } else
+                {
+                    AnimationName = "standRight";
+                }
+            }
+
             // return the x and the y
             return new Point(moveX, moveY);          
         }

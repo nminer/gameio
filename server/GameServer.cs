@@ -92,26 +92,34 @@ namespace server
 
         private static void UpdatePlayersFrames(object? state)
         {
-            // build the state of the games.
-            // right now just players update
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-            using (JsonWriter writer = new JsonTextWriter(sw))
+            foreach (Map map in mapIdToMaps.Values)
             {
-                writer.Formatting = Formatting.None;
-                writer.WriteStartObject();
-                writer.WritePropertyName("players");
-                writer.WriteStartArray();
-                foreach (User user in socketIdToUser.Values)
+                List<User> mapUsers = map.GetUsers();
+                // build the state of the games.
+                // right now just players update
+                StringBuilder sb = new StringBuilder();
+                StringWriter sw = new StringWriter(sb);
+                using (JsonWriter writer = new JsonTextWriter(sw))
                 {
-                    writer.WriteRawValue(user.GetJson());
+                    writer.Formatting = Formatting.None;
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("players");
+                    writer.WriteStartArray();
+                    foreach (User user in mapUsers)
+                    {
+                        writer.WriteRawValue(user.GetJson());
+                    }
+                    writer.WriteEnd();
+                    writer.WriteEndObject();
                 }
-                writer.WriteEnd();
-                writer.WriteEndObject();
-            }
-            foreach (KeyValuePair<Guid, User> keyValuePair in socketIdToUser)
-            {
-                   SocketServer.SendOutUpdate(keyValuePair.Key, sb.ToString());
+                foreach (User user in mapUsers)
+                {
+                    Guid? guid = UserSystem.GetSocketIdFromUserName(user.UserName);
+                    if (guid != null)
+                    {
+                        SocketServer.SendOutUpdate((Guid)guid, sb.ToString());
+                    }      
+                }
             }
         }
 
