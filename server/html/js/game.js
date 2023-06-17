@@ -392,7 +392,11 @@ class Player {
      */
     getSlowdown() {
             //return 10 - this.speed/2;
-        return 10 - convertRange(0, 100, 0, 10, this.speed);
+        let speedmod = convertRange(0, 100, 2, 10, this.speed)
+        if (this.running) {
+            speedmod += 5;
+        }
+        return 10 - speedmod;
     }
 
 
@@ -424,7 +428,8 @@ class Player {
         this.X = frame["x"];
         this.Y = frame["y"];
         this.animation = this.animations[frame["animation"]];
-        this.speed = frame["speed"];
+        this.speed = frame["speed"]
+        this.running = frame["running"];
     }
 
     draw(xOffset, yOffset) {

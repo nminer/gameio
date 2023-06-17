@@ -429,7 +429,7 @@ namespace server
         /// <returns></returns>
         public string GetJson()
         {
-            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction, speed = Speed, animation = AnimationName});
+            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction, speed = Speed, animation = AnimationName,  running = controls.Run});
         }
 
         public void UpdateFromPlayer(JObject movement)
@@ -438,6 +438,7 @@ namespace server
             controls.Down = bool.Parse((string)movement["down"]);
             controls.Left = bool.Parse((string)movement["left"]);
             controls.Right = bool.Parse((string)movement["right"]);
+            controls.Run = bool.Parse((string)movement["shift"]);
             controls.Hit = bool.Parse((string)movement["hit"]);
             controls.Use = bool.Parse((string)movement["use"]);
 
@@ -456,7 +457,11 @@ namespace server
             double moveKeys = controls.CountDirectionKeys();
             //if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
             //double speedMove = (Speed / 5) / moveKeys;
-            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 0, 10, Speed);
+            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, Speed);
+            if (controls.Run)
+            {
+                modspeed += 2;
+            }
             double speedMove = modspeed / moveKeys;
             if (controls.Up)
             {
@@ -518,6 +523,7 @@ namespace server
             public volatile bool Down = false;
             public volatile bool Left = false;
             public volatile bool Right = false;
+            public volatile bool Run = false;
             public volatile bool Use = false;
             public volatile bool Hit = false;
 
