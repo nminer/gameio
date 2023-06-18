@@ -32,7 +32,7 @@ namespace server
 
         public Circle Solid = new Circle(new Point(0, 0), 15);
 
-        private string[] Animations = {"walkDown", "walkUp", "walkLeft", "walkRight", "standDown", "standUp", "standLeft", "standRight", "swingDown", "swingUp", "swingLeft", "swingRight" };
+        //private string[] Animations = {"walkDown", "walkUp", "walkLeft", "walkRight", "standDown", "standUp", "standLeft", "standRight", "swingDown", "swingUp", "swingLeft", "swingRight" };
 
         private string AnimationName = "standDown";
 
@@ -315,6 +315,14 @@ namespace server
             }
         }
 
+        private string BodyStyle = "01";
+        public string BodyColor = "01";
+        private string HairStyle = "00";
+        private string HairColor = "00";
+        private string BeardStyle = "00";
+        private string BeardColor = "00";
+
+
         private SQLiteDataAdapter adapter;
 
         private SQLiteCommandBuilder builder;
@@ -352,6 +360,24 @@ namespace server
                 //}
                 row = data.Tables[0].Rows[0];
             }
+            // get the users looks loaded.
+            SQLiteDataAdapter adapterAvatar = new SQLiteDataAdapter();
+
+            SQLiteCommandBuilder builderAvatar = new SQLiteCommandBuilder(adapterAvatar);
+
+            DataSet dataAvatar = new DataSet();
+            string queryLooks = "SELECT * FROM Avatar WHERE User_Id=$id;";
+            SQLiteCommand commandAvatar = new SQLiteCommand(queryLooks, DatabaseBuilder.Connection);
+            commandAvatar.Parameters.AddWithValue("$id", userId);
+            adapterAvatar.SelectCommand = commandAvatar;
+            adapterAvatar.Fill(dataAvatar);
+            DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
+            BodyStyle = ((Int64)rowAvatar["Body_Style"]).ToString("D2");
+            BodyColor = ((Int64)rowAvatar["Body_Color"]).ToString("D2");
+            HairStyle = ((Int64)rowAvatar["Hair_Style"]).ToString("D2");
+            HairColor = ((Int64)rowAvatar["Hair_Color"]).ToString("D2");
+            BeardStyle = ((Int64)rowAvatar["Beard_Style"]).ToString("D2");
+            BeardColor = ((Int64)rowAvatar["Beard_Color"]).ToString("D2");
         }
 
 
@@ -429,7 +455,15 @@ namespace server
         /// <returns></returns>
         public string GetJson()
         {
-            return JsonConvert.SerializeObject(new { username = UserName, x = X_Coord, y = Y_Coord, direction = Direction, speed = Speed, animation = AnimationName,  running = controls.Run});
+            return JsonConvert.SerializeObject(
+                new { username = UserName,
+                    avatar = new {body = BodyStyle, bodyc = BodyColor,
+                                  hair = HairStyle, hairc = HairColor,
+                                  beard = BeardStyle, beardc = BeardColor},
+                    x = X_Coord, y = Y_Coord, direction = Direction,
+                    speed = Speed,
+                    animation = AnimationName,  running = controls.Run}
+                );
         }
 
         public void UpdateFromPlayer(JObject movement)
@@ -462,7 +496,11 @@ namespace server
             {
                 modspeed += 2;
             }
-            double speedMove = modspeed / moveKeys;
+            double speedMove = 0;
+            if (moveKeys != 0 && moveKeys != 4)
+            {
+                speedMove = modspeed / moveKeys;
+            }
             if (controls.Up)
             {
                 moveY -= speedMove;
@@ -512,7 +550,7 @@ namespace server
                     AnimationName = "standRight";
                 }
             }
-
+            SaveUser();
             // return the x and the y
             return new Point(moveX, moveY);          
         }

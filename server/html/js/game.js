@@ -373,11 +373,11 @@ class Player {
      * current animation / action
      * 
      */
-    constructor(id) {
+    constructor(id, avatar) {
         this.Id = id;
         this.width = 80; // hight the sprite is displayed
         this.height = 80; // width the sprite is displayed
-        this.loadAnimation();
+        this.loadAnimation(avatar);
         this.animation = this.animations.standDown
         this.speed = 1;
         this.name = new DisplayText(this.Id, 14, 35, 163, 255, .7);
@@ -400,8 +400,10 @@ class Player {
     }
 
 
-    loadAnimation() {
-        let playerImage = ImageLoader.GetImage("./img/player/1playerbase.png")
+    loadAnimation(avatar) {
+        let body = avatar["body"];
+        let bodyc = avatar["bodyc"];
+        let playerImage = ImageLoader.GetImage("./img/player/body/" + body + "-" + bodyc + ".png");
         let none = () => { };
         const idelSlow = { getSlowdown: function () { return Math.random() * (50 - 20) + 20; } };
         this.animations =
@@ -568,7 +570,7 @@ function animate() {
             let userFrame = players[i];
             tempNames.push(userFrame["username"]);
             if (!playerLookup.has(userFrame["username"])) {
-                playerLookup.set(userFrame["username"], new Player(userFrame["username"]));
+                playerLookup.set(userFrame["username"], new Player(userFrame["username"], userFrame["avatar"]));
             }
             // update the players frame
             playerLookup.get(userFrame["username"]).updateFrame(userFrame);

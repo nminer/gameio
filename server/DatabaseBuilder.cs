@@ -39,10 +39,26 @@ internal class DatabaseBuilder
             );";
         SQLiteCommand cmdUser = Connection.CreateCommand();
         cmdUser.CommandText = createUserTable;
-        cmdUser
-            .ExecuteNonQuery();
+        cmdUser.ExecuteNonQuery();
 
-		// define maps table 
+        // define the the User table
+        string createAvatarTable = @"CREATE TABLE 'Avatar' (
+	            'Avatar_Id'	INTEGER NOT NULL UNIQUE,
+	            'User_Id'	INTEGER NOT NULL UNIQUE,
+	            'Body_Style'	INTEGER NOT NULL DEFAULT 1,
+	            'Body_Color'	INTEGER NOT NULL DEFAULT 1,
+	            'Hair_Style'	INTEGER NOT NULL DEFAULT 0,
+	            'Hair_Color'	INTEGER NOT NULL DEFAULT 0,
+	            'Beard_style'	INTEGER NOT NULL DEFAULT 0,
+	            'Beard_Color'	INTEGER NOT NULL DEFAULT 0,
+	            'Eye_Color'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('Avatar_Id' AUTOINCREMENT)
+            );";
+        SQLiteCommand cmdAvatar = Connection.CreateCommand();
+        cmdAvatar.CommandText = createAvatarTable;
+        cmdAvatar.ExecuteNonQuery();
+
+        // define maps table 
         string createMapsTable = @"CREATE TABLE 'Maps' (
 	            'Map_Id'	INTEGER NOT NULL UNIQUE,
 	            'MapName'	TEXT NOT NULL UNIQUE,
