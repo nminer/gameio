@@ -321,6 +321,7 @@ namespace server
         private string HairColor = "00";
         private string BeardStyle = "00";
         private string BeardColor = "00";
+        private string EyeColor = "00";
 
 
         private SQLiteDataAdapter adapter;
@@ -360,7 +361,7 @@ namespace server
                 //}
                 row = data.Tables[0].Rows[0];
             }
-            // get the users looks loaded.
+            // get the users avatar looks loaded.
             SQLiteDataAdapter adapterAvatar = new SQLiteDataAdapter();
 
             SQLiteCommandBuilder builderAvatar = new SQLiteCommandBuilder(adapterAvatar);
@@ -371,15 +372,18 @@ namespace server
             commandAvatar.Parameters.AddWithValue("$id", userId);
             adapterAvatar.SelectCommand = commandAvatar;
             adapterAvatar.Fill(dataAvatar);
-            DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
-            BodyStyle = ((Int64)rowAvatar["Body_Style"]).ToString("D2");
-            BodyColor = ((Int64)rowAvatar["Body_Color"]).ToString("D2");
-            HairStyle = ((Int64)rowAvatar["Hair_Style"]).ToString("D2");
-            HairColor = ((Int64)rowAvatar["Hair_Color"]).ToString("D2");
-            BeardStyle = ((Int64)rowAvatar["Beard_Style"]).ToString("D2");
-            BeardColor = ((Int64)rowAvatar["Beard_Color"]).ToString("D2");
+            if (dataAvatar.Tables.Count > 0 && dataAvatar.Tables[0].Rows.Count > 0)
+            {
+                DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
+                BodyStyle = ((Int64)rowAvatar["Body_Style"]).ToString("D2");
+                BodyColor = ((Int64)rowAvatar["Body_Color"]).ToString("D2");
+                HairStyle = ((Int64)rowAvatar["Hair_Style"]).ToString("D2");
+                HairColor = ((Int64)rowAvatar["Hair_Color"]).ToString("D2");
+                BeardStyle = ((Int64)rowAvatar["Beard_Style"]).ToString("D2");
+                BeardColor = ((Int64)rowAvatar["Beard_Color"]).ToString("D2");
+                EyeColor = ((Int64)rowAvatar["Eye_Color"]).ToString("D2");
+            }
         }
-
 
         /// <summary>
         /// try and log a User in and return the user object.
@@ -442,6 +446,46 @@ namespace server
             return dataReader;
         }
 
+        public void SetAvatar(int bodyStyle = 1, int bodyColor = 1,
+                              int hairStyle = 0, int hairColor = 0,
+                              int beardStyle = 0, int beardColor = 0,
+                              int eyeColor = 0)
+        {
+            SQLiteDataAdapter adapterAvatar = new SQLiteDataAdapter();
+
+            SQLiteCommandBuilder builderAvatar = new SQLiteCommandBuilder(adapterAvatar);
+
+            DataSet dataAvatar = new DataSet();
+            string queryLooks = "SELECT * FROM Avatar WHERE User_Id=$id;";
+            SQLiteCommand commandAvatar = new SQLiteCommand(queryLooks, DatabaseBuilder.Connection);
+            commandAvatar.Parameters.AddWithValue("$id", UserId);
+            adapterAvatar.SelectCommand = commandAvatar;
+            adapterAvatar.Fill(dataAvatar);
+            if (dataAvatar.Tables.Count > 0 && dataAvatar.Tables[0].Rows.Count > 0)
+            {
+                DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
+                rowAvatar["Body_Style"] = bodyStyle;
+                rowAvatar["Body_Color"] = bodyColor;
+                rowAvatar["Hair_Style"] = hairStyle;
+                rowAvatar["Hair_Color"] = hairColor;
+                rowAvatar["Beard_Style"] = beardStyle;
+                rowAvatar["Beard_Color"] = beardColor;
+                rowAvatar["Eye_Color"] = eyeColor;
+            }
+            else
+            {
+                string insertAvatar = @"INSERT INTO Avatar
+                                        ('User_Id', 'Body_Style', 'Body_Color',
+                                        'Hair_Style', 'Hair_Color',
+                                        'Beard_style', 'Beard_Color', 'Eye_Color')";
+                SQLiteCommand command = new SQLiteCommand(insertAvatar, DatabaseBuilder.Connection);
+                if (command.ExecuteNonQuery() != 1)
+                {
+                    throw new Exception("Could Not create user Avatar.");
+                }
+            }
+        }
+
         public int SaveUser()
         {
             builder.ConflictOption = ConflictOption.OverwriteChanges;
@@ -459,7 +503,8 @@ namespace server
                 new { username = UserName,
                     avatar = new {body = BodyStyle, bodyc = BodyColor,
                                   hair = HairStyle, hairc = HairColor,
-                                  beard = BeardStyle, beardc = BeardColor},
+                                  beard = BeardStyle, beardc = BeardColor,
+                                  eyec = EyeColor},
                     x = X_Coord, y = Y_Coord, direction = Direction,
                     speed = Speed,
                     animation = AnimationName,  running = controls.Run}

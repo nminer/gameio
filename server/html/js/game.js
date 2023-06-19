@@ -350,14 +350,28 @@ class CharAnimation {
      * @param {number} height
      */
     draw(x, y, width, height) {
-        c.drawImage(this.image,
-            this.drawX,
-            this.drawY,
-            this.width,
-            this.height,
-            x,
-            y,
-            width, height);
+        if (Array.isArray(this.image)) {
+            for (var i = 0; i < this.image.length; i++) {
+                let img = this.image[i];
+                c.drawImage(img,
+                    this.drawX,
+                    this.drawY,
+                    this.width,
+                    this.height,
+                    x,
+                    y,
+                    width, height);
+            }
+        } else {
+            c.drawImage(this.image,
+                this.drawX,
+                this.drawY,
+                this.width,
+                this.height,
+                x,
+                y,
+                width, height);
+        }
     }
 }
 function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
@@ -404,23 +418,38 @@ class Player {
         let body = avatar["body"];
         let bodyc = avatar["bodyc"];
         let playerImage = ImageLoader.GetImage("./img/player/body/" + body + "-" + bodyc + ".png");
+        let images = [];
+        images.push(playerImage);
+        if (avatar["hair"] != "00" && avatar["hairc"] != "00") {
+            let hairImage = ImageLoader.GetImage("./img/player/hair/" + avatar["hair"] + "-" + avatar["hairc"] + ".png");
+            images.push(hairImage);
+        }
+        if (avatar["eyec"] != "00") {
+            let eyeImage = ImageLoader.GetImage("./img/player/eyes/" + avatar["eyec"] + ".png");
+            images.push(eyeImage);
+        }
+        if (avatar["beard"] != "00" && avatar["beardc"] != "00") {
+            let hairImage = ImageLoader.GetImage("./img/player/beard/" + avatar["beard"] + "-" + avatar["beardc"] + ".png");
+            images.push(hairImage);
+        }
+
         let none = () => { };
         const idelSlow = { getSlowdown: function () { return Math.random() * (50 - 20) + 20; } };
         this.animations =
         {
-            walkDown: new CharAnimation(playerImage, 8, 64, 640, 64, 64, this, none),
-            walkUp: new CharAnimation(playerImage, 8, 64, 512, 64, 64, this, none),
-            walkLeft: new CharAnimation(playerImage, 8, 64, 576, 64, 64, this, none),
-            walkRight: new CharAnimation(playerImage, 8, 64, 704, 64, 63, this, none),
-            standDown2: new CharAnimation(playerImage, 2, 0, 128, 64, 64, idelSlow, none),
-            standDown: new CharAnimation(playerImage, 1, 0, 640, 64, 64, this, none),
-            standUp: new CharAnimation(playerImage, 1, 0, 512, 64, 64, this, none),
-            standLeft: new CharAnimation(playerImage, 1, 0, 576, 64, 64, this, none),
-            standRight: new CharAnimation(playerImage, 1, 0, 704, 64, 63, this, none),
-            swingDown: new CharAnimation(playerImage, 5, 64, 896, 64, 64, this, none),
-            swingUp: new CharAnimation(playerImage, 5, 64, 768, 64, 64, this, none),
-            swingLeft: new CharAnimation(playerImage, 5, 64, 832, 64, 64, this, none),
-            swingRight: new CharAnimation(playerImage, 5, 64, 960, 64, 63, this, none),
+            walkDown: new CharAnimation(images, 8, 64, 640, 64, 64, this, none),
+            walkUp: new CharAnimation(images, 8, 64, 512, 64, 64, this, none),
+            walkLeft: new CharAnimation(images, 8, 64, 576, 64, 64, this, none),
+            walkRight: new CharAnimation(images, 8, 64, 704, 64, 63, this, none),
+            standDown2: new CharAnimation(images, 2, 0, 128, 64, 64, idelSlow, none),
+            standDown: new CharAnimation(images, 1, 0, 640, 64, 64, this, none),
+            standUp: new CharAnimation(images, 1, 0, 512, 64, 64, this, none),
+            standLeft: new CharAnimation(images, 1, 0, 576, 64, 64, this, none),
+            standRight: new CharAnimation(images, 1, 0, 704, 64, 63, this, none),
+            swingDown: new CharAnimation(images, 5, 64, 896, 64, 64, this, none),
+            swingUp: new CharAnimation(images, 5, 64, 768, 64, 64, this, none),
+            swingLeft: new CharAnimation(images, 5, 64, 832, 64, 64, this, none),
+            swingRight: new CharAnimation(images, 5, 64, 960, 64, 63, this, none),
         }
     }
 
