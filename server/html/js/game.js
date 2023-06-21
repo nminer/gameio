@@ -420,9 +420,21 @@ class Player {
         let playerImage = ImageLoader.GetImage("./img/player/body/" + body + "-" + bodyc + ".png");
         let images = [];
         images.push(playerImage);
+        if (avatar["wrinkles"] != "00") {
+            let wrinklesImage = ImageLoader.GetImage("./img/player/wrinkles/" + avatar["wrinkles"] + "-" + bodyc + ".png");
+            images.push(wrinklesImage);
+        }
         if (avatar["hair"] != "00" && avatar["hairc"] != "00") {
             let hairImage = ImageLoader.GetImage("./img/player/hair/" + avatar["hair"] + "-" + avatar["hairc"] + ".png");
             images.push(hairImage);
+        }
+        if (avatar["nose"] != "00") {
+            let noseImage = ImageLoader.GetImage("./img/player/nose/" + avatar["nose"] + "-" + bodyc + ".png");
+            images.push(noseImage);
+        }
+        if (avatar["ears"] != "00") {
+            let earsImage = ImageLoader.GetImage("./img/player/ears/" + avatar["ears"] + "-" + bodyc + ".png");
+            images.push(earsImage);
         }
         if (avatar["eyec"] != "00") {
             let eyeImage = ImageLoader.GetImage("./img/player/eyes/" + avatar["eyec"] + ".png");

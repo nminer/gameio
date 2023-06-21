@@ -317,6 +317,9 @@ namespace server
 
         private string BodyStyle = "01";
         public string BodyColor = "01";
+        public string NoseStyle = "00";
+        public string EarStyle = "00";
+        public string Wrinkles = "00";
         private string HairStyle = "00";
         private string HairColor = "00";
         private string BeardStyle = "00";
@@ -377,6 +380,9 @@ namespace server
                 DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
                 BodyStyle = ((Int64)rowAvatar["Body_Style"]).ToString("D2");
                 BodyColor = ((Int64)rowAvatar["Body_Color"]).ToString("D2");
+                NoseStyle = ((Int64)rowAvatar["Nose_Style"]).ToString("D2");
+                EarStyle = ((Int64)rowAvatar["Ear_Style"]).ToString("D2");
+                Wrinkles = ((Int64)rowAvatar["Wrinkles"]).ToString("D2");
                 HairStyle = ((Int64)rowAvatar["Hair_Style"]).ToString("D2");
                 HairColor = ((Int64)rowAvatar["Hair_Color"]).ToString("D2");
                 BeardStyle = ((Int64)rowAvatar["Beard_Style"]).ToString("D2");
@@ -447,6 +453,8 @@ namespace server
         }
 
         public void SetAvatar(int bodyStyle = 1, int bodyColor = 1,
+                              int noseStyle = 0, int earStyle = 0,
+                              int wrinkles = 0,
                               int hairStyle = 0, int hairColor = 0,
                               int beardStyle = 0, int beardColor = 0,
                               int eyeColor = 0)
@@ -466,18 +474,30 @@ namespace server
                 DataRow rowAvatar = dataAvatar.Tables[0].Rows[0];
                 rowAvatar["Body_Style"] = bodyStyle;
                 rowAvatar["Body_Color"] = bodyColor;
+                rowAvatar["Nose_Style"] = noseStyle;
+                rowAvatar["Ear_Style"] = earStyle;
+                rowAvatar["Wrinkles"] = wrinkles;
                 rowAvatar["Hair_Style"] = hairStyle;
                 rowAvatar["Hair_Color"] = hairColor;
                 rowAvatar["Beard_Style"] = beardStyle;
                 rowAvatar["Beard_Color"] = beardColor;
                 rowAvatar["Eye_Color"] = eyeColor;
+                builderAvatar.ConflictOption = ConflictOption.OverwriteChanges;
+                builderAvatar.GetUpdateCommand();
+                adapterAvatar.Update(dataAvatar);
             }
             else
             {
-                string insertAvatar = @"INSERT INTO Avatar
+                string insertAvatar = @$"INSERT INTO Avatar
                                         ('User_Id', 'Body_Style', 'Body_Color',
+                                         'Nose_Style', 'Ear_Style', 'Wrinkles',
                                         'Hair_Style', 'Hair_Color',
-                                        'Beard_style', 'Beard_Color', 'Eye_Color')";
+                                        'Beard_style', 'Beard_Color', 'Eye_Color')
+                                        Values
+                                        ({UserId}, {bodyStyle}, {bodyColor},
+                                        {noseStyle}, {earStyle}, {wrinkles},
+                                        {hairStyle}, {hairColor}, 
+                                        {beardStyle}, {beardColor}, {eyeColor});";
                 SQLiteCommand command = new SQLiteCommand(insertAvatar, DatabaseBuilder.Connection);
                 if (command.ExecuteNonQuery() != 1)
                 {
@@ -502,6 +522,7 @@ namespace server
             return JsonConvert.SerializeObject(
                 new { username = UserName,
                     avatar = new {body = BodyStyle, bodyc = BodyColor,
+                                  nose = NoseStyle, ears = EarStyle, wrinkles = Wrinkles,
                                   hair = HairStyle, hairc = HairColor,
                                   beard = BeardStyle, beardc = BeardColor,
                                   eyec = EyeColor},
