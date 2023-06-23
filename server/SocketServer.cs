@@ -75,7 +75,7 @@ namespace server
         static void ClientMessage(object sender, MessageReceivedEventArgs args)
         {
             string message = Encoding.UTF8.GetString(args.Data);
-            Console.WriteLine("Client Message: " + message);
+            //Console.WriteLine("Client Message: " + message);
             JObject json = JObject.Parse(message);
             if (json == null || json.First == null) 
             {

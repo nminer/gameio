@@ -88,6 +88,9 @@ namespace server
                 try
                 {
                     UserSystem.CreateNewUser(loginData["username"], loginData["password"]);
+                    // set the avatar
+                    User newUser = User.LogIn(loginData["username"], loginData["password"]);
+                    newUser.SetAvatar(loginData);
                     ctx.Request.Method = WatsonWebserver.HttpMethod.GET;
                     ctx.Request.Url.RawWithQuery = "/";
                     

@@ -91,14 +91,14 @@ namespace server
                 if (!LoggedInUsers.ContainsKey(username)) { return false; }
                 Guid? id = GetSocketIdFromUserName(username);
                 User user = LoggedInUsers[username];
+                user.LogUserOut();
                 RemoveUserFromLocation(user);
                 RemoveUserFromSession(user);
                 RemoveUserFromSocket(user);
                 if (id != null)
                 {
                     GameServer.PlayerLeave(id.Value, user);
-                }
-                
+                }    
                 return LoggedInUsers.Remove(username);
             }
         }

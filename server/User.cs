@@ -419,6 +419,14 @@ namespace server
             }
         }
 
+        /// <summary>
+        /// anything that needs to be done when loging a user out can be done here.
+        /// </summary>
+        public void LogUserOut()
+        {
+            SaveUser();
+        }
+
         static public void Create(string userName, string password)
         {
             SQLiteDataReader dataReader = CheckUserName(userName);
@@ -450,6 +458,21 @@ namespace server
             cmd.CommandText = findUser;
             SQLiteDataReader dataReader = cmd.ExecuteReader();
             return dataReader;
+        }
+
+        public void SetAvatar(Dictionary<string, string> avatar)
+        {
+            int bodys = avatar.ContainsKey("bodyStyle") ? Int32.Parse(avatar["bodyStyle"]) : 1;
+            int bodyc = avatar.ContainsKey("bodyColor") ? Int32.Parse(avatar["bodyColor"]) : 1;
+            int noses = avatar.ContainsKey("noseStyle") ? Int32.Parse(avatar["noseStyle"]) : 0;
+            int ears = avatar.ContainsKey("earStyle") ? Int32.Parse(avatar["earStyle"]) : 0;
+            int wrinkless = avatar.ContainsKey("wrinklesStyle") ? Int32.Parse(avatar["wrinklesStyle"]) : 0;
+            int hairs = avatar.ContainsKey("hairStyle") ? Int32.Parse(avatar["hairStyle"]) : 0;
+            int hairc = avatar.ContainsKey("hairColor") ? Int32.Parse(avatar["hairColor"]) : 0;
+            int beards = avatar.ContainsKey("beardStyle") ? Int32.Parse(avatar["beardStyle"]) : 0;
+            int beardc = avatar.ContainsKey("beardColor") ? Int32.Parse(avatar["beardColor"]) : 0;
+            int eyec = avatar.ContainsKey("eyeColor") ? Int32.Parse(avatar["eyeColor"]) : 0;
+            SetAvatar(bodys, bodyc, noses, ears, wrinkless, hairs, hairc, beards, eyec);
         }
 
         public void SetAvatar(int bodyStyle = 1, int bodyColor = 1,
@@ -616,7 +639,7 @@ namespace server
                     AnimationName = "standRight";
                 }
             }
-            SaveUser();
+            //SaveUser();
             // return the x and the y
             return new Point(moveX, moveY);          
         }
