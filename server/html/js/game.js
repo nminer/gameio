@@ -374,6 +374,7 @@ class CharAnimation {
         }
     }
 }
+
 function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
     let oldRange = oldMax - oldMin;
     let newRange = newMax - newMin;
@@ -424,14 +425,6 @@ class Player {
             let wrinklesImage = ImageLoader.GetImage("./img/player/wrinkles/" + avatar["wrinkles"] + "-" + bodyc + ".png");
             images.push(wrinklesImage);
         }
-        if (avatar["hair"] != "00" && avatar["hairc"] != "00") {
-            let hairImage = ImageLoader.GetImage("./img/player/hair/" + avatar["hair"] + "-" + avatar["hairc"] + ".png");
-            images.push(hairImage);
-        }
-        if (avatar["nose"] != "00") {
-            let noseImage = ImageLoader.GetImage("./img/player/nose/" + avatar["nose"] + "-" + bodyc + ".png");
-            images.push(noseImage);
-        }
         if (avatar["ears"] != "00") {
             let earsImage = ImageLoader.GetImage("./img/player/ears/" + avatar["ears"] + "-" + bodyc + ".png");
             images.push(earsImage);
@@ -444,7 +437,14 @@ class Player {
             let hairImage = ImageLoader.GetImage("./img/player/beard/" + avatar["beard"] + "-" + avatar["beardc"] + ".png");
             images.push(hairImage);
         }
-
+        if (avatar["nose"] != "00") {
+            let noseImage = ImageLoader.GetImage("./img/player/nose/" + avatar["nose"] + "-" + bodyc + ".png");
+            images.push(noseImage);
+        }
+        if (avatar["hair"] != "00" && avatar["hairc"] != "00") {
+            let hairImage = ImageLoader.GetImage("./img/player/hair/" + avatar["hair"] + "-" + avatar["hairc"] + ".png");
+            images.push(hairImage);
+        }
         let none = () => { };
         const idelSlow = { getSlowdown: function () { return Math.random() * (50 - 20) + 20; } };
         this.animations =

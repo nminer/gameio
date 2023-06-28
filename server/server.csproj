@@ -6516,6 +6516,9 @@
     <None Update="html\js\main.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\js\register.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\js\resize.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
