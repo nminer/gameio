@@ -778,6 +778,10 @@ messageForm.addEventListener("submit", (e) => {
             privateMessage: inputField.value.slice(inputField.value.indexOf(',') + 1).trimStart(),
             reciver: lastTell,
         };
+    } else if (inputField.value.startsWith("/")) {
+        sendData = {
+            command: inputField.value
+        };
     }
     //socket.emit("chat message", sendData,);
     

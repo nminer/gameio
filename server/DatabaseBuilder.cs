@@ -73,6 +73,22 @@ internal class DatabaseBuilder
         SQLiteCommand cmdMap = Connection.CreateCommand();
         cmdMap.CommandText = createMapsTable;
         cmdMap.ExecuteNonQuery();
+
+        // define portals table 
+        string createPortalsTable = @"CREATE TABLE 'Portals' (
+	            'Portal_Id'	INTEGER NOT NULL UNIQUE,
+	            'Map_Id'	INTEGER NOT NULL,
+	            'X_Coordinate'	REAL NOT NULL DEFAULT 0,
+	            'Y_Coordinate'	REAL NOT NULL DEFAULT 0,
+	            'Target_Map_Id'	INTEGER NOT NULL,
+	            'Target_X'	REAL NOT NULL DEFAULT 0,
+	            'Target_Y'	REAL NOT NULL DEFAULT 0,
+	            'PortalName'	TEXT NOT NULL UNIQUE,
+	            PRIMARY KEY('Portal_Id' AUTOINCREMENT)
+            );";
+        SQLiteCommand cmdPortals = Connection.CreateCommand();
+        cmdPortals.CommandText = createPortalsTable;
+        cmdPortals.ExecuteNonQuery();
     }
 }
 

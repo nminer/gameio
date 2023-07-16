@@ -247,7 +247,7 @@ namespace server
         }
 
         /// <summary>
-        /// the x cood on the current map. this is from the rop left of the map.
+        /// the x cood on the current map. this is from the top left of the map.
         /// </summary>
         public Double X_Coord
         {
@@ -269,7 +269,7 @@ namespace server
         }
 
         /// <summary>
-        /// the y cood on the current map. this is from the rop left of the map.
+        /// the y cood on the current map. this is from the top left of the map.
         /// </summary>
         public Double Y_Coord
         {
@@ -312,6 +312,17 @@ namespace server
                         row["Direction"] = 0;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// reutrn the players x and y location as a Point.
+        /// </summary>
+        public Point Location
+        {
+            get
+            {
+                return new Point(X_Coord, Y_Coord);
             }
         }
 
@@ -557,6 +568,7 @@ namespace server
 
         public void UpdateFromPlayer(JObject movement)
         {
+            bool oldUse = controls.Use;
             controls.Up = bool.Parse((string)movement["up"]);
             controls.Down = bool.Parse((string)movement["down"]);
             controls.Left = bool.Parse((string)movement["left"]);
@@ -564,7 +576,10 @@ namespace server
             controls.Run = bool.Parse((string)movement["shift"]);
             controls.Hit = bool.Parse((string)movement["hit"]);
             controls.Use = bool.Parse((string)movement["use"]);
-
+            if (!oldUse && controls.Use)
+            {
+                GameServer.CheckForPortal(this);
+            }
         }
 
         /// <summary>

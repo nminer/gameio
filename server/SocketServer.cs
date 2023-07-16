@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -95,7 +96,9 @@ namespace server
                 case "movement":
                     PlayerMove(args.Client.Guid, json);
                     break;
-
+                case "command":
+                    PlayerCommand(args.Client.Guid, json);
+                    break;
             }
             //foreach (ClientMetadata clientData in wsserver.ListClients())
             //{
@@ -104,6 +107,21 @@ namespace server
                 
             
         }
+
+        static void PlayerCommand(Guid guid, JObject jsonMessage)
+        {
+            User? user = UserSystem.GetUserFromSocketId(guid.ToString());
+            if (user == null)
+            {
+                return;
+            }
+            string command = (string)jsonMessage["command"];
+            if (command.StartsWith("/location")) {
+                string locStr = $"Location - x:{user.X_Coord}, y:{user.Y_Coord}, map:{GameServer.GetMapById(user.Map_Id).Name}";
+                SendServerMessage(locStr, "Information", guid);
+            }
+        }
+
         static void PlayerMove(Guid guid, JObject jsonMessage)
         {
             User? user = UserSystem.GetUserFromSocketId(guid.ToString());

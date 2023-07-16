@@ -13,17 +13,36 @@ namespace server
 {
     internal class Map
     {
+        /// <summary>
+        /// keep the map database data thread safe.
+        /// </summary>
         private object databaseLock = new object();
-        private object listLock = new object();
+
+        /// <summary>
+        /// keep the user list safe.
+        /// </summary>
+        private object userListLock = new object();
 
         private SQLiteDataAdapter adapter;
 
+        /// <summary>
+        /// used when getting and saving the map data
+        /// </summary>
         private SQLiteCommandBuilder builder;
 
+        /// <summary>
+        /// the maps data set. used for saving changes
+        /// </summary>
         private DataSet data;
 
+        /// <summary>
+        /// the maps dat row
+        /// </summary>
         private DataRow row;
 
+        /// <summary>
+        /// user that are on the map
+        /// </summary>
         private List<User> users = new List<User>();
 
         /// <summary>
@@ -106,6 +125,15 @@ namespace server
         private List<ISolid> solids = new List<ISolid>();
 
         /// <summary>
+        /// lock to keep the ports list safe
+        /// </summary>
+        private object portalsLock = new object();
+        /// <summary>
+        /// a list of all the portals
+        /// </summary>
+        private List<Portal> portals = new List<Portal>();
+
+        /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
         /// <param name="userId"></param>
@@ -127,14 +155,40 @@ namespace server
                 command.Parameters.AddWithValue("$id", mapId);
                 adapter.SelectCommand = command;
                 adapter.Fill(data);
-                row = data.Tables[0].Rows[0];
-                // add the solid outline.
-                
+                row = data.Tables[0].Rows[0];    
             }
-            lock(solidsLock)
+            // add the solid outline.
+            lock (solidsLock)
             {
                 solids.Add(new Solid(new Point(0, 0), Height, Width));
             }
+            LoadPortals();
+        }
+
+        private void LoadPortals()
+        {
+            lock (portalsLock)
+            {
+                SQLiteDataAdapter adapterPortals = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderPortals = new SQLiteCommandBuilder(adapterPortals);
+
+                DataSet dataPortals = new DataSet();
+                string queryPortals = "SELECT * FROM Portals WHERE Map_Id=$id;";
+                SQLiteCommand commandPortals = new SQLiteCommand(queryPortals, DatabaseBuilder.Connection);
+                commandPortals.Parameters.AddWithValue("$id", Id);
+                adapterPortals.SelectCommand = commandPortals;
+                adapterPortals.Fill(dataPortals);
+                if (dataPortals.Tables.Count > 0 && dataPortals.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataPortals.Tables[0].Rows)
+                    {
+                        portals.Add(new Portal((Int64)r["Portal_Id"]));
+                    }
+                    
+                }
+            }
+            
         }
 
         static public Map? Create(string mapName, string imagePath)
@@ -184,7 +238,7 @@ namespace server
             user.Map_Id = Id;
             user.X_Coord = x;
             user.Y_Coord = y;
-            lock(listLock)
+            lock(userListLock)
             {
                 users.Add(user);
             }
@@ -192,7 +246,7 @@ namespace server
 
         public void RemoveUser(User user)
         {
-            lock(listLock)
+            lock(userListLock)
             {
                 users.Remove(user);
             }
@@ -204,7 +258,7 @@ namespace server
         /// <returns></returns>
         public List<User> GetUsers()
         {
-            lock(listLock)
+            lock(userListLock)
             {
                 return new List<User>(users);
             }      
@@ -221,7 +275,7 @@ namespace server
 
         public void TickGameUpdate()
         {
-            lock (listLock)
+            lock (userListLock)
             {
                 // get each user and check for movement.
                 foreach (var user in users)
@@ -279,6 +333,30 @@ namespace server
                 }
             }
             return false;
+        } 
+
+        /// <summary>
+        /// returns a portal if the player is in distance to use it.
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public Portal? CheckUsePortal(User player)
+        {
+            List<Portal> tempPortals;
+            lock (portalsLock)
+            {
+                tempPortals = new List<Portal>(portals);
+            }
+            Point userLocation = player.Location;
+            foreach (Portal p in tempPortals)
+            {
+                double dist = Point.Distance(p.Location, userLocation);
+                if (dist < 70) {
+                    // TODO add directions.
+                    return p;
+                }
+            }
+            return null;
         }
     }
 

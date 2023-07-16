@@ -201,7 +201,7 @@ function animate() {
         c.fillStyle = 'black';
         c.fillRect(0, 0, canvas.width, canvas.height);
         // Put your drawing code here
-        animations["walkDown"].draw(60, 0, 140, 140);
+        animations["walkDown"].draw(52, 0, 210, 140);
         animations["walkDown"].step();
     }
 }

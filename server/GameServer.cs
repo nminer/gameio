@@ -48,6 +48,29 @@ namespace server
             map.AddUser(user, user.X_Coord, user.Y_Coord);
         }
 
+        public static void ChangeUserMap(User user, Int64 targetMapId, double targetX, double targetY)
+        {
+            Map oldMap = GetMapById(user.Map_Id);
+            Map newMap = GetMapById(targetMapId);
+            oldMap.RemoveUser(user);
+            Guid? socketId = UserSystem.GetSocketIdFromUserName(user.UserName);
+            if (socketId != null)
+            {
+                SocketServer.SendOutMap((Guid)socketId, newMap);
+            }     
+            newMap.AddUser(user, targetX, targetY);
+        }
+
+        public static void CheckForPortal(User user)
+        {
+            Map playersMap = GetMapById(user.Map_Id);
+            Portal portalToUser = playersMap.CheckUsePortal(user);
+            if (portalToUser != null)
+            {
+                ChangeUserMap(user, portalToUser.TargetMapId, portalToUser.Target_X_Coord, portalToUser.Target_Y_Coord);
+            }
+        }
+
         public static Map GetMapById(Int64 mapId)
         {
             if (!mapIdToMaps.ContainsKey(mapId))
