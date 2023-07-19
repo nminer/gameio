@@ -11,7 +11,7 @@ DatabaseBuilder db = new DatabaseBuilder();
 //Map.Create("Home", "img/maps/houseinside.png");
 //Map.Create("outside", "img/maps/main_map.png");
 //Portal.Create("Door out", 1, 60, 720, 2, 1205, 2692);
-Portal.Create("Door In", 2, 1205, 2670, 1, 60, 700);
+//Portal.Create("Door In", 2, 1205, 2670, 1, 60, 700);
 
 List<string> hostNames = new List<string> { "127.0.0.1", "localhost" };
 string? localip = WebServer.GetIpAddress();
