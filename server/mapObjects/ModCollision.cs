@@ -9,7 +9,7 @@ namespace server.mapObjects
     internal class ModCollision
     {
         /// <summary>
-        /// reutrns true if the line intercept the circle.
+        /// returns true if the line intercept the circle.
         /// </summary>
         /// <param name="line"></param>
         /// <param name="circle"></param>

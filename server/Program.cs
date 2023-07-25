@@ -1,9 +1,20 @@
 ﻿using server;
+using server.mapObjects;
+using System.Drawing.Imaging;
+
 int port = 9000;
 
 Console.WriteLine("Here we go! Hello, World!");
 
 DatabaseBuilder db = new DatabaseBuilder();
+
+Shape ts = new Shape();
+ts.AddPoint(1,2).AddPoint(3,4);
+ts.IsClosedShape = true;
+string j = ts.ToJson();
+ts.Save("test shape");
+
+Shape tsreload = new Shape(1);
 
 //UserSystem.CreateNewUser("nminer", "caya");
 //UserSystem.CreateNewUser("test", "test");

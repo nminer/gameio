@@ -14,7 +14,7 @@ namespace server.mapObjects
         private object threadLock = new object();
 
         /// <summary>
-        /// all points are relitive to position.
+        /// all points are relative to position.
         /// </summary>
         private Point position;
 
@@ -27,19 +27,19 @@ namespace server.mapObjects
         /// <summary>
         // when set to true first and last point will be connected with a line.
         /// </summary>       
-        public bool IsShape
+        public bool IsClosedShape
         {
             get
             {
-                return isShape;
+                return isClosedShape;
             }
             set
             {
-                isShape = value;
+                isClosedShape = value;
                 linesBuilt = false;
             }
         }
-        private bool isShape = true;
+        private bool isClosedShape = true;
 
         /// <summary>
         /// hold the list of lines for this solid \.
@@ -123,8 +123,8 @@ namespace server.mapObjects
                         Point p2 = new Point(points[i + 1].X + position.X, points[i + 1].Y + position.Y);
                         lines.Add(new Line(p1, p2));
                     }
-                    // connect the last point to the first point if it is a shape
-                    if (isShape)
+                    // connect the last point to the first point if it is a closed shape
+                    if (isClosedShape)
                     {
                         Point p1 = new Point(points.Last().X + position.X, points.Last().Y + position.Y);
                         Point p2 = new Point(points.First().X + position.X, points.First().Y + position.Y);
