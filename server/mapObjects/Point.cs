@@ -109,5 +109,11 @@ namespace server.mapObjects
         }
 
         public static bool operator !=(Point lhs, Point rhs) => !(lhs == rhs);
+
+        public static Point operator +(Point a, Point b)
+        {
+            Point newPoint = new Point(a.X + b.X, a.Y + b.Y);
+            return newPoint;
+        }
     }
 }

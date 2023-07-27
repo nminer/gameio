@@ -16,6 +16,10 @@ ts.Save("test shape");
 
 Shape tsreload = new Shape(1);
 
+Point p1 = new Point(1,2);
+Point p2 = new Point(3,4);
+Point point3 = p1 + p2;
+
 //UserSystem.CreateNewUser("nminer", "caya");
 //UserSystem.CreateNewUser("test", "test");
 
