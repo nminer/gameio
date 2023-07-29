@@ -90,8 +90,8 @@ internal class DatabaseBuilder
 	            'Name'	TEXT NOT NULL,
 	            'Height'	INTEGER NOT NULL DEFAULT 0,
 	            'Width'	INTEGER NOT NULL DEFAULT 0,
-				'Dray_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
-				'Dray_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Image_Id' AUTOINCREMENT)
             );";
 		Excute(createImagessTable, Connection);
@@ -109,8 +109,8 @@ internal class DatabaseBuilder
 	            'Frame_Slowdown'	INTEGER NOT NULL DEFAULT 5,
 				'Start_Frame'	INTEGER NOT NULL DEFAULT 0,
 				'Random_Start_Frame'	INTEGER NOT NULL DEFAULT 0,
-				'Dray_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
-				'Dray_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Animation_Id' AUTOINCREMENT)
             );";
         Excute(createAnimationsTable, Connection);

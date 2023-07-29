@@ -16,122 +16,55 @@ namespace server.mapObjects
         /// <summary>
         /// all points are relative to position.
         /// </summary>
-        private Point position;
+        private Point shapePosition;
 
-        /// <summary>
-        /// gets set to true if lines have been built
-        /// this is to keep us from building lines over and over again.
-        /// </summary>
-        private bool linesBuilt = false;
-
-        /// <summary>
-        // when set to true first and last point will be connected with a line.
-        /// </summary>       
-        public bool IsClosedShape
-        {
-            get
-            {
-                return isClosedShape;
-            }
-            set
-            {
-                isClosedShape = value;
-                linesBuilt = false;
-            }
-        }
-        private bool isClosedShape = true;
-
-        /// <summary>
-        /// hold the list of lines for this solid \.
-        /// </summary>
-        private List<Line> lines = new List<Line>();
-
-        /// <summary>
-        /// holds the list of points that make up this solid.
-        /// </summary>
-        private List<Point> points = new List<Point>();
+        private Shape shape;
 
         /// <summary>
         /// set the solids position on the map. 
         /// this is default 0 0 if left null.
         /// </summary>
-        /// <param name="solidPosition"></param>
-        public Solid(Point ?solidPosition = null)
+        /// <param name="shapePosition"></param>
+        public Solid(Shape shape, Point ? shapePosition = null)
         {
-            lock(threadLock)
+            lock (threadLock)
             {
                 // set the default to 0, 0
-                if (solidPosition == null)
+                if (shapePosition == null)
                 {
-                    solidPosition = new Point(0, 0);
+                    shapePosition = new Point(0, 0);
                 }
-                this.position = solidPosition;
+                this.shapePosition = shapePosition;
+                this.shape = shape;
             }
         }
 
         /// <summary>
         /// create a simple solid. 4 points.
         /// </summary>
-        /// <param name="solidPosition"></param>
+        /// <param name="shapePosition"></param>
         /// <param name="height"></param>
         /// <param name="width"></param>
-        public Solid(Point solidPosition, double height, double width)
+        public Solid(Point shapePosition, double height, double width)
         {
-            position = solidPosition;
-            AddPoint(solidPosition);
-            AddPoint(new Point(position.X + width, position.Y));
-            AddPoint(new Point(position.X + width, position.Y + height));
-            AddPoint(new Point(position.X, position.Y + height));
-        }
-
-        /// <summary>
-        /// add a point to the solid.
-        /// each pair of points in order create a line.
-        /// </summary>
-        /// <param name="point"></param>
-        public Solid AddPoint(Point point)
-        {
-            lock (threadLock)
-            {
-                points.Add(point);
-                linesBuilt = false;
-            }
-            return this;
+            this.shapePosition = shapePosition;
+            shape = new Shape();
+            shape.AddPoint(0, 0).AddPoint(width, 0).AddPoint(width, height).AddPoint(0, height);
         }
 
         /// <summary>
         /// returns a list of lines that make up the solid.
         /// </summary>
         /// <returns></returns>
-        public Line[] Lines()
+        public Line[] Lines(Point? position = null)
         {
+            if (position is null)
+            {
+                position = new Point(0, 0);
+            }     
             lock (threadLock)
             {
-                // build the lines once for the solid.
-                if (!linesBuilt)
-                {
-                    linesBuilt = true;
-                    lines.Clear();
-                    if (points.Count <= 1)
-                    {
-                        return lines.ToArray();
-                    }
-                    // connect each pair of points to build lines
-                    for (int i = 0; i < points.Count && i+1 < points.Count; i++)
-                    {
-                        Point p1 = new Point(points[i].X + position.X, points[i].Y + position.Y);
-                        Point p2 = new Point(points[i + 1].X + position.X, points[i + 1].Y + position.Y);
-                        lines.Add(new Line(p1, p2));
-                    }
-                    // connect the last point to the first point if it is a closed shape
-                    if (isClosedShape)
-                    {
-                        Point p1 = new Point(points.Last().X + position.X, points.Last().Y + position.Y);
-                        Point p2 = new Point(points.First().X + position.X, points.First().Y + position.Y);
-                        lines.Add(new Line(p1, p2));
-                    }
-                }
-                return lines.ToArray();
+                return shape.Lines(shapePosition + position);
             }
         }
     }

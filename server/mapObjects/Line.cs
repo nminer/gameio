@@ -39,9 +39,13 @@ namespace server.mapObjects
             point2 = secondPoint;
         }
 
-        public Line[] Lines()
+        public Line[] Lines(Point? position = null)
         {
-            return new Line[] { this };
+            if (position is null)
+            {
+                return new Line[] { this };
+            }
+            return new Line[] { new Line(point1 + position, point2 + position) };
         }
     }
 }

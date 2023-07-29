@@ -150,8 +150,8 @@ namespace server.mapObjects
                     // connect each pair of points to build lines
                     for (int i = 0; i < points.Count && i + 1 < points.Count; i++)
                     {
-                        Point p1 = new Point(points[i].X + relativePoint.X, points[i].Y + relativePoint.Y);
-                        Point p2 = new Point(points[i + 1].X + relativePoint.X, points[i + 1].Y + relativePoint.Y);
+                        Point p1 = points[i] + relativePoint; // new Point(points[i].X + relativePoint.X, points[i].Y + relativePoint.Y);
+                        Point p2 = points[i + 1] + relativePoint;  // new Point(points[i + 1].X + relativePoint.X, points[i + 1].Y + relativePoint.Y);
                         lines.Add(new Line(p1, p2));
                     }
                     // connect the last point to the first point if it is a closed shape
