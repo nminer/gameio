@@ -90,8 +90,6 @@ internal class DatabaseBuilder
 	            'Name'	TEXT NOT NULL,
 	            'Height'	INTEGER NOT NULL DEFAULT 0,
 	            'Width'	INTEGER NOT NULL DEFAULT 0,
-				'Draw_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
-				'Draw_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Image_Id' AUTOINCREMENT)
             );";
 		Excute(createImagessTable, Connection);
@@ -109,8 +107,6 @@ internal class DatabaseBuilder
 	            'Frame_Slowdown'	INTEGER NOT NULL DEFAULT 5,
 				'Start_Frame'	INTEGER NOT NULL DEFAULT 0,
 				'Random_Start_Frame'	INTEGER NOT NULL DEFAULT 0,
-				'Draw_Oreder_Y'	INTEGER NOT NULL DEFAULT 0,
-				'Draw_Oreder_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Animation_Id' AUTOINCREMENT)
             );";
         Excute(createAnimationsTable, Connection);
@@ -124,6 +120,8 @@ internal class DatabaseBuilder
 				'Map_Id'	INTEGER NOT NULL DEFAULT 0,
 	            'Map_X'	INTEGER NOT NULL DEFAULT 0,
 	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Order_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Order_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Visual_Id' AUTOINCREMENT)
             );";
         Excute(createVisualsTable, Connection);
@@ -139,7 +137,7 @@ internal class DatabaseBuilder
         Excute(createShapesTable, Connection);
 
         // define shapes
-        string createSolidTable = @"CREATE TABLE 'Solid' (
+        string createSolidTable = @"CREATE TABLE 'Solids' (
 	            'Solid_Id'	INTEGER NOT NULL UNIQUE,
 	            'Description'	TEXT NOT NULL,
 				'Image_Id'	INTEGER NOT NULL DEFAULT 0,
@@ -147,12 +145,14 @@ internal class DatabaseBuilder
 				'Shape_Id'	INTEGER NOT NULL DEFAULT 0,
 				'Shape_Offset_X'	INTEGER NOT NULL DEFAULT 0,
 				'Shape_Offset_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Order_Y'	INTEGER NOT NULL DEFAULT 0,
+				'Draw_Order_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Solid_Id' AUTOINCREMENT)
             );";
         Excute(createSolidTable, Connection);
 
         // define shapes
-        string createMapSolidTable = @"CREATE TABLE 'Map_Solid' (
+        string createMapSolidTable = @"CREATE TABLE 'Map_Solids' (
 	            'Map_Solid_Id'	INTEGER NOT NULL UNIQUE,
 	            'Description'	TEXT NOT NULL,
 				'Solid_Id'	INTEGER NOT NULL DEFAULT 0,

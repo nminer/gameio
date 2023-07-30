@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace server.mapObjects
 {
-    class Shape
+    class Shape : ISolid
     {
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace server.mapObjects
         private List<Line> lines = new List<Line>();
 
         /// <summary>
-        /// The users id in the database.
+        /// The shape id in the database.
         /// </summary>
         public Int64 ShapeId
         {
@@ -91,6 +91,14 @@ namespace server.mapObjects
         public Shape(long  shapeId)
         {
             LoadFromId(shapeId);
+        }
+
+        public Shape ( double height, double width, Point? StartingPoint = null)
+        {
+            if (StartingPoint is null) {
+                StartingPoint = new Point(0,0);
+            }
+            this.AddPoint(StartingPoint).AddPoint(StartingPoint.X + width, StartingPoint.Y).AddPoint(StartingPoint.X+ width, StartingPoint.Y+ height).AddPoint(StartingPoint.X, StartingPoint.Y + height);
         }
 
         public Shape()
@@ -182,8 +190,8 @@ namespace server.mapObjects
                 adapter = new SQLiteDataAdapter();
                 builder = new SQLiteCommandBuilder(adapter);
                 data = new DataSet();
-                string findUser = $"SELECT * FROM Shapes WHERE Shape_Id=$id;";
-                SQLiteCommand command = new SQLiteCommand(findUser, DatabaseBuilder.Connection);
+                string findShape = $"SELECT * FROM Shapes WHERE Shape_Id=$id;";
+                SQLiteCommand command = new SQLiteCommand(findShape, DatabaseBuilder.Connection);
                 command.Parameters.AddWithValue("$id", shapeId);
                 adapter.SelectCommand = command;
                 adapter.Fill(data);
