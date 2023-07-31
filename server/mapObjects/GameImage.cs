@@ -12,7 +12,7 @@ using System.Drawing;
 
 namespace server.mapObjects
 {
-    class MapImage
+    class GameImage
     {
 
         private object dbDataLock = new object();
@@ -108,7 +108,7 @@ namespace server.mapObjects
         /// Load a map image from its image id in the database.
         /// </summary>
         /// <param name="imageId"></param>
-        public MapImage(Int64 imageId)
+        public GameImage(Int64 imageId)
         {
             LoaderImage(imageId);
         }
@@ -129,7 +129,7 @@ namespace server.mapObjects
             }
         }
 
-        static public MapImage? CreateNewImage(string imageName, string imagePath)
+        static public GameImage? CreateNewImage(string imageName, string imagePath)
         {
             System.Drawing.Image img;
             try
@@ -158,7 +158,7 @@ namespace server.mapObjects
                 {
                     long rowID = DatabaseBuilder.Connection.LastInsertRowId;
                     transaction.Commit();
-                    return new MapImage(rowID);
+                    return new GameImage(rowID);
                 }
                 transaction.Commit();
             }

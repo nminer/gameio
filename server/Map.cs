@@ -134,6 +134,15 @@ namespace server
         private List<Portal> portals = new List<Portal>();
 
         /// <summary>
+        /// lock to keep the ports list safe
+        /// </summary>
+        private object MapSolidsLock = new object();
+        /// <summary>
+        /// a list of all the portals
+        /// </summary>
+        private List<MapSolid> MapSolids = new List<MapSolid>();
+
+        /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
         /// <param name="userId"></param>
@@ -187,8 +196,32 @@ namespace server
                     }
                     
                 }
+            }            
+        }
+
+        private void LoadMapSolids()
+        {
+            lock (portalsLock)
+            {
+                SQLiteDataAdapter adapterMapSolids = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderMapSolids = new SQLiteCommandBuilder(adapterMapSolids);
+
+                DataSet dataMapSolids = new DataSet();
+                string queryMapSolids = "SELECT * FROM Map_Solids WHERE Map_Id=$id;";
+                SQLiteCommand commandMapSolids = new SQLiteCommand(queryMapSolids, DatabaseBuilder.Connection);
+                commandMapSolids.Parameters.AddWithValue("$id", Id);
+                adapterMapSolids.SelectCommand = commandMapSolids;
+                adapterMapSolids.Fill(dataMapSolids);
+                if (dataMapSolids.Tables.Count > 0 && dataMapSolids.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataMapSolids.Tables[0].Rows)
+                    {
+                        MapSolids.Add(new MapSolid((Int64)r["Map_Solid_Id"]));
+                    }
+
+                }
             }
-            
         }
 
         static public Map? Create(string mapName, string imagePath)

@@ -42,7 +42,7 @@ namespace server.mapObjects
 
         private Shape shape;
 
-        private MapImage? image = null;
+        private GameImage? image = null;
 
         /// <summary>
         /// The shape id in the database.
@@ -155,7 +155,7 @@ namespace server.mapObjects
                 long imageId = (Int64)row["Image_Id"];
                 if (imageId > 0)
                 {
-                    image = new MapImage(imageId);
+                    image = new GameImage(imageId);
                 }
             }
         }
@@ -165,7 +165,7 @@ namespace server.mapObjects
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public Solid? CreateNewSolid(Shape shape, Point? shapePosition = null, long imageId = 0, long animationId = 0, Point? drawOrder = null, string description = "")
+        static public Solid? Create(Shape shape, Point? shapePosition = null, long imageId = 0, long animationId = 0, Point? drawOrder = null, string description = "")
         {
             // set the default to 0, 0
             if (shapePosition == null)

@@ -93,7 +93,7 @@ namespace server.mapObjects
             LoadFromId(shapeId);
         }
 
-        public Shape ( double height, double width, Point? StartingPoint = null)
+        public Shape (double height, double width, Point? StartingPoint = null)
         {
             if (StartingPoint is null) {
                 StartingPoint = new Point(0,0);
