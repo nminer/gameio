@@ -172,6 +172,7 @@ namespace server
                 solids.Add(new Solid(new Point(0, 0), Height, Width));
             }
             LoadPortals();
+            LoadMapSolids();
         }
 
         private void LoadPortals()
@@ -245,15 +246,21 @@ namespace server
             command.Parameters.AddWithValue("$path", imagePath);
             command.Parameters.AddWithValue("$height", height);
             command.Parameters.AddWithValue("$width", width);
+            SQLiteTransaction transaction = null;
             try
             {
+                transaction = DatabaseBuilder.Connection.BeginTransaction();
                 if (command.ExecuteNonQuery() > 0)
                 {
-                    return null;//Map();
+                    long rowID = DatabaseBuilder.Connection.LastInsertRowId;
+                    transaction.Commit();
+                    return new Map(rowID);
                 }
+                transaction.Commit();
             }
             catch (Exception)
             {
+                transaction.Commit();
                 return null;
             }
             return null;
@@ -303,7 +310,20 @@ namespace server
         /// <returns></returns>
         public string GetJson()
         {
-            return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath });
+            //TODO: clean this up to build one time on load.
+            List<object> tempMapSolids = new List<object>();
+            foreach (MapSolid mapSolid in MapSolids)
+            {
+                if (mapSolid.HasImage())
+                {
+                    object toAdd = mapSolid.GetJsonImageObject();
+                    if (toAdd != null)
+                    {
+                        tempMapSolids.Add(toAdd);
+                    } 
+                } 
+            }
+            return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath, mapImages = tempMapSolids.ToArray() });
         }
 
         public void TickGameUpdate()

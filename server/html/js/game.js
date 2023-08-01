@@ -470,6 +470,7 @@ class Player {
     updateFrame(frame) {
         this.X = frame["x"];
         this.Y = frame["y"];
+        this.drawOrder = frame["y"];
         this.animation = this.animations[frame["animation"]];
         this.speed = frame["speed"]
         this.running = frame["running"];
@@ -509,6 +510,36 @@ function drawEllipse(ctx, x, y, w, h) {
     //ctx.stroke();
     //ctx.fi
     ctx.fill();
+}
+
+class MapImage {
+    /**
+     * create a new image for a map.
+     * @param {number} width
+     * @param {number} height
+     * @param {Image} image
+     */
+    constructor(width, height, path, x, y, draworder) {
+        this.X = x;
+        this.Y = y;
+        this.drawOrder = draworder;
+        this.width = width;
+        this.height = height;
+        this.image = ImageLoader.GetImage("./" + path);
+    }
+
+    /**
+     * call to draw the map on the canvas
+     * @param {number} x players x position
+     * @param {number} y players y position
+     */
+    draw(xOffset, yOffset) {
+        c.drawImage(this.image,
+            xOffset + this.X,
+            yOffset + this.Y,
+            this.width,
+            this.height);
+    }
 }
 
 //============================ Map ===========================
@@ -559,6 +590,7 @@ function loadMap(data) {
     playerLookup.clear();
 }
 
+const mapImages = [];
 
 
 //============================================================
@@ -646,7 +678,7 @@ function animate() {
         }
         // reorder the draw list
         drawList = drawList.sort((firstEl, secondEl) => {
-            if (firstEl.Y < secondEl.Y) {
+            if (firstEl.drawOrder < secondEl.drawOrder) {
                 return -1;
             }
             return 1;

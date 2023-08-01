@@ -9,6 +9,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Transactions;
 using System.Data.Common;
 using System.Drawing;
+using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace server.mapObjects
 {
@@ -170,10 +172,10 @@ namespace server.mapObjects
             return null;
         }
 
-        public string GetJsonImage(Point position, double drawOrder)
+        public object? GetJsonImageObject(Point position, double drawOrder)
         {
-            string img = $"\"image\":{{\"path\":\"{ImagePath}\",\"x\":\"{position.X}\",\"y\":\"{position.Y},\"drawOrder\":\"{drawOrder}\"\"}}";
-            return img;
+            //string img = JsonConvert.SerializeObject(new { path = ImagePath, width = Width, height = Height, x = position.X, y = position.Y, drawOrder = drawOrder });
+            return new { path = ImagePath, width = Width, height = Height, x = position.X, y = position.Y, drawOrder = drawOrder };
         }
 
     }

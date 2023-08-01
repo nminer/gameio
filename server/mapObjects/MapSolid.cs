@@ -131,7 +131,7 @@ namespace server.mapObjects
                 {
                     solid = new Solid(SolidId);
                 }
-                mapPosition = new Point((double)row["Map_X"], (double)row["Map_Y"]);
+                mapPosition = new Point((Int64)row["Map_X"], (Int64)row["Map_Y"]);
             }
         }
 
@@ -148,7 +148,7 @@ namespace server.mapObjects
         static private MapSolid? Create(long mapId, long shapeId, long solidId, long mapLocationX, long mapLocationY, string description = "")
         {
             string insertNewMapSolid = $"INSERT INTO Map_Solids (Description, Solid_Id, Shape_Id, Map_Id, Map_X, Map_Y)" +
-                      $" VALUES($descript, $solidId, $shapeId, $mapeId, $mapX, $mapY);";
+                      $" VALUES($descript, $solidId, $shapeId, $mapId, $mapX, $mapY);";
             SQLiteCommand command = new SQLiteCommand(insertNewMapSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$descript", description);
             command.Parameters.AddWithValue("$solidId", solidId);
@@ -191,6 +191,17 @@ namespace server.mapObjects
             {
                 return new Line[0];
             }
+        }
+
+        public bool HasImage()
+        {
+            return solid != null && solid.HasImage();
+        }
+
+        public object? GetJsonImageObject()
+        {
+            if (solid != null) return null;
+            return solid.GetJsonImageObject(mapPosition);
         }
     }
 }

@@ -150,8 +150,8 @@ namespace server.mapObjects
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
                 shape = new Shape((Int64)row["Shape_Id"]);
-                shapePosition = new Point((double)row["Shape_Offset_X"], (double)row["Shape_Offset_Y"]);
-                drawPosition = new Point((double)row["Draw_Order_X"], (double)row["Draw_Order_Y"]);
+                shapePosition = new Point((Int64)row["Shape_Offset_X"], (Int64)row["Shape_Offset_Y"]);
+                drawPosition = new Point((Int64)row["Draw_Order_X"], (Int64)row["Draw_Order_Y"]);
                 long imageId = (Int64)row["Image_Id"];
                 if (imageId > 0)
                 {
@@ -181,7 +181,7 @@ namespace server.mapObjects
                 shape.Save(description + " shape.");
             }
             string insertNewSolid = $"INSERT INTO Solids (Description, Image_Id, Animation_Id, Shape_Id, Shape_Offset_X, Shape_Offset_Y, Draw_Order_Y, Draw_Order_X)" +
-                $" VALUES($descript, $imgId, $animId, $shapeId, $shapeX, $shapeY, drawX, drawY);";
+                $" VALUES($descript, $imgId, $animId, $shapeId, $shapeX, $shapeY, $drawX, $drawY);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$descript", description);
             command.Parameters.AddWithValue("$imgId", imageId);
@@ -235,10 +235,10 @@ namespace server.mapObjects
             return image != null;
         }
 
-        public string GetJsonImage(Point position)
+        public object? GetJsonImageObject(Point position)
         {
-            if (image == null) return "{}";
-            return image.GetJsonImage(position, (drawPosition + position).Y);
+            if (image == null) return null;
+            return image.GetJsonImageObject(position, (drawPosition + position).Y);
         }
 
     }
