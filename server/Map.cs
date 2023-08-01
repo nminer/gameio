@@ -218,7 +218,9 @@ namespace server
                 {
                     foreach (DataRow r in dataMapSolids.Tables[0].Rows)
                     {
-                        MapSolids.Add(new MapSolid((Int64)r["Map_Solid_Id"]));
+                        MapSolid ms = new MapSolid((Int64)r["Map_Solid_Id"]);
+                        MapSolids.Add(ms);
+                        solids.Add(ms);
                     }
 
                 }
@@ -365,7 +367,7 @@ namespace server
         }
 
         /// <summary>
-        /// returne true if we have a collision
+        /// return true if we have a collision
         /// </summary>
         /// <param name="circle"></param>
         /// <returns></returns>
@@ -373,7 +375,7 @@ namespace server
         {
             lock (solidsLock)
             {
-                foreach (Solid solid in solids)
+                foreach (ISolid solid in solids)
                 {
                     foreach (Line line in solid.Lines())
                     {

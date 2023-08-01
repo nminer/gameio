@@ -580,6 +580,8 @@ let currentMap = null;
 // name:Player
 const playerLookup = new Map();
 
+const mapImages = [];
+
 function loadMap(data) {
     //var worldbackground = new Image();
     //worldbackground.src = "./" + data["image"];
@@ -588,9 +590,15 @@ function loadMap(data) {
     var width = data["width"];
     currentMap = new GameMap(width, height, worldbackground);
     playerLookup.clear();
+    mapImages.length = 0;
+    var imagesToLoad = data["mapImages"];
+    for (let i = 0; i < imagesToLoad.length; i++) {
+        var img = imagesToLoad[i];
+        mapImages.push(new MapImage(img["width"], img["height"], img["path"], img["x"], img["y"], img["drawOrder"]));
+    }
 }
 
-const mapImages = [];
+
 
 
 //============================================================
@@ -675,6 +683,10 @@ function animate() {
         // remove players that are not on the map any more.
         for (let i = 0; i < playersToRemove.length; i++) {
             playerLookup.delete(playerLookup[i]);
+        }
+        // add map images to the draw list
+        for (let i = 0; i < mapImages.length; i++) {
+            drawList.push(mapImages[i]);
         }
         // reorder the draw list
         drawList = drawList.sort((firstEl, secondEl) => {

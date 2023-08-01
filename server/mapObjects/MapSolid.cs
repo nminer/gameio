@@ -200,7 +200,7 @@ namespace server.mapObjects
 
         public object? GetJsonImageObject()
         {
-            if (solid != null) return null;
+            if (solid is null) return null;
             return solid.GetJsonImageObject(mapPosition);
         }
     }

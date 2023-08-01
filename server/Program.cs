@@ -33,11 +33,11 @@ DatabaseBuilder db = new DatabaseBuilder();
 //Portal.Create("Door out", 1, 60, 720, 2, 1205, 2692);
 //Portal.Create("Door In", 2, 1205, 2670, 1, 60, 700);
 //GameImage? tree = GameImage.CreateNewImage("tree1", "img/maps/objects/tree1.png");
-//Shape shape = new Shape(4,4);
-//shape.Save("4x4");
-//Solid? solid = Solid.Create(shape, imageId: tree.ImageId);
-//MapSolid? mapSolid = MapSolid.Create(outside, solid, new Point(200, 200));
-
+//Shape shape = new Shape(20, 100);
+//shape.Save("20x100");
+//Solid? solid = Solid.Create(shape, shapePosition: new Point(88, 225), imageId: tree.ImageId, drawOrder: new Point(240, 125));
+//MapSolid? mapSolid = MapSolid.Create(outside, solid, new Point(900, 2690));
+//MapSolid? mapSolid2 = MapSolid.Create(outside, solid, new Point(1020, 3000));
 
 
 List<string> hostNames = new List<string> { "127.0.0.1", "localhost" };
