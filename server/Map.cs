@@ -239,8 +239,8 @@ namespace server
                 return null;
             }
 
-            Int64 height = img.Width;
-            Int64 width = img.Height;
+            Int64 width = img.Width;
+            Int64 height = img.Height;
             // insert new user
             string insertNewMap = $"INSERT INTO Maps (MapName, ImagePath, Height,Width) VALUES($name, $path, $height, $width);";
             SQLiteCommand command = new SQLiteCommand(insertNewMap, DatabaseBuilder.Connection);
