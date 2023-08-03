@@ -44,6 +44,8 @@ namespace server.mapObjects
 
         private GameImage? image = null;
 
+        private GameAnimation? animation = null;
+
         /// <summary>
         /// The shape id in the database.
         /// </summary>
@@ -157,6 +159,11 @@ namespace server.mapObjects
                 {
                     image = new GameImage(imageId);
                 }
+                long animationId = (Int64)row["Animation_Id"];
+                if (animationId > 0)
+                {
+                    animation = new GameAnimation(animationId);
+                }
             }
         }
 
@@ -241,5 +248,15 @@ namespace server.mapObjects
             return image.GetJsonImageObject(position, (drawPosition + position).Y);
         }
 
+        public bool HasAnimation()
+        {
+            return animation != null;
+        }
+
+        public object? GetJsonAnimationObject(Point position)
+        {
+            if (animation == null) return null;
+            return animation.GetJsonAnimationObject(position, (drawPosition + position).Y);
+        }
     }
 }
