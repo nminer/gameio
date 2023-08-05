@@ -11,7 +11,7 @@ using System.Drawing;
 
 namespace server.mapObjects
 {
-    internal class MapSolid : ISolid
+    internal class MapSolid : ISolid, IImage, IAnimation
     {
         private object dbDataLock = new object();
 
@@ -198,10 +198,21 @@ namespace server.mapObjects
             return solid != null && solid.HasImage();
         }
 
-        public object? GetJsonImageObject()
+        public object? GetJsonImageObject(Point? position = null)
         {
             if (solid is null) return null;
             return solid.GetJsonImageObject(mapPosition);
+        }
+
+        public bool HasAnimation()
+        {
+            return solid != null && solid.HasAnimation();
+        }
+
+        public object? GetJsonAnimationObject(Point? position = null)
+        {
+            if (solid is null) return null;
+            return solid.GetJsonAnimationObject(mapPosition);
         }
     }
 }

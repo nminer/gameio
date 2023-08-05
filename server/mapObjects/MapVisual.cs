@@ -1,18 +1,14 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using System.Data;
 using System.Data.SQLite;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace server.mapObjects
 {
-
-    class Solid : ISolid, IImage, IAnimation
+    internal class MapVisual : IImage, IAnimation
     {
         private object dbDataLock = new object();
 
@@ -24,32 +20,21 @@ namespace server.mapObjects
 
         private DataRow? row;
 
-        /// <summary>
-        /// used to keep points and lines list safe.
-        /// </summary>
-        private object threadLock = new object();
-
-        /// <summary>
-        /// all points in the shape are relative to position.
-        /// </summary>
-        private Point shapePosition = new Point(0, 0);
+        public Point mapPosition = new Point(0, 0);
 
         /// <summary>
         /// the draw order point relative to top left
         /// </summary>
-        private Point drawPosition = new Point(0,0);
-
-
-        private Shape shape;
+        private Point drawPosition = new Point(0, 0);
 
         private GameImage? image = null;
 
         private GameAnimation? animation = null;
 
         /// <summary>
-        /// The shape id in the database.
+        /// The Map Visual Id in the database.
         /// </summary>
-        public Int64 SolidId
+        public Int64 MapVisualId
         {
             get
             {
@@ -59,12 +44,12 @@ namespace server.mapObjects
                     {
                         return 0;
                     }
-                    return (Int64)row["Solid_Id"];
+                    return (Int64)row["Map_Visual_Id"];
                 }
             }
         }
 
-        public string Description 
+        public string Name
         {
             get
             {
@@ -74,7 +59,7 @@ namespace server.mapObjects
                     {
                         return "";
                     }
-                    return (string)row["Description"];
+                    return (string)row["Name"];
                 }
             }
         }
@@ -115,44 +100,42 @@ namespace server.mapObjects
             }
         }
 
-        public long ShapeId
-        {
-            get { return shape.ShapeId; }
-        }
-
-        public Solid(long solidId)
-        {
-            LoadFromId(solidId);
-        }
-
         /// <summary>
-        /// create a simple solid. 4 points.
+        /// The Map id in the database.
         /// </summary>
-        /// <param name="shapePosition"></param>
-        /// <param name="height"></param>
-        /// <param name="width"></param>
-        public Solid(Point shapePosition, double height, double width)
+        public Int64 MapId
         {
-            this.shapePosition = shapePosition;
-            shape = new Shape(height, width);
-            //shape.AddPoint(0, 0).AddPoint(width, 0).AddPoint(width, height).AddPoint(0, height);
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 0;
+                    }
+                    return (Int64)row["Map_Id"];
+                }
+            }
         }
 
-        private void LoadFromId(long solidId)
+        public MapVisual(long visualId)
+        {
+            LoadFromId(visualId);
+        }
+
+        private void LoadFromId(long visualId)
         {
             lock (dbDataLock)
             {
                 adapter = new SQLiteDataAdapter();
                 builder = new SQLiteCommandBuilder(adapter);
                 data = new DataSet();
-                string findShape = $"SELECT * FROM Solids WHERE Solid_Id=$id;";
+                string findShape = $"SELECT * FROM Map_Visuals WHERE Map_Visual_Id=$id;";
                 SQLiteCommand command = new SQLiteCommand(findShape, DatabaseBuilder.Connection);
-                command.Parameters.AddWithValue("$id", solidId);
+                command.Parameters.AddWithValue("$id", visualId);
                 adapter.SelectCommand = command;
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
-                shape = new Shape((Int64)row["Shape_Id"]);
-                shapePosition = new Point((Int64)row["Shape_Offset_X"], (Int64)row["Shape_Offset_Y"]);
                 drawPosition = new Point((Int64)row["Draw_Order_X"], (Int64)row["Draw_Order_Y"]);
                 long imageId = (Int64)row["Image_Id"];
                 if (imageId > 0)
@@ -164,6 +147,7 @@ namespace server.mapObjects
                 {
                     animation = new GameAnimation(animationId);
                 }
+                mapPosition = new Point((Int64)row["Map_X"], (Int64)row["Map_Y"]);
             }
         }
 
@@ -172,32 +156,24 @@ namespace server.mapObjects
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public Solid? Create(Shape shape, Point? shapePosition = null, long imageId = 0, long animationId = 0, Point? drawOrder = null, string description = "")
+        static public MapVisual? Create(Map map, Point mapPosistion, long imageId = 0, long animationId = 0, Point? drawOrder = null, string name = "")
         {
             // set the default to 0, 0
-            if (shapePosition == null)
-            {
-                shapePosition = new Point(0, 0);
-            }
             if (drawOrder == null)
             {
                 drawOrder = new Point(0, 0);
             }
-            if (shape.ShapeId == 0)
-            {
-                shape.Save(description + " shape.");
-            }
-            string insertNewSolid = $"INSERT INTO Solids (Description, Image_Id, Animation_Id, Shape_Id, Shape_Offset_X, Shape_Offset_Y, Draw_Order_Y, Draw_Order_X)" +
-                $" VALUES($descript, $imgId, $animId, $shapeId, $shapeX, $shapeY, $drawX, $drawY);";
+            string insertNewSolid = $"INSERT INTO Map_Visuals (Name, Image_Id, Animation_Id, Map_Id, Map_X, Map_Y, Draw_Order_Y, Draw_Order_X)" +
+                $" VALUES($Name, $ImageId, $AnimationId, $MapId, $MapX, $MapY, $DrawOrderY, $DrawOrderX);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
-            command.Parameters.AddWithValue("$descript", description);
-            command.Parameters.AddWithValue("$imgId", imageId);
-            command.Parameters.AddWithValue("$animId", animationId);
-            command.Parameters.AddWithValue("$shapeId", shape.ShapeId);
-            command.Parameters.AddWithValue("$shapeX", shapePosition.X);
-            command.Parameters.AddWithValue("$shapeY", shapePosition.Y);
-            command.Parameters.AddWithValue("$drawX", drawOrder.X);
-            command.Parameters.AddWithValue("$drawY", drawOrder.Y);
+            command.Parameters.AddWithValue("$Name", name);
+            command.Parameters.AddWithValue("$ImageId", imageId);
+            command.Parameters.AddWithValue("$AnimationId", animationId);
+            command.Parameters.AddWithValue("$MapId", map.Id);
+            command.Parameters.AddWithValue("$MapX", mapPosistion.X);
+            command.Parameters.AddWithValue("$MapY", mapPosistion.Y);
+            command.Parameters.AddWithValue("$DrawOrderY", drawOrder.X);
+            command.Parameters.AddWithValue("$DrawOrderX", drawOrder.Y);
             SQLiteTransaction transaction = null;
             try
             {
@@ -206,7 +182,7 @@ namespace server.mapObjects
                 {
                     long rowID = DatabaseBuilder.Connection.LastInsertRowId;
                     transaction.Commit();
-                    return new Solid(rowID);
+                    return new MapVisual(rowID);
                 }
                 transaction.Commit();
             }
@@ -216,25 +192,6 @@ namespace server.mapObjects
                 return null;
             }
             return null;
-        }
-
-        /// <summary>
-        /// returns a list of lines that make up the solid.
-        /// </summary>
-        /// <returns></returns>
-        public Line[] Lines(Point? position = null)
-        {
-            if (position is null)
-            {
-                lock (threadLock)
-                {
-                    return shape.Lines(shapePosition);
-                }
-            }     
-            lock (threadLock)
-            {
-                return shape.Lines(shapePosition + position);
-            }
         }
 
         public bool HasImage()
@@ -257,7 +214,7 @@ namespace server.mapObjects
         public object? GetJsonAnimationObject(Point? position = null)
         {
             if (animation is null) return null;
-            if (position is null) position = new Point(0, 0);
+            if (position is null) position = mapPosition;
             return animation.GetJsonAnimationObject(position, (drawPosition + position).Y);
         }
     }

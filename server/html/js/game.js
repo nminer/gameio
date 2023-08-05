@@ -306,14 +306,14 @@ class CharAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(image, frames, x, y, width, height, slowdown, after, eachfram) {
+    constructor(image, frames, x, y, width, height, slowdown, after, eachfram, startFram = 0) {
         this.image = image;
         this.frames = frames;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.currentFrame = 0;
+        this.currentFrame = startFram;
         this.drawX = x;
         this.drawY = y;
         this.slowdown = slowdown;
@@ -372,6 +372,70 @@ class CharAnimation {
                 y,
                 width, height);
         }
+    }
+}
+
+class MapAnimation {
+    /**
+     * call step to go to next image in the animations.
+     * call draw to draw the image/frame to canvas.
+     * @param {Image} image sprite sheet
+     * @param {number} frames number of frames to be animated.
+     * @param {number} x x for where to start the animation from
+     * @param {number} y y for where to start the animation from
+     * @param {number} width width of each frame
+     * @param {number} height height of each frame
+     * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
+     */
+    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, startFram = 0, draworder = 0) {
+        this.image = ImageLoader.GetImage("./" + imagepath);
+        this.mapX = mapx;
+        this.mapY = mapy;
+        this.frames = frames;
+        this.imageX = imagex;
+        this.imageY = imagey;
+        this.width = width;
+        this.height = height;
+        this.currentFrame = startFram;
+        this.slowdown = slowdown;
+        this.countSlowdown = 0;
+        this.drawOrder = draworder;
+        this.drawX = this.imageX + (this.width * this.currentFrame);
+    }
+
+    /**
+     * step to the next image/frame in the animation.
+     */
+    step() {
+        this.countSlowdown += 1;
+        if (this.countSlowdown >= this.slowdown) {
+            this.currentFrame += 1;
+            this.countSlowdown = 0;
+        }
+        if (this.currentFrame >= this.frames) {
+            this.currentFrame = 0;
+        }
+        this.drawX = this.imageX + (this.width * this.currentFrame);
+    }
+
+    /**
+     * draw the frame to canvas.
+     * at the given x,y and at the passed in height and width.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     */
+    draw(offsetx, offsety) {
+        c.drawImage(this.image,
+            this.drawX,
+            this.imageY,
+            this.width,
+            this.height,
+            offsetx + this.mapX,
+            offsety + this.mapY,
+            this.width, this.height);
+        this.step();
     }
 }
 
@@ -581,6 +645,7 @@ let currentMap = null;
 const playerLookup = new Map();
 
 const mapImages = [];
+const mapAnimations = [];
 
 function loadMap(data) {
     //var worldbackground = new Image();
@@ -595,6 +660,12 @@ function loadMap(data) {
     for (let i = 0; i < imagesToLoad.length; i++) {
         var img = imagesToLoad[i];
         mapImages.push(new MapImage(img["width"], img["height"], img["path"], img["x"], img["y"], img["drawOrder"]));
+    }
+    var animaationsToLoad = data["mapAnimations"];
+    for (let i = 0; i < animaationsToLoad.length; i++) {
+        var img = animaationsToLoad[i];
+        //(image, mapx, mapy, frames, imagex, imagey, width, height, slowdown, startFram = 0, draworder = 0)
+        mapAnimations.push(new MapAnimation(img["path"], img["x"], img["y"], img["frameCount"], img["frameX"], img["frameY"], img["width"], img["height"], img["slowDown"], img["firstFrame"] , img["drawOrder"]));
     }
 }
 
@@ -687,6 +758,10 @@ function animate() {
         // add map images to the draw list
         for (let i = 0; i < mapImages.length; i++) {
             drawList.push(mapImages[i]);
+        }
+        // add all animations.   
+        for (let i = 0; i < mapAnimations.length; i++) {
+            drawList.push(mapAnimations[i]);
         }
         // reorder the draw list
         drawList = drawList.sort((firstEl, secondEl) => {

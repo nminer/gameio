@@ -243,7 +243,7 @@ namespace server.mapObjects
 
         public object? GetJsonAnimationObject(Point position, double drawOrder)
         {
-            return new { path = image.ImagePath, width = FrameWidth, height = FrameHeight, frameX = firstFramePosition.X, frameY = firstFramePosition.Y, frameCount = FrameCount, firstFrame = StartFrame, x = position.X, y = position.Y, drawOrder = drawOrder };
+            return new { path = image.ImagePath, width = FrameWidth, height = FrameHeight, frameX = firstFramePosition.X, frameY = firstFramePosition.Y, frameCount = FrameCount, firstFrame = StartFrame, x = position.X, y = position.Y, slowDown= Slowdown, drawOrder = drawOrder };
         }
 
     }

@@ -39,7 +39,7 @@ DatabaseBuilder db = new DatabaseBuilder();
 //MapSolid? mapSolid = MapSolid.Create(outside, solid, new Point(900, 2690));
 //MapSolid? mapSolid2 = MapSolid.Create(outside, solid, new Point(1020, 3000));
 
-MapBuilder.BuildOutsid();
+//MapBuilder.BuildOutsid();
 
 List<string> hostNames = new List<string> { "127.0.0.1", "localhost" };
 string? localip = WebServer.GetIpAddress();

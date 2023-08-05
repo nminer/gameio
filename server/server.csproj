@@ -93,6 +93,9 @@
     <None Update="html\img\maps\main_map.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\maps\objects\animations\campfire.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\maps\objects\house1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -36,7 +36,9 @@ namespace server
             MapSolid? maphouse1 = MapSolid.Create(outside, houseSolid, new Point(1450, 1660));
 
 
-
+            GameImage? campfire = GameImage.CreateNewImage("campfire", "img/maps/objects/animations/campfire.png");
+            GameAnimation? gaFire = GameAnimation.CreateNewAnimation("Camp Fire", campfire, 64, 64, 5, 5, new Point(0, 0), 0, true);
+            MapVisual? mFire = MapVisual.Create(outside, new Point(1555, 2222), animationId: gaFire.AnimationId, drawOrder: new Point(1555, 2290));
 
 
         }
