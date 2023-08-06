@@ -1,4 +1,87 @@
 let playing = true; // set to true once sounds are playing.
+
+// sounds that are placed on a map.
+let mapSounds = [];
+
+/**
+ * stop and removes all the map sounds.
+ */
+function clearMapSounds() {
+    mapSounds.forEach((s) => {
+         s.pause();
+    });
+    mapSounds.length = 0
+}
+
+function addMapSound(mapSoundToAdd) {
+    mapSounds.push(mapSoundToAdd);
+}
+
+class MapSound {
+
+    constructor(soundFileStr, repeat, mapX, mapY, fullVolumeRadius, fadeVolumeRadius) {
+        this.soundFileStr = soundFileStr;
+        this.sound = new Audio(this.soundFileStr);
+        this.sound.loop = repeat;
+        this.mapX = mapX;
+        this.mapY = mapY;
+        this.fullVolumeRadius = fullVolumeRadius;
+        this.fadeVolumeRadius = fadeVolumeRadius;
+    }
+
+    pause() {
+        this.sound.pause();
+    }
+
+    play() {
+        this.sound.play();
+    }
+
+    isPlaying() {
+        return !this.sound.paused;
+    }
+
+    checkDistance(x, y) {
+        let d = this.dist(x, y, this.mapX, this.mapY);
+        if (d <= this.fullVolumeRadius) {
+            this.sound.volume = 1;
+        } else if (d < this.fadeVolumeRadius) {
+            let first = d - this.fullVolumeRadius;
+            let second = this.fadeVolumeRadius - this.fullVolumeRadius;
+            let temp = first / second;
+            let volume = 1 - temp;
+            this.sound.volume = volume;
+        } else {
+            this.sound.volume = 0;
+        }
+        if (d <= this.fullVolumeRadius || d < this.fadeVolumeRadius) {
+            if (!this.isPlaying()) {
+                this.sound.play()
+            }
+        } else {
+            if (this.isPlaying()) {
+                this.sound.pause()
+            }
+        }
+    }
+
+    dist(x1, y1, x2, y2) {
+        //console.log(x1+","+y1+" "+x2+","+y2)
+        const re = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        //console.log(re);
+        return Math.floor(re);
+    }
+}
+
+function checkAllMapSounds(playerX, playerY) {
+    for (let i = 0; i < mapSounds.length; i++) {
+        let sound = mapSounds[i];
+        sound.checkDistance(playerX, playerY);
+    }
+}
+
+//=============================== baackground sounds =====================
+// this is for back ground sounds.
 let playingList = [];
 
 
@@ -79,5 +162,29 @@ function soundonoff(saveSetting = true) {
     } else {
         son.style.display = 'block';
         soff.style.display = 'none';
+    }
+}
+//==================== sound loader =================================
+/**
+ * the image loader holds all the loaded sounds
+ */
+class SoundLoader {
+    /**
+     * key path to image, value is the loaded image.
+     */
+    static LoadedSounds = new Map();
+
+    /**
+     * 
+     * @param {string} path the path to the image
+     */
+    static GetSound(path) {
+        if (SoundLoader.LoadedSounds.has(path)) {
+            return ImageLoader.LoadedImages.get(path);
+        }
+        var imageToAdd = new Image();
+        imageToAdd.src = path;
+        ImageLoader.LoadedImages.set(path, imageToAdd);
+        return imageToAdd;
     }
 }

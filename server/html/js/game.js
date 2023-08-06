@@ -774,8 +774,11 @@ function animate() {
         drawList.forEach((d) => {
             d.draw(offsetx, offsety);
         })
+        // check for map sounds.
+        checkAllMapSounds(curPlayer.X, curPlayer.Y);
     }
 }
+
 
 const addToUsersBox = (userName) => {
     if (!!document.querySelector(`.${userName}-userlist`)) {
@@ -923,4 +926,7 @@ function tellUser(user) {
 connectToWS();
 startAnimating(60);
 
+// testing
+t = new MapSound("sounds/login/campfire.mp3", true, 0, 0, 15, 200);
+addMapSound(t);
 
