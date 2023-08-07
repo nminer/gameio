@@ -30,6 +30,8 @@ internal class DatabaseBuilder
 	            'Health'	INTEGER NOT NULL DEFAULT 10,
 	            'Max_Stamana'	INTEGER NOT NULL DEFAULT 10,
 	            'Stamana'	INTEGER NOT NULL DEFAULT 10,
+	            'Max_Mana'	INTEGER NOT NULL DEFAULT 10,
+	            'Mana'	INTEGER NOT NULL DEFAULT 10,
 	            'Strength'	INTEGER NOT NULL DEFAULT 10,
 	            'Speed'	INTEGER NOT NULL DEFAULT 10,
 	            'Map_id'	INTEGER NOT NULL DEFAULT 1,

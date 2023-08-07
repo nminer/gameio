@@ -184,6 +184,48 @@ namespace server
         }
 
         /// <summary>
+        /// the players max mana. used formagic.
+        /// </summary>
+        public Int64 MaxMana
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Max_Mana"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Max_Mana"] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// the player current mana.
+        /// </summary>
+        public Int64 Mana
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Mana"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Mana"] = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// players strength.
         /// </summary>
         public Int64 Strength
