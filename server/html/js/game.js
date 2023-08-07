@@ -929,4 +929,6 @@ startAnimating(60);
 // testing
 t = new MapSound("sounds/login/campfire.mp3", true, 0, 0, 15, 200);
 addMapSound(t);
+t = new MapSound("sounds/login/campfire.mp3", true, 720, 0, 15, 200);
+addMapSound(t);
 

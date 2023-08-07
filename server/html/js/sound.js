@@ -21,28 +21,47 @@ class MapSound {
 
     constructor(soundFileStr, repeat, mapX, mapY, fullVolumeRadius, fadeVolumeRadius) {
         this.soundFileStr = soundFileStr;
-        this.sound = new Audio(this.soundFileStr);
-        this.sound.loop = repeat;
+        this.repeatLoop = repeat;
         this.mapX = mapX;
         this.mapY = mapY;
         this.fullVolumeRadius = fullVolumeRadius;
         this.fadeVolumeRadius = fadeVolumeRadius;
+        this.startLoading = false;
+    }
+
+    setSound(audioObject) {
+        this.sound = audioObject;
+        this.sound.loop = this.repeatLoop;
     }
 
     pause() {
-        this.sound.pause();
+        if (this.sound !== undefined) {
+            this.sound.pause();
+        }       
     }
 
     play() {
-        this.sound.play();
+        if (this.sound !== undefined) {
+            this.sound.play();
+        }
     }
 
     isPlaying() {
-        return !this.sound.paused;
+        if (this.sound !== undefined) {
+            return !this.sound.paused;
+        }
+        return false;
     }
 
     checkDistance(x, y) {
         let d = this.dist(x, y, this.mapX, this.mapY);
+        if (this.sound === undefined && !this.startLoading && d <= this.fadeVolumeRadius + 70) {
+            this.startLoading = true;
+            SoundLoader.GetSound(this.soundFileStr, this);
+        }       
+        if (this.sound === undefined) {
+            return;
+        }      
         if (d <= this.fullVolumeRadius) {
             this.sound.volume = 1;
         } else if (d < this.fadeVolumeRadius) {
@@ -178,13 +197,22 @@ class SoundLoader {
      * 
      * @param {string} path the path to the image
      */
-    static GetSound(path) {
+    static GetSound(path, toSetSoundOn) {
         if (SoundLoader.LoadedSounds.has(path)) {
-            return ImageLoader.LoadedImages.get(path);
+            let temp = new Audio()
+            temp.src = SoundLoader.LoadedSounds.get(path);
+            toSetSoundOn.setSound(temp);
+            return;
         }
-        var imageToAdd = new Image();
-        imageToAdd.src = path;
-        ImageLoader.LoadedImages.set(path, imageToAdd);
-        return imageToAdd;
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = "blob";//xhr.responseType = "ArrayBuffer";
+        xhr.open("GET", path);
+        xhr.send();
+        xhr.addEventListener("load", function () {
+            SoundLoader.LoadedSounds.set(path, URL.createObjectURL(xhr.response));
+            let temp = new Audio()
+            temp.src = SoundLoader.LoadedSounds.get(path);
+            toSetSoundOn.setSound(temp);
+        });
     }
 }
