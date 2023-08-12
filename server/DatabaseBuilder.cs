@@ -88,7 +88,7 @@ internal class DatabaseBuilder
         // define portals table 
         string createImagessTable = @"CREATE TABLE 'Images' (
 	            'Image_Id'	INTEGER NOT NULL UNIQUE,
-	            'ImagePath'	TEXT NOT NULL,
+	            'Image_Path'	TEXT NOT NULL,
 	            'Name'	TEXT NOT NULL,
 	            'Height'	INTEGER NOT NULL DEFAULT 0,
 	            'Width'	INTEGER NOT NULL DEFAULT 0,
@@ -153,7 +153,7 @@ internal class DatabaseBuilder
             );";
         Excute(createSolidTable, Connection);
 
-        // define shapes
+        // define map solids
         string createMapSolidTable = @"CREATE TABLE 'Map_Solids' (
 	            'Map_Solid_Id'	INTEGER NOT NULL UNIQUE,
 	            'Description'	TEXT NOT NULL,
@@ -165,14 +165,43 @@ internal class DatabaseBuilder
 	            PRIMARY KEY('Map_Solid_Id' AUTOINCREMENT)
             );";
         Excute(createMapSolidTable, Connection);
+
+		// define sounds
+        string createSoundsTable = @"CREATE TABLE 'Sounds' (
+	            'sound_Id'	INTEGER NOT NULL UNIQUE,
+				'Sound_Path'	TEXT NOT NULL,
+	            'Name'	TEXT NOT NULL,
+				'Repeat'	INTEGER NOT NULL DEFAULT 0,
+				'Has_Delay'	INTEGER NOT NULL DEFAULT 0,
+				'Delay_Min'	INTEGER NOT NULL DEFAULT 0,
+				'Delay_Max'	INTEGER NOT NULL DEFAULT 0,
+				'Full_Volume_Radius'	INTEGER NOT NULL DEFAULT 0,
+				'Fade_Volume_Radius'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('sound_Id' AUTOINCREMENT)
+            );";
+        Excute(createSoundsTable, Connection);
+
+        // define shapes
+        string createMapSoundsTable = @"CREATE TABLE 'Map_Sounds' (
+	            'Map_Sound_Id'	INTEGER NOT NULL UNIQUE,
+	            'Description'	TEXT NOT NULL,
+				'Sound_Id'	INTEGER NOT NULL DEFAULT 0,
+				'Map_Id'	INTEGER NOT NULL DEFAULT 0,
+	            'Map_X'	INTEGER NOT NULL DEFAULT 0,
+	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('Map_Sound_Id' AUTOINCREMENT)
+            );";
+        Excute(createMapSoundsTable, Connection);
+
     }
 
-	/// <summary>
-	/// execute a non query, query string with the passed in connection.
-	/// </summary>
-	/// <param name="query"></param>
-	/// <param name="Connection"></param>
-	private void Excute(string query, SQLiteConnection Connection)
+
+    /// <summary>
+    /// execute a non query, query string with the passed in connection.
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="Connection"></param>
+    private void Excute(string query, SQLiteConnection Connection)
 	{
         SQLiteCommand cmd = Connection.CreateCommand();
         cmd.CommandText = query;

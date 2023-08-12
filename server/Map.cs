@@ -145,6 +145,9 @@ namespace server
 
         private List<MapVisual> MapVisuals = new List<MapVisual>();
 
+
+        private List<MapSound> MapSounds = new List<MapSound>();
+
         /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
@@ -177,6 +180,7 @@ namespace server
             LoadPortals();
             LoadMapSolids();
             LoadMapVisuals();
+            LoadMapSounds();
         }
 
         private void LoadPortals()
@@ -251,6 +255,32 @@ namespace server
                     {
                         MapVisual ms = new MapVisual((Int64)r["Map_Visual_Id"]);
                         MapVisuals.Add(ms);
+                    }
+
+                }
+            }
+        }
+
+        private void LoadMapSounds()
+        {
+            lock (portalsLock)
+            {
+                SQLiteDataAdapter adapterMapSolids = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderMapSolids = new SQLiteCommandBuilder(adapterMapSolids);
+
+                DataSet dataMapSolids = new DataSet();
+                string queryMapSolids = "SELECT * FROM Map_Sounds WHERE Map_Id=$id;";
+                SQLiteCommand commandMapSolids = new SQLiteCommand(queryMapSolids, DatabaseBuilder.Connection);
+                commandMapSolids.Parameters.AddWithValue("$id", Id);
+                adapterMapSolids.SelectCommand = commandMapSolids;
+                adapterMapSolids.Fill(dataMapSolids);
+                if (dataMapSolids.Tables.Count > 0 && dataMapSolids.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataMapSolids.Tables[0].Rows)
+                    {
+                        MapSound ms = new MapSound((Int64)r["Map_Sound_Id"]);
+                        MapSounds.Add(ms);
                     }
 
                 }
@@ -375,7 +405,12 @@ namespace server
                     }
                 }
             }
-            return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath, mapImages = tempMapSolids.ToArray(), mapAnimations = tempMapAnimations.ToArray()});
+            List<Object> tempMapSounds = new List<Object>();
+            foreach (MapSound mapSound in MapSounds)
+            {
+                tempMapSounds.Add(mapSound.GetJsonSoundObject());
+            }
+            return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath, mapImages = tempMapSolids.ToArray(), mapAnimations = tempMapAnimations.ToArray(), mapSounds = tempMapSounds.ToArray()});
         }
 
         public void TickGameUpdate()

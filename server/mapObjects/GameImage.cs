@@ -86,7 +86,7 @@ namespace server.mapObjects
                     {
                         return "";
                     }
-                    return (string)row["ImagePath"];
+                    return (string)row["Image_Path"];
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace server.mapObjects
             Int64 width = img.Width;
             Int64 height = img.Height;
             // insert new image
-            string insertNewMap = $"INSERT INTO Images (ImagePath, Name, Height, Width) VALUES($path, $name, $height, $width);";
+            string insertNewMap = $"INSERT INTO Images (Image_Path, Name, Height, Width) VALUES($path, $name, $height, $width);";
             SQLiteCommand command = new SQLiteCommand(insertNewMap, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", imageName);
             command.Parameters.AddWithValue("$path", imagePath);
