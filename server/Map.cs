@@ -426,19 +426,46 @@ namespace server
                     bool canMove = true;
                     Point nextMove = new Point(user.X_Coord + nextMoveStep.X, user.Y_Coord + nextMoveStep.Y);
                     Circle tempUser = new Circle(nextMove, user.Solid.Radius);
-                        canMove = !CheckCollisionWithSolids(tempUser);
+                    canMove = !CheckCollisionWithSolids(tempUser);
                     // if full move failed(canMove = false) check for just x move 
-                    if (!canMove)
+                    if (!canMove && nextMoveStep.X != 0)
                     {
                         tempUser.Center.Y = user.Y_Coord;
                         canMove = !CheckCollisionWithSolids(tempUser);
                     }
                     // if full move and x move fail check for just y move
-                    if (!canMove)
+                    if (!canMove && nextMoveStep.Y != 0)
                     {
                         tempUser.Center.X = user.X_Coord;
                         tempUser.Center.Y = user.Y_Coord + nextMoveStep.Y;
                         canMove = !CheckCollisionWithSolids(tempUser);
+                    }
+                    // see if we can slid a little
+                    if (!canMove && nextMoveStep.X == 0 && nextMoveStep.Y != 0)
+                    {
+                        tempUser.Center.X = user.X_Coord + (nextMoveStep.Y / 2);
+                        double tempy = nextMoveStep.Y / 2;
+                        tempUser.Center.Y = user.Y_Coord + tempy;
+                        canMove = !CheckCollisionWithSolids(tempUser);
+                        if (!canMove)
+                        {
+                            tempUser.Center.X = user.X_Coord - (nextMoveStep.Y / 2);
+                            tempUser.Center.Y = user.Y_Coord + tempy;
+                            canMove = !CheckCollisionWithSolids(tempUser);
+                        }
+                    }
+                    if (!canMove && nextMoveStep.Y == 0 && nextMoveStep.X != 0)
+                    {
+                        tempUser.Center.Y = user.Y_Coord + (nextMoveStep.X / 2);
+                        double tempx = nextMoveStep.X /2;
+                        tempUser.Center.X = user.X_Coord + tempx;
+                        canMove = !CheckCollisionWithSolids(tempUser);
+                        if (!canMove)
+                        {
+                            tempUser.Center.Y = user.Y_Coord - (nextMoveStep.X / 2);
+                            tempUser.Center.X = user.X_Coord + tempx;
+                            canMove = !CheckCollisionWithSolids(tempUser);
+                        }
                     }
                     if (canMove)
                     {
