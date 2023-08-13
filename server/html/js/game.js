@@ -656,6 +656,8 @@ function loadMap(data) {
     currentMap = new GameMap(width, height, worldbackground);
     playerLookup.clear();
     mapImages.length = 0;
+    mapAnimations.length = 0;
+    clearMapSounds();
     var imagesToLoad = data["mapImages"];
     for (let i = 0; i < imagesToLoad.length; i++) {
         var img = imagesToLoad[i];
@@ -666,8 +668,7 @@ function loadMap(data) {
         var img = animaationsToLoad[i];
         //(image, mapx, mapy, frames, imagex, imagey, width, height, slowdown, startFram = 0, draworder = 0)
         mapAnimations.push(new MapAnimation(img["path"], img["x"], img["y"], img["frameCount"], img["frameX"], img["frameY"], img["width"], img["height"], img["slowDown"], img["firstFrame"] , img["drawOrder"]));
-    }
-    clearMapSounds();
+    } 
     var soundsToLoad = data["mapSounds"];
     for (let i = 0; i < soundsToLoad.length; i++) {
         var snd = soundsToLoad[i];
