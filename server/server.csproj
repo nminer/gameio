@@ -6660,6 +6660,9 @@
     <None Update="html\sounds\login\thunder.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\sounds\outside\beach.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\sounds\town\Ale-and-Anecdotes.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -117,7 +117,7 @@ namespace server
             }
             string command = (string)jsonMessage["command"];
             if (command.StartsWith("/location")) {
-                string locStr = $"Location - x:{user.X_Coord}, y:{user.Y_Coord}, map:{GameServer.GetMapById(user.Map_Id).Name}";
+                string locStr = $"Location - ({Convert.ToInt32(user.X_Coord)} , {Convert.ToInt32(user.Y_Coord)}) x:{user.X_Coord}, y:{user.Y_Coord}, map:{GameServer.GetMapById(user.Map_Id).Name}";
                 SendServerMessage(locStr, "Information", guid);
             }
         }

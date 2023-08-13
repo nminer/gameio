@@ -421,7 +421,7 @@ namespace server
                 foreach (var user in users)
                 {
                     Point nextMoveStep = user.GetNetMoveAmount();
-                    // if we are note moveing skip this user.
+                    // if we are not moving skip this user.
                     if (nextMoveStep.X == 0 && nextMoveStep.Y == 0) { continue; }
                     bool canMove = true;
                     Point nextMove = new Point(user.X_Coord + nextMoveStep.X, user.Y_Coord + nextMoveStep.Y);

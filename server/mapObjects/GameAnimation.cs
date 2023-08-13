@@ -136,6 +136,21 @@ namespace server.mapObjects
             }
         }
 
+        public bool StepHorizontal
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return false;
+                    }
+                    return (Int64)row["Step_Horizontal"] == 1;
+                }
+            }
+        }
+        
         public Int64 StartFrame
         {
             get
@@ -204,12 +219,12 @@ namespace server.mapObjects
 
         static public GameAnimation? CreateNewAnimation(string name, GameImage gameImage,
             long frameWidth, long frameHeight,
-            long numberOfFrames, long slowdown, Point firstFrameTopLeft, long startFrame,
+            long numberOfFrames, long slowdown, Point firstFrameTopLeft, bool stepHorizontal, long startFrame,
             bool randomStartFrame)
         {
             string insertNewMap = $"INSERT INTO Animations (Name, Image_Id, Start_Frame_X, " +
-                $"Start_Frame_Y, Frame_Height, Frame_Width, Frame_Count, Frame_Slowdown, Start_Frame, Random_Start_Frame)" +
-                $" VALUES($name, $imgId, $frameX, $frameY, $frameHeight, $frameWidth, $frameCount, $frameSlowdown, $StartFrame, $random);";
+                $"Start_Frame_Y, Frame_Height, Frame_Width, Frame_Count, Frame_Slowdown, Step_Horizontal, Start_Frame, Random_Start_Frame)" +
+                $" VALUES($name, $imgId, $frameX, $frameY, $frameHeight, $frameWidth, $frameCount, $frameSlowdown, $StepHorizontal, $StartFrame, $random);";
             SQLiteCommand command = new SQLiteCommand(insertNewMap, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", name);
             command.Parameters.AddWithValue("$imgId", gameImage.ImageId);
@@ -219,6 +234,7 @@ namespace server.mapObjects
             command.Parameters.AddWithValue("$frameWidth", frameWidth);
             command.Parameters.AddWithValue("$frameCount", numberOfFrames);
             command.Parameters.AddWithValue("$frameSlowdown", slowdown);
+            command.Parameters.AddWithValue("$StepHorizontal", stepHorizontal ? 1 : 0);
             command.Parameters.AddWithValue("$startFrame", startFrame);
             command.Parameters.AddWithValue("$random", randomStartFrame ? 1 : 0);
             SQLiteTransaction transaction = null;
@@ -243,7 +259,7 @@ namespace server.mapObjects
 
         public object? GetJsonAnimationObject(Point position, double drawOrder)
         {
-            return new { path = image.ImagePath, width = FrameWidth, height = FrameHeight, frameX = firstFramePosition.X, frameY = firstFramePosition.Y, frameCount = FrameCount, firstFrame = StartFrame, x = position.X, y = position.Y, slowDown= Slowdown, drawOrder = drawOrder };
+            return new { path = image.ImagePath, width = FrameWidth, height = FrameHeight, frameX = firstFramePosition.X, frameY = firstFramePosition.Y, frameCount = FrameCount, horizontal = StepHorizontal, firstFrame = StartFrame, x = position.X, y = position.Y, slowDown= Slowdown, drawOrder = drawOrder };
         }
 
     }

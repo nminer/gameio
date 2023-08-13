@@ -135,8 +135,12 @@ namespace server.mapObjects
             }
         }
 
-        static public MapSolid? Create(Map map, Solid solid, Point mapLocation, string description = "")
+        static public MapSolid? Create(Map map, Solid solid, Point? mapLocation = null, string description = "")
         {
+            if (mapLocation == null)
+            {
+                mapLocation = new Point(0, 0);
+            }
             return Create(map.Id, 0, solid.SolidId, (long)mapLocation.X, (long)mapLocation.Y, description);
         }
 

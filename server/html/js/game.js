@@ -387,7 +387,7 @@ class MapAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, startFram = 0, draworder = 0) {
+    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, horizontal = true, startFram = 0, draworder = 0) {
         this.image = ImageLoader.GetImage("./" + imagepath);
         this.mapX = mapx;
         this.mapY = mapy;
@@ -396,11 +396,18 @@ class MapAnimation {
         this.imageY = imagey;
         this.width = width;
         this.height = height;
+        this.stepHorizontal = horizontal;
         this.currentFrame = startFram;
         this.slowdown = slowdown;
         this.countSlowdown = 0;
         this.drawOrder = draworder;
-        this.drawX = this.imageX + (this.width * this.currentFrame);
+        if (this.stepHorizontal) {
+            this.drawX = this.imageX + (this.width * this.currentFrame);
+            this.drawY = this.imageY;
+        } else {
+            this.drawY = this.imageY + (this.height * this.currentFrame);
+            this.drawX = this.imageX;
+        }
     }
 
     /**
@@ -415,7 +422,12 @@ class MapAnimation {
         if (this.currentFrame >= this.frames) {
             this.currentFrame = 0;
         }
-        this.drawX = this.imageX + (this.width * this.currentFrame);
+        if (this.stepHorizontal) {
+            this.drawX = this.imageX + (this.width * this.currentFrame);
+        } else {
+            this.drawY = this.imageY + (this.height * this.currentFrame);
+        }
+        
     }
 
     /**
@@ -429,7 +441,7 @@ class MapAnimation {
     draw(offsetx, offsety) {
         c.drawImage(this.image,
             this.drawX,
-            this.imageY,
+            this.drawY,
             this.width,
             this.height,
             offsetx + this.mapX,
@@ -667,7 +679,7 @@ function loadMap(data) {
     for (let i = 0; i < animaationsToLoad.length; i++) {
         var img = animaationsToLoad[i];
         //(image, mapx, mapy, frames, imagex, imagey, width, height, slowdown, startFram = 0, draworder = 0)
-        mapAnimations.push(new MapAnimation(img["path"], img["x"], img["y"], img["frameCount"], img["frameX"], img["frameY"], img["width"], img["height"], img["slowDown"], img["firstFrame"] , img["drawOrder"]));
+        mapAnimations.push(new MapAnimation(img["path"], img["x"], img["y"], img["frameCount"], img["frameX"], img["frameY"], img["width"], img["height"], img["slowDown"], img["horizontal"], img["firstFrame"], img["drawOrder"]));
     } 
     var soundsToLoad = data["mapSounds"];
     for (let i = 0; i < soundsToLoad.length; i++) {
@@ -873,6 +885,9 @@ const addNewServerMessage = ({ user, serverMessage }) => {
   </div>`;
 
     messageBox.innerHTML += receivedMsg;
+    const myRe = /Location \- \((.*)\)/g;
+    const myArray = myRe.exec(serverMessage);
+    navigator.clipboard.writeText(myArray[1]);
 };
 
 // send user message

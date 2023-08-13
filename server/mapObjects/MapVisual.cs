@@ -154,6 +154,7 @@ namespace server.mapObjects
         /// <summary>
         /// set the solids position on the map. 
         /// this is default 0 0 if left null.
+        /// draw order is relative to top of image or animation.
         /// </summary>
         /// <param name="shapePosition"></param>
         static public MapVisual? Create(Map map, Point mapPosistion, long imageId = 0, long animationId = 0, Point? drawOrder = null, string name = "")
@@ -172,8 +173,8 @@ namespace server.mapObjects
             command.Parameters.AddWithValue("$MapId", map.Id);
             command.Parameters.AddWithValue("$MapX", mapPosistion.X);
             command.Parameters.AddWithValue("$MapY", mapPosistion.Y);
-            command.Parameters.AddWithValue("$DrawOrderY", drawOrder.X);
-            command.Parameters.AddWithValue("$DrawOrderX", drawOrder.Y);
+            command.Parameters.AddWithValue("$DrawOrderX", drawOrder.X);
+            command.Parameters.AddWithValue("$DrawOrderY", drawOrder.Y);
             SQLiteTransaction transaction = null;
             try
             {

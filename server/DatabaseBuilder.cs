@@ -107,6 +107,7 @@ internal class DatabaseBuilder
 	            'Frame_Width'	INTEGER NOT NULL DEFAULT 0,
 	            'Frame_Count'	INTEGER NOT NULL DEFAULT 0,
 	            'Frame_Slowdown'	INTEGER NOT NULL DEFAULT 5,
+				'Step_Horizontal'	INTEGER NOT NULL DEFAULT 1,
 				'Start_Frame'	INTEGER NOT NULL DEFAULT 0,
 				'Random_Start_Frame'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Animation_Id' AUTOINCREMENT)
