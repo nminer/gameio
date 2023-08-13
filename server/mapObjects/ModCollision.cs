@@ -8,13 +8,8 @@ namespace server.mapObjects
 {
     internal class ModCollision
     {
-        /// <summary>
-        /// returns true if the line intercept the circle.
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="circle"></param>
-        /// <returns></returns>
-        public static bool DoesLineInterceptCircle(Line line, Circle circle)
+
+        public static double Distance(Line line, Circle circle)
         {
             double dist;
             double v1x = line.X2 - line.X1;
@@ -41,12 +36,24 @@ namespace server.mapObjects
                 if (u < 0)
                 {
                     dist = Math.Pow((line.X1 - circle.Center.X), 2) + Math.Pow((line.Y1 - circle.Center.Y), 2);
-                } else
+                }
+                else
                 {
                     dist = Math.Pow((line.X2 - circle.Center.X), 2) + Math.Pow((line.Y2 - circle.Center.Y), 2);
                 }
             }
-            return dist < circle.Radius * circle.Radius;
+            return Math.Sqrt(dist);
+        }
+
+        /// <summary>
+        /// returns true if the line intercept the circle.
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="circle"></param>
+        /// <returns></returns>
+        public static bool DoesLineInterceptCircle(Line line, Circle circle)
+        {
+            return Distance(line, circle) < circle.Radius;
         }
 
 

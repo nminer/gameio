@@ -47,5 +47,15 @@ namespace server.mapObjects
             }
             return new Line[] { new Line(point1 + position, point2 + position) };
         }
+
+        public double Distance(Circle circle, Point? position = null)
+        {
+            if (position is null)
+            {
+                return ModCollision.Distance(this, circle);
+            }
+            return ModCollision.Distance(new Line(point1 + position, point2 + position), circle);
+        }
+
     }
 }

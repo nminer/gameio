@@ -237,6 +237,21 @@ namespace server.mapObjects
             }
         }
 
+        public double Distance(Circle circle, Point? position = null)
+        {
+            if (position is null)
+            {
+                lock (threadLock)
+                {
+                    return shape.Distance(circle,shapePosition);
+                }
+            }
+            lock (threadLock)
+            {
+                return shape.Distance(circle, shapePosition + position);
+            }
+        }
+
         public bool HasImage()
         {
             return image != null;

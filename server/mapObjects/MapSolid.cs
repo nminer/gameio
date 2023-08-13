@@ -193,6 +193,23 @@ namespace server.mapObjects
             }
         }
 
+        public double Distance(Circle circle, Point? position = null)
+        {
+            if (position is null) { position = mapPosition; }
+            if (solid is not null)
+            {
+                return solid.Distance(circle, position);
+            }
+            else if (shape is not null)
+            {
+                return shape.Distance(circle, position);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         public bool HasImage()
         {
             return solid != null && solid.HasImage();

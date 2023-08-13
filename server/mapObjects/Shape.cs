@@ -9,6 +9,7 @@ using System.Threading;
 using System.Text.Json;
 using System.Drawing;
 using Newtonsoft.Json;
+using System.Drawing.Imaging;
 
 namespace server.mapObjects
 {
@@ -29,6 +30,8 @@ namespace server.mapObjects
         private DataSet? data;
 
         private DataRow? row;
+
+        private Circle? center;
 
         /// <summary>
         /// gets set to true if lines have been built
@@ -199,6 +202,7 @@ namespace server.mapObjects
                 isClosedShape = (Int64)row["Is_Closed_Shape"] == 1;
                 points = JsonConvert.DeserializeObject<List<Point>>((string)row["Json_Points"]);
                 linesBuilt = false;
+                FindCenter();
             }        
         }
 
@@ -233,6 +237,40 @@ namespace server.mapObjects
                     adapter.Update(data);
                 }
             }
+        }
+
+        private void FindCenter()
+        {
+            if (points.Count == 0)
+            {
+                return;
+            }
+            double x = 0;
+            double y = 0;
+            foreach (Point p in points)
+            {
+                x += p.X;
+                y+= p.Y;
+            }
+            Point pointCeneter = new Point(x/points.Count, y/points.Count);
+            double radius = 0;
+            foreach (Point p in points)
+            {
+                double dist = pointCeneter.Distance(p);
+                if (dist > radius)
+                {
+                    radius = dist;
+                }
+            }
+            center = new Circle(pointCeneter, radius);
+        }
+
+        public double Distance(Circle circle, Point? position = null)
+        {
+            if (center == null) { return 0; }
+            if (position is null) { position = new Point(0, 0); }
+            Circle temp = new Circle(center.Center + position, center.Radius);
+            return temp.Distance(circle);
         }
 
     }

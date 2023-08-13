@@ -66,6 +66,10 @@ namespace server.mapObjects
             return distance;
         }
 
+        public double Distance(Point pointToCheck)
+        {
+            return Point.Distance(pointToCheck, this);
+        }
 
         public override bool Equals(object obj) => this.Equals(obj as Point);
 

@@ -462,6 +462,9 @@ namespace server
             {
                 foreach (ISolid solid in solids)
                 {
+                    if (solid.Distance(circle) > 0) {
+                        continue; // if we are not near the solid skip checking all the lines.
+                    }
                     foreach (Line line in solid.Lines())
                     {
                         if (ModCollision.DoesLineInterceptCircle(line, circle))
