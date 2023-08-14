@@ -630,6 +630,26 @@ namespace server
         /// </summary>
         public Point GetNetMoveAmount()
         {
+            if (controls.Hit)
+            {
+                if (Direction < 45 || Direction > 315)
+                {
+                    AnimationName = "swingDown";
+                }
+                else if (Direction >= 45 && Direction <= 135)
+                {
+                    AnimationName = "swingLeft";
+                }
+                else if (Direction > 135 && Direction <= 225)
+                {
+                    AnimationName = "swingUp";
+                }
+                else
+                {
+                    AnimationName = "swingRight";
+                }
+                return new Point(0, 0);
+            }
             //Map map = GameServer.GetMapById(Map_Id);
             double moveX = 0;
             double moveY = 0;

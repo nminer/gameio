@@ -472,6 +472,7 @@ class Player {
         this.animation = this.animations.standDown
         this.speed = 1;
         this.name = new DisplayText(this.Id, 14, 35, 163, 255, .7);
+        this.animationName = "stand";
     }
 
     setAsPlayer() {
@@ -484,7 +485,7 @@ class Player {
     getSlowdown() {
             //return 10 - this.speed/2;
         let speedmod = convertRange(0, 100, 2, 10, this.speed)
-        if (this.running) {
+        if (this.animationName.includes("walk") && this.running) {
             speedmod += 5;
         }
         return 10 - speedmod;
@@ -541,13 +542,19 @@ class Player {
         }
     }
 
-    // take in the fram from the server and update its stats.
-    // and anminmation.
+    // take in the frame from the server and update its stats.
+    // and animation.
     updateFrame(frame) {
         this.X = frame["x"];
         this.Y = frame["y"];
         this.drawOrder = frame["y"];
-        this.animation = this.animations[frame["animation"]];
+        if (this.animationName != frame["animation"]) {
+            this.animation = this.animations[frame["animation"]];
+            this.animationName = frame["animation"];
+            if (this.animationName.includes("swing")) {
+                this.animation.currentFrame = 0;
+            }
+        }
         this.speed = frame["speed"]
         this.running = frame["running"];
     }
