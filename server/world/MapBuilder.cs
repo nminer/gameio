@@ -61,6 +61,13 @@ namespace server
             beachShape.Save("outside beach line");
             Solid beachSold = Solid.Create(beachShape);
             MapSolid? beachMapSolid = MapSolid.Create(outside, beachSold);
+
+            GameImage? somkeimg = GameImage.CreateNewImage("smoke", "img/maps/objects/animations/smoke.png");
+            GameAnimation? gaSmoke = GameAnimation.CreateNewAnimation("smoke", somkeimg, 93, 149, 16, 10, new Point(0, 0), true, 0, true);
+            MapVisual? msmoke = MapVisual.Create(outside, new Point(1820, 2110), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 139));
+            MapVisual? msmoke2 = MapVisual.Create(outside, new Point(1820, 2110), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 139));
+            MapVisual? msmokehose = MapVisual.Create(outside, new Point(1790, 1518), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 500));
+            MapVisual? msmokehose2 = MapVisual.Create(outside, new Point(1790, 1518), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 500));
         }
     }
 }

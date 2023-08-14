@@ -96,6 +96,9 @@
     <None Update="html\img\maps\objects\animations\campfire.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\maps\objects\animations\smoke.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\maps\objects\house1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -6712,7 +6715,6 @@
 
   <ItemGroup>
     <Folder Include="html\img\main\" />
-    <Folder Include="html\img\maps\objects\" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

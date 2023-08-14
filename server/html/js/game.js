@@ -562,11 +562,15 @@ class Player {
     draw(xOffset, yOffset) {
         //c.fillStyle = 'red';
         //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
-        this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
+        //this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
         c.fillStyle = 'rgba(0,0,0,.2)';
         drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
         this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66, this.width, this.height);
         this.animation.step();
+    }
+
+    drawName(xOffset, yOffset) {
+        this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
     }
 }
 
@@ -800,6 +804,10 @@ function animate() {
         drawList.forEach((d) => {
             d.draw(offsetx, offsety);
         })
+        // draw player names
+        for (const p of playerLookup.values()) {
+            p.drawName(offsetx, offsety);
+        }
         // check for map sounds.
         checkAllMapSounds(curPlayer.X, curPlayer.Y);
     }
