@@ -611,6 +611,7 @@ namespace server
         public void UpdateFromPlayer(JObject movement)
         {
             bool oldUse = controls.Use;
+            bool oldHit = controls.Hit;
             controls.Up = bool.Parse((string)movement["up"]);
             controls.Down = bool.Parse((string)movement["down"]);
             controls.Left = bool.Parse((string)movement["left"]);
@@ -621,6 +622,12 @@ namespace server
             if (!oldUse && controls.Use)
             {
                 GameServer.CheckForPortal(this);
+            }
+            if (!oldHit && controls.Hit)
+            {
+                // this is not the place i want to keep the sound for the user.
+                SoundAffect punch = new SoundAffect("sounds/char/punch.wav", false, this.Location, 60, 200);
+                GameServer.AddGameSoundAffect(this.Map_Id, punch);
             }
         }
 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using server.mapObjects;
+using System.Collections.Concurrent;
 
 namespace server
 {
@@ -44,6 +45,12 @@ namespace server
         /// user that are on the map
         /// </summary>
         private List<User> users = new List<User>();
+
+
+        /// <summary>
+        /// all the sound affects to send out on next update.
+        /// </summary>
+        private ConcurrentQueue<SoundAffect> soundAffects = new ConcurrentQueue<SoundAffect>();
 
         /// <summary>
         /// The map id
@@ -261,6 +268,11 @@ namespace server
             }
         }
 
+        public void AddSoundAffect(SoundAffect soundAffect)
+        {
+            soundAffects.Enqueue(soundAffect);
+        }
+
         private void LoadMapSounds()
         {
             lock (portalsLock)
@@ -411,6 +423,20 @@ namespace server
                 tempMapSounds.Add(mapSound.GetJsonSoundObject());
             }
             return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath, mapImages = tempMapSolids.ToArray(), mapAnimations = tempMapAnimations.ToArray(), mapSounds = tempMapSounds.ToArray()});
+        }
+
+        public string GetAllJsonSoundAffects()
+        {
+            List<object> sounds = new List<object>();
+            while (soundAffects.Count > 0)
+            {
+                SoundAffect? s;
+                if (soundAffects.TryDequeue(out s))
+                {
+                    sounds.Add(s.GetJsonSoundObject());
+                }
+            }
+            return JsonConvert.SerializeObject(sounds.ToArray());
         }
 
         public void TickGameUpdate()

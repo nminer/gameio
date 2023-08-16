@@ -3,6 +3,11 @@ let playing = true; // set to true once sounds are playing.
 // sounds that are placed on a map.
 let mapSounds = [];
 
+// a list of sound affects to play.
+// sound affects play one time and then are removed.
+let soundAffects = [];
+
+
 /**
  * stop and removes all the map sounds.
  */
@@ -10,16 +15,25 @@ function clearMapSounds() {
     mapSounds.forEach((s) => {
          s.pause();
     });
-    mapSounds.length = 0
+    mapSounds.length = 0;
+    soundAffects.forEach((s) => {
+        s.pause();
+    });
+    soundAffects.length = 0;
 }
 
 function addMapSound(mapSoundToAdd) {
     mapSounds.push(mapSoundToAdd);
 }
 
+function addSoundAffect(mapSoundToAdd) {
+    mapSoundToAdd.loadSound();
+    soundAffects.push(mapSoundToAdd);
+}
+
 class MapSound {
 
-    constructor(soundFileStr, repeat, mapX, mapY, fullVolumeRadius, fadeVolumeRadius) {
+    constructor(soundFileStr, repeat, mapX, mapY, fullVolumeRadius, fadeVolumeRadius, soundAffect = false) {
         this.soundFileStr = soundFileStr;
         this.repeatLoop = repeat;
         this.mapX = mapX;
@@ -27,11 +41,15 @@ class MapSound {
         this.fullVolumeRadius = fullVolumeRadius;
         this.fadeVolumeRadius = fadeVolumeRadius;
         this.startLoading = false;
+        this.soundAffect = soundAffect;
     }
 
     setSound(audioObject) {
         this.sound = audioObject;
         this.sound.loop = this.repeatLoop;
+        if (this.soundAffect) {
+            this.play();
+        }
     }
 
     pause() {
@@ -53,11 +71,22 @@ class MapSound {
         return false;
     }
 
+    // returns true if the sound was loaded and finished playing
+    finishedPlaying() {
+        return this.sound !== undefined && this.sound.paused;
+    }
+
+    loadSound() {
+        if (this.sound === undefined && !this.startLoading) {
+            this.startLoading = true;
+            SoundLoader.GetSound(this.soundFileStr, this);
+        }
+    }
+
     checkDistance(x, y) {
         let d = this.dist(x, y, this.mapX, this.mapY);
         if (this.sound === undefined && !this.startLoading && d <= this.fadeVolumeRadius + 70) {
-            this.startLoading = true;
-            SoundLoader.GetSound(this.soundFileStr, this);
+            this.loadSound();
         }       
         if (this.sound === undefined) {
             return;
@@ -77,7 +106,7 @@ class MapSound {
             if (!this.isPlaying()) {
                 this.sound.play()
             }
-        } else {
+        } else if (!this.soundAffect) {
             if (this.isPlaying()) {
                 this.sound.pause()
             }
@@ -95,6 +124,13 @@ class MapSound {
 function checkAllMapSounds(playerX, playerY) {
     for (let i = 0; i < mapSounds.length; i++) {
         let sound = mapSounds[i];
+        sound.checkDistance(playerX, playerY);
+    }
+    soundAffects = soundAffects.filter(function (s) {
+        return !s.finishedPlaying()
+    });
+    for (let i = 0; i < soundAffects.length; i++) {
+        let sound = soundAffects[i];
         sound.checkDistance(playerX, playerY);
     }
 }

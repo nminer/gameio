@@ -6636,6 +6636,9 @@
     <None Update="html\sounds\birds\bird9.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\sounds\char\punch.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\sounds\login\bird.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

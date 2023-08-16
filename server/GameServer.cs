@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using server;
+using server.mapObjects;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -71,6 +72,12 @@ namespace server
             }
         }
 
+        public static void AddGameSoundAffect(Int64 mapId, SoundAffect sound)
+        {
+            Map map = GetMapById(mapId);
+            map.AddSoundAffect(sound);
+        }
+
         public static Map GetMapById(Int64 mapId)
         {
             if (!mapIdToMaps.ContainsKey(mapId))
@@ -133,6 +140,8 @@ namespace server
                         writer.WriteRawValue(user.GetJson());
                     }
                     writer.WriteEnd();
+                    writer.WritePropertyName("soundAffects");
+                    writer.WriteRawValue(map.GetAllJsonSoundAffects());
                     writer.WriteEndObject();
                 }
                 foreach (User user in mapUsers)

@@ -97,6 +97,7 @@ function connectToWS() {
         } else if (data.hasOwnProperty("update")) {
             lastUpdateTime = data["update"];
             lastUpdateFrame = data["frame"];
+            addAllSoundAffects(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
         }
@@ -116,6 +117,14 @@ function connectToWS() {
     myWebSocket.onerror = function (evt) {
         console.log("Error!");
     };
+}
+
+function addAllSoundAffects(data) {
+    var soundsToLoad = data["soundAffects"];
+    for (let i = 0; i < soundsToLoad.length; i++) {
+        var snd = soundsToLoad[i];
+        addSoundAffect(new MapSound(snd["path"], snd["repeat"], snd["x"], snd["y"], snd["fullRadius"], snd["fadeRadius"], true));
+    }
 }
 
 //old test send
@@ -783,7 +792,7 @@ function animate() {
         };
         // remove players that are not on the map any more.
         for (let i = 0; i < playersToRemove.length; i++) {
-            playerLookup.delete(playerLookup[i]);
+            playerLookup.delete(playersToRemove[i]);
         }
         // add map images to the draw list
         for (let i = 0; i < mapImages.length; i++) {
