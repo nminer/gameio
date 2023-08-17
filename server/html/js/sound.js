@@ -27,8 +27,10 @@ function addMapSound(mapSoundToAdd) {
 }
 
 function addSoundAffect(mapSoundToAdd) {
-    mapSoundToAdd.loadSound();
-    soundAffects.push(mapSoundToAdd);
+    if (playing) {
+        mapSoundToAdd.loadSound();
+        soundAffects.push(mapSoundToAdd);
+    }
 }
 
 class MapSound {
@@ -48,7 +50,11 @@ class MapSound {
         this.sound = audioObject;
         this.sound.loop = this.repeatLoop;
         if (this.soundAffect) {
-            this.play();
+            if (playing) {
+                this.play();
+            } else {
+                this.pause();
+            }
         }
     }
 
@@ -59,7 +65,7 @@ class MapSound {
     }
 
     play() {
-        if (this.sound !== undefined) {
+        if (this.sound !== undefined && playing) {
             this.sound.play();
         }
     }
@@ -84,6 +90,7 @@ class MapSound {
     }
 
     checkDistance(x, y) {
+        if (!playing) { return; }
         let d = this.dist(x, y, this.mapX, this.mapY);
         if (this.sound === undefined && !this.startLoading && d <= this.fadeVolumeRadius + 70) {
             this.loadSound();
@@ -203,6 +210,20 @@ function payListOfSounds(sounds, lastPlayed, loaddedsounds, repeat, randomVolume
 function soundonoff(saveSetting = true) {
     playing = !playing;
     playingList.forEach((s) => {
+        if (!playing) {
+            s.pause();
+        } else {
+            s.play();
+        }
+    });
+    mapSounds.forEach((s) => {
+        if (!playing) {
+            s.pause();
+        } else {
+            s.play();
+        }
+    });
+    soundAffects.forEach((s) => {
         if (!playing) {
             s.pause();
         } else {
