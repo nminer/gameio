@@ -315,7 +315,7 @@ class CharAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(image, frames, x, y, width, height, slowdown, after, eachfram, startFram = 0) {
+    constructor(image, frames, x, y, width, height, slowdown, beingAnimated, after, startFram = 0) {
         this.image = image;
         this.frames = frames;
         this.x = x;
@@ -328,7 +328,7 @@ class CharAnimation {
         this.slowdown = slowdown;
         this.countSlowdown = 0;
         this.after = after;
-        this.eachFram = eachfram;
+        this.animated = beingAnimated;
     }
 
     /**
@@ -339,13 +339,12 @@ class CharAnimation {
         if (this.countSlowdown >= this.slowdown.getSlowdown()) {
             this.currentFrame += 1;
             this.countSlowdown = 0;
-            if (typeof this.eachFram !== 'undefined') {
-                this.eachFram();
-            }
         }
         if (this.currentFrame >= this.frames) {
             this.currentFrame = 0;
-            this.after();
+            if (this.after !== undefined && this.animated !== undefined) {
+                this.animated.animation = this.after;
+            }
         }
         this.drawX = this.x + (this.width * this.currentFrame);
     }
@@ -500,7 +499,6 @@ class Player {
         return 10 - speedmod;
     }
 
-
     loadAnimation(avatar) {
         let body = avatar["body"];
         let bodyc = avatar["bodyc"];
@@ -533,21 +531,25 @@ class Player {
         }
         let none = () => { };
         const idelSlow = { getSlowdown: function () { return Math.random() * (50 - 20) + 20; } };
+        let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
+        let standUpAnimation = new CharAnimation(images, 1, 0, 512, 64, 64, this, this);
+        let standLeftAnimation = new CharAnimation(images, 1, 0, 576, 64, 64, this, this);
+        let standRightAnimatin = new CharAnimation(images, 1, 0, 704, 64, 63, this, this);
         this.animations =
         {
-            walkDown: new CharAnimation(images, 8, 64, 640, 64, 64, this, none),
-            walkUp: new CharAnimation(images, 8, 64, 512, 64, 64, this, none),
-            walkLeft: new CharAnimation(images, 8, 64, 576, 64, 64, this, none),
-            walkRight: new CharAnimation(images, 8, 64, 704, 64, 63, this, none),
-            standDown2: new CharAnimation(images, 2, 0, 128, 64, 64, idelSlow, none),
-            standDown: new CharAnimation(images, 1, 0, 640, 64, 64, this, none),
-            standUp: new CharAnimation(images, 1, 0, 512, 64, 64, this, none),
-            standLeft: new CharAnimation(images, 1, 0, 576, 64, 64, this, none),
-            standRight: new CharAnimation(images, 1, 0, 704, 64, 63, this, none),
-            swingDown: new CharAnimation(images, 5, 64, 896, 64, 64, this, none),
-            swingUp: new CharAnimation(images, 5, 64, 768, 64, 64, this, none),
-            swingLeft: new CharAnimation(images, 5, 64, 832, 64, 64, this, none),
-            swingRight: new CharAnimation(images, 5, 64, 960, 64, 63, this, none),
+            walkDown: new CharAnimation(images, 8, 64, 640, 64, 64, this, this),
+            walkUp: new CharAnimation(images, 8, 64, 512, 64, 64, this, this),
+            walkLeft: new CharAnimation(images, 8, 64, 576, 64, 64, this, this),
+            walkRight: new CharAnimation(images, 8, 64, 704, 64, 63, this, this),
+            standDown2: new CharAnimation(images, 2, 0, 128, 64, 64, idelSlow),
+            standDown: standDownAnimation,
+            standUp: standUpAnimation,
+            standLeft: standLeftAnimation,
+            standRight: standRightAnimatin,
+            swingDown: new CharAnimation(images, 5, 64, 896, 64, 64, this, this, standDownAnimation),
+            swingUp: new CharAnimation(images, 5, 64, 768, 64, 64, this, this, standUpAnimation),
+            swingLeft: new CharAnimation(images, 5, 64, 832, 64, 64, this, this, standLeftAnimation),
+            swingRight: new CharAnimation(images, 5, 64, 960, 64, 63, this, this, standRightAnimatin),
         }
     }
 
@@ -757,6 +759,9 @@ function animate() {
         var curPlayer = null;
         var players = lastUpdateFrame["players"];
         tempNames = [];
+        if (players === undefined) {
+            return;
+        }
         for (let i = 0; i < players.length; i++) {
             let userFrame = players[i];
             tempNames.push(userFrame["username"]);
@@ -911,7 +916,9 @@ const addNewServerMessage = ({ user, serverMessage }) => {
     messageBox.innerHTML += receivedMsg;
     const myRe = /Location \- \((.*)\)/g;
     const myArray = myRe.exec(serverMessage);
-    navigator.clipboard.writeText(myArray[1]);
+    if (myArray !== null) {
+        navigator.clipboard.writeText(myArray[1]);
+    }
 };
 
 // send user message
