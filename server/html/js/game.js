@@ -465,6 +465,80 @@ function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
     let newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
     return newValue;
 }
+// ================================== ui ==============================================
+class topbar {
+
+    constructor() {
+        this.image = ImageLoader.GetImage("./img/gui/playerBar.png");
+        this.bag = ImageLoader.GetImage("./img/gui/bag.png"); //53 x59
+        this.bagOpen = ImageLoader.GetImage("./img/gui/bagOpen.png"); // 52 x 54
+        this.x = 5;
+        this.y = 5;
+        this.width = 389;
+        this.height = 98;
+    }
+
+    draw(player) {
+        //background
+        c.fillStyle = 'rgba(60, 36, 21, 1)';
+        c.fillRect(this.x + 50, this.y + 4, 330, 60);
+        //health
+        c.fillStyle = 'rgba(211, 0, 0, 1)';
+        let hp = (273 * (player.health / player.maxHealth));
+        c.fillRect(this.x + 102, this.y + 5, hp, 20);
+        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        c.fillRect(this.x + 102, this.y + 10, 273, 2);
+        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        c.fillRect(this.x + 102, this.y + 20, 273, 2);
+        //stam
+        c.fillStyle = 'rgba(255, 189, 36, 1)';
+        let st = (273 * (player.stamina / player.maxStamina));
+        c.fillRect(this.x + 102, this.y + 25, st, 20);
+        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        c.fillRect(this.x + 102, this.y + 31, 273, 2);
+        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        c.fillRect(this.x + 102, this.y + 41, 273, 2);
+        //mana
+        c.fillStyle = 'rgba(105, 0, 206, 1)';
+        let mt = (273 * (player.mana / player.maxMana));
+        c.fillRect(this.x + 102, this.y + 45, mt, 20);
+        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        c.fillRect(this.x + 102, this.y + 51, 273, 2);
+        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        c.fillRect(this.x + 102, this.y + 61, 273, 2);
+        // ui player bar.
+        c.drawImage(this.image,
+            this.x,
+            this.y,
+            this.width,
+            this.height);
+        c.drawImage(this.bag,
+            this.x + 23,
+            this.y + 17,
+            53,
+            59);
+        //c.drawImage(this.bagOpen,
+        //    this.x + 25,
+        //    this.y + 23,
+        //    52,
+        //    53);
+        c.font = '14px Comic Sans MS';
+        c.textAlign = "left";
+        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        c.fillText(player.health + "/" + player.maxHealth, this.x + 110, this.y + 21);
+        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        c.fillText(player.stamina + "/" + player.maxStamina, this.x + 110, this.y + 42);
+        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        c.fillText(player.mana + "/" + player.maxMana, this.x + 110, this.y + 63);
+        c.font = '12px Comic Sans MS';
+        c.textAlign = "center";
+        c.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        c.fillText("Health", this.x + 235, this.y + 21);
+        c.fillText("Stamina", this.x + 235, this.y + 41);
+        c.fillText("Mana", this.x + 235, this.y + 62);
+    }
+}
+
 //========================== Player ==========================
 class Player {
     /**
@@ -481,6 +555,12 @@ class Player {
         this.speed = 1;
         this.name = new DisplayText(this.Id, 14, 35, 163, 255, .7);
         this.animationName = "stand";
+        this.health = 0;
+        this.maxHealth = 0;
+        this.stamina = 0;
+        this.maxStamina = 0;
+        this.mana = 0;
+        this.maxMana = 0;
     }
 
     setAsPlayer() {
@@ -559,7 +639,23 @@ class Player {
         this.X = frame["x"];
         this.Y = frame["y"];
         this.drawOrder = frame["y"];
+        if (frame["coolDown"] !== undefined) {
+            if (this.CoolDownCount < frame["coolDownCount"]) {
+                this.animationName = "";
+            }
+            this.CoolDown = frame["coolDown"];
+            this.CoolDownCount = frame["coolDownCount"];
+            if (this.coolDownCount == 0) {
+                this.animationName = "";
+                this.CoolDown = 0;
+            }
+        } else if (this.CoolDown !== undefined && this.CoolDown > 0) {
+            this.CoolDown = 0;
+            this.CoolDownCount = 0;
+            this.animationName = "";
+        }
         if (this.animationName != frame["animation"]) {
+            console.log(frame["animation"])
             this.animation = this.animations[frame["animation"]];
             this.animationName = frame["animation"];
             if (this.animationName.includes("swing")) {
@@ -568,6 +664,12 @@ class Player {
         }
         this.speed = frame["speed"]
         this.running = frame["running"];
+        this.health = frame["health"];
+        this.maxHealth = frame["maxHealth"];
+        this.stamina = frame["stamina"];
+        this.maxStamina = frame["maxStamina"];
+        this.mana = frame["mana"];
+        this.maxMana = frame["maxMana"];
     }
 
     draw(xOffset, yOffset) {
@@ -717,7 +819,7 @@ function loadMap(data) {
 var stop = false;
 var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
-
+var topPlayerBar = new topbar();
 // initialize the timer variables and start the animation
 
 function startAnimating(fps) {
@@ -822,6 +924,8 @@ function animate() {
         for (const p of playerLookup.values()) {
             p.drawName(offsetx, offsety);
         }
+        // gui
+        topPlayerBar.draw(curPlayer);
         // check for map sounds.
         checkAllMapSounds(curPlayer.X, curPlayer.Y);
     }

@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
 using server.mapObjects;
+using System.CodeDom.Compiler;
 
 namespace server
 {
@@ -35,6 +36,32 @@ namespace server
         //private string[] Animations = {"walkDown", "walkUp", "walkLeft", "walkRight", "standDown", "standUp", "standLeft", "standRight", "swingDown", "swingUp", "swingLeft", "swingRight" };
 
         private string AnimationName = "standDown";
+
+        private Double CoolDown = 0.0;
+        private Double CoolDownCount = 0.0;
+
+        public bool HasCoolDown
+        {
+            get
+            {
+                return CoolDown > 0 && CoolDownCount >= 0;
+            }
+        }
+
+        public void SetCoolDown(double cooldown)
+        {
+            CoolDown = cooldown;
+            CoolDownCount = cooldown;
+        }
+
+        public void decCoolDown(double amount = 1.0) 
+        {
+            CoolDownCount -= amount;
+            if (CoolDownCount < 0) {
+                CoolDown = 0;
+                CoolDownCount = 0;
+            }
+        }
 
         /// <summary>
         /// The users id in the database.
@@ -142,43 +169,43 @@ namespace server
         }
 
         /// <summary>
-        /// the players max stamana. used for running and hitting.
+        /// the players max Stamina. used for running and hitting.
         /// </summary>
-        public Int64 MaxStamana
+        public Int64 MaxStamina
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Stamana"];
+                    return (Int64)row["Max_Stamina"];
                 }
             }
             set
             {
                 lock (dbDataLock)
                 {
-                    row["Max_Stamana"] = value;
+                    row["Max_Stamina"] = value;
                 }
             }
         }
 
         /// <summary>
-        /// the player current stamana.
+        /// the player current Stamina.
         /// </summary>
-        public Int64 Stamana
+        public Int64 Stamina
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Stamana"];
+                    return (Int64)row["Stamina"];
                 }
             }
             set
             {
                 lock (dbDataLock)
                 {
-                    row["Stamana"] = value;
+                    row["Stamina"] = value;
                 }
             }
         }
@@ -595,6 +622,42 @@ namespace server
         /// <returns></returns>
         public string GetJson()
         {
+            if (this.HasCoolDown)
+            {
+                return JsonConvert.SerializeObject(
+                    new
+                    {
+                        username = UserName,
+                        avatar = new
+                        {
+                            body = BodyStyle,
+                            bodyc = BodyColor,
+                            nose = NoseStyle,
+                            ears = EarStyle,
+                            wrinkles = Wrinkles,
+                            hair = HairStyle,
+                            hairc = HairColor,
+                            beard = BeardStyle,
+                            beardc = BeardColor,
+                            eyec = EyeColor
+                        },
+                        x = X_Coord,
+                        y = Y_Coord,
+                        direction = Direction,
+                        speed = Speed,
+                        animation = AnimationName,
+                        running = controls.Run,
+                        coolDown = CoolDown,
+                        coolDownCount = CoolDownCount,
+                        health = Health,
+                        maxHealth = MaxHealth,
+                        stamina = Stamina,
+                        maxStamina = MaxStamina,
+                        mana = Mana,
+                        maxMana = MaxMana
+                    }
+                    );
+            }
             return JsonConvert.SerializeObject(
                 new { username = UserName,
                     avatar = new {body = BodyStyle, bodyc = BodyColor,
@@ -604,39 +667,49 @@ namespace server
                                   eyec = EyeColor},
                     x = X_Coord, y = Y_Coord, direction = Direction,
                     speed = Speed,
-                    animation = AnimationName,  running = controls.Run}
+                    animation = AnimationName,  running = controls.Run,
+                    health = Health, maxHealth = MaxHealth,
+                    stamina = Stamina, maxStamina = MaxStamina,
+                    mana = Mana, maxMana = MaxMana
+                }
                 );
         }
 
         public void UpdateFromPlayer(JObject movement)
         {
-            bool oldUse = controls.Use;
+            bool oldUse = controls.Use; 
             bool oldHit = controls.Hit;
             controls.Up = bool.Parse((string)movement["up"]);
             controls.Down = bool.Parse((string)movement["down"]);
             controls.Left = bool.Parse((string)movement["left"]);
             controls.Right = bool.Parse((string)movement["right"]);
             controls.Run = bool.Parse((string)movement["shift"]);
+            controls.Use = bool.Parse((string)movement["use"]);                  
             controls.Hit = bool.Parse((string)movement["hit"]);
-            controls.Use = bool.Parse((string)movement["use"]);
+            if (HasCoolDown) return; 
             if (!oldUse && controls.Use)
             {
                 GameServer.CheckForPortal(this);
-            }
-            if (!oldHit && controls.Hit)
-            {
-                // this is not the place i want to keep the sound for the user.
-                SoundAffect punch = new SoundAffect("sounds/char/punch.wav", false, this.Location, 60, 200);
-                GameServer.AddGameSoundAffect(this.Map_Id, punch);
             }
         }
 
         /// <summary>
         /// update tick for user and animation.
-        /// return next amount to move as relitive point
+        /// return next amount to move as relative point
         /// </summary>
         public Point GetNetMoveAmount()
         {
+            if (HasCoolDown)
+            {
+                Console.WriteLine($"cooldown:{CoolDownCount}");               
+                decCoolDown();
+                if (CoolDownCount > 0)
+                {
+                    return new Point(0, 0);
+                }
+                int temp = 0;
+            }
+            //Console.WriteLine($"HIT: {controls.Hit}");
             if (controls.Hit)
             {
                 if (Direction < 45 || Direction > 315)
@@ -655,6 +728,10 @@ namespace server
                 {
                     AnimationName = "swingRight";
                 }
+                // this is not the place i want to keep the sound for the user.
+                SoundAffect punch = new SoundAffect("sounds/char/punch.wav", false, this.Location, 60, 200);
+                GameServer.AddGameSoundAffect(this.Map_Id, punch);
+                SetCoolDown(40);
                 return new Point(0, 0);
             }
             //Map map = GameServer.GetMapById(Map_Id);
@@ -723,6 +800,7 @@ namespace server
                     AnimationName = "standRight";
                 }
             }
+            Console.WriteLine(AnimationName);
             //SaveUser();
             // return the x and the y
             return new Point(moveX, moveY);          

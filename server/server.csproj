@@ -66,6 +66,15 @@
     <None Update="html\game.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\gui\bag.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\img\gui\bagOpen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\img\gui\playerBar.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\main\bodyBG.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
