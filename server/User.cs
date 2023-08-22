@@ -23,6 +23,8 @@ namespace server
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;
 
+        private UserCounters counters;
+
         private UserControls controls = new UserControls();
 
         private object dbDataLock = new object();
@@ -135,7 +137,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Health"];
+                    return (Int64)row["Max_Health"] + (Strength / 3);
                 }
             }
             set
@@ -148,7 +150,7 @@ namespace server
         }
 
         /// <summary>
-        /// the current helth of the player.
+        /// the current health of the player.
         /// </summary>
 		public Int64 Health
         {
@@ -156,6 +158,10 @@ namespace server
             {
                 lock (dbDataLock)
                 {
+                    if ((Int64)row["Health"] >= MaxHealth)
+                    {
+                        Health = MaxHealth;
+                    }
                     return (Int64)row["Health"];
                 }
             }
@@ -163,7 +169,18 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    row["Health"] = value;
+                    if (value >= MaxHealth)
+                    {
+                        row["Health"] = MaxHealth;
+                    }
+                    else if (value < 0)
+                    {
+                        row["Health"] = 0;
+                    }
+                    else
+                    {
+                        row["Health"] = value;
+                    }
                 }
             }
         }
@@ -177,7 +194,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Stamina"];
+                    return (Int64)row["Max_Stamina"] + (Speed / 3);
                 }
             }
             set
@@ -198,6 +215,10 @@ namespace server
             {
                 lock (dbDataLock)
                 {
+                    if ((Int64) row["Stamina"] >= MaxStamina)
+                    {
+                        Stamina = MaxStamina;
+                    }
                     return (Int64)row["Stamina"];
                 }
             }
@@ -205,7 +226,17 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    row["Stamina"] = value;
+                    if (value >= MaxStamina)
+                    {
+                        row["Stamina"] = MaxStamina;
+                    } else if (value < 0)
+                    {
+                        row["Stamina"] = 0;
+                    }
+                    else
+                    {
+                        row["Stamina"] = value;
+                    } 
                 }
             }
         }
@@ -219,7 +250,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Mana"];
+                    return (Int64)row["Max_Mana"] + (Wisdom / 3);
                 }
             }
             set
@@ -240,6 +271,10 @@ namespace server
             {
                 lock (dbDataLock)
                 {
+                    if ((Int64)row["Mana"] >= MaxMana)
+                    {
+                        Mana = MaxMana;
+                    }
                     return (Int64)row["Mana"];
                 }
             }
@@ -247,13 +282,24 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    row["Mana"] = value;
+                    if (value >= MaxMana)
+                    {
+                        row["Mana"] = MaxMana;
+                    }
+                    else if (value < 0)
+                    {
+                        row["Mana"] = 0;
+                    }
+                    else
+                    {
+                        row["Mana"] = value;
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// players strength.
+        /// players strength. up the health and the damage from melee weapons.
         /// </summary>
         public Int64 Strength
         {
@@ -290,6 +336,39 @@ namespace server
                 lock (dbDataLock)
                 {
                     row["Speed"] = value;
+                }
+            }
+        }
+
+        public Int64 SpeedMoveMod
+        {
+            get
+            {
+                if (Stamina > 0)
+                {
+                    return Speed;
+                }
+                return Speed / 4;
+            }
+        }
+
+        /// <summary>
+        /// players Wisdom. this will up the mana and use of magic items.
+        /// </summary>
+        public Int64 Wisdom
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Wisdom"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Wisdom"] = value;
                 }
             }
         }
@@ -422,6 +501,7 @@ namespace server
         public User(Int64 userId)
         {
             LoaderUser(userId);
+            counters = new UserCounters(this);
         }
 
 
@@ -644,9 +724,9 @@ namespace server
                         x = X_Coord,
                         y = Y_Coord,
                         direction = Direction,
-                        speed = Speed,
+                        speed = SpeedMoveMod,
                         animation = AnimationName,
-                        running = controls.Run,
+                        running = controls.Run && Stamina > 0,
                         coolDown = CoolDown,
                         coolDownCount = CoolDownCount,
                         health = Health,
@@ -666,8 +746,8 @@ namespace server
                                   beard = BeardStyle, beardc = BeardColor,
                                   eyec = EyeColor},
                     x = X_Coord, y = Y_Coord, direction = Direction,
-                    speed = Speed,
-                    animation = AnimationName,  running = controls.Run,
+                    speed = SpeedMoveMod,
+                    animation = AnimationName,  running = controls.Run && Stamina > 0,
                     health = Health, maxHealth = MaxHealth,
                     stamina = Stamina, maxStamina = MaxStamina,
                     mana = Mana, maxMana = MaxMana
@@ -701,7 +781,6 @@ namespace server
         {
             if (HasCoolDown)
             {
-                Console.WriteLine($"cooldown:{CoolDownCount}");               
                 decCoolDown();
                 if (CoolDownCount > 0)
                 {
@@ -709,7 +788,6 @@ namespace server
                 }
                 int temp = 0;
             }
-            //Console.WriteLine($"HIT: {controls.Hit}");
             if (controls.Hit)
             {
                 if (Direction < 45 || Direction > 315)
@@ -731,7 +809,9 @@ namespace server
                 // this is not the place i want to keep the sound for the user.
                 SoundAffect punch = new SoundAffect("sounds/char/punch.wav", false, this.Location, 60, 200);
                 GameServer.AddGameSoundAffect(this.Map_Id, punch);
-                SetCoolDown(40);
+                SetCoolDown(Stamina > 0 ? 40 : 60);
+                Stamina = Stamina - 3; // hit takes 3 stam
+                counters.ResetRecharge();
                 return new Point(0, 0);
             }
             //Map map = GameServer.GetMapById(Map_Id);
@@ -741,8 +821,8 @@ namespace server
             double moveKeys = controls.CountDirectionKeys();
             //if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
             //double speedMove = (Speed / 5) / moveKeys;
-            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, Speed);
-            if (controls.Run)
+            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, SpeedMoveMod);
+            if (controls.Run && Stamina > 0)
             {
                 modspeed += 2;
             }
@@ -800,9 +880,19 @@ namespace server
                     AnimationName = "standRight";
                 }
             }
-            Console.WriteLine(AnimationName);
             //SaveUser();
             // return the x and the y
+            if (controls.Run && (moveX != 0 || moveY != 0))
+            {
+                counters.DecCountStamina();
+            }
+            if (moveKeys == 0)
+            {
+                counters.Recharge();
+            } else
+            {
+                counters.ResetRecharge();
+            }
             return new Point(moveX, moveY);          
         }
 
@@ -827,5 +917,136 @@ namespace server
             }
 
         }
+
+        /// <summary>
+        /// class to keep up with health mana and stam decreasing or increasing over time.
+        /// </summary>
+        public class UserCounters
+        {
+            private int WaitTimeMax
+            {
+                get
+                {
+                    long v = 100 + (100 - user.Speed);
+                    return (int)v;
+                }
+            }
+
+            private int WaitTime = 0;
+
+            private int HealthCountMax = 100;
+            private int StaminaCountMax = 50;
+            private int ManaCountMax = 80;
+
+            private int HealthCountMin = -10;
+            private int StaminaCountMin = -10;
+            private int ManaCountMin = -10;
+
+            private int HealthCount = 0;
+            private int StaminaCount = 0;
+            private int ManaCount = 0;
+
+            private User user;
+
+            public UserCounters(User userIn)
+            {
+                user = userIn;
+            }
+
+            public void CountRecharge(int count = 1)
+            {
+                WaitTime = WaitTime + count;
+                if (WaitTime >= WaitTimeMax)
+                {
+                    IncCountStamina();
+                    IncCountHealth();
+                    IncCountMana();
+                }
+            }
+
+            public void ResetRecharge()
+            {
+                WaitTime = 0;
+            }
+
+            public void Recharge()
+            {
+                CountRecharge(1);
+            }
+
+            public void CountStamina(int count = 1)
+            {
+                StaminaCount = StaminaCount + count;
+                if (StaminaCount >= StaminaCountMax)
+                {
+                    user.Stamina = user.Stamina + (StaminaCount / StaminaCountMax);
+                    StaminaCount = StaminaCount % StaminaCountMax;
+                } else if (StaminaCount <= StaminaCountMin)
+                {
+                    user.Stamina = user.Stamina - (StaminaCount / StaminaCountMin);
+                    StaminaCount = StaminaCount % StaminaCountMin;
+                }
+            }
+
+            public void IncCountStamina()
+            {
+                CountStamina(1);
+            }
+
+            public void DecCountStamina()
+            {
+                CountStamina(-1);
+            }
+
+            public void CountHealth(int count = 1)
+            {
+                HealthCount = HealthCount + count;
+                if (HealthCount >= HealthCountMax)
+                {
+                    user.Health = user.Health + (HealthCount / HealthCountMax);
+                    HealthCount = HealthCount % HealthCountMax;
+                }
+                else if (HealthCount <= HealthCountMin)
+                {
+                    user.Health = user.Health - (HealthCount / HealthCountMin);
+                    HealthCount = HealthCount % HealthCountMin;
+                }
+            }
+            public void IncCountHealth()
+            {
+                CountHealth(1);
+            }
+
+            public void DecCountHealth()
+            {
+                CountHealth(-1);
+            }
+
+            public void CountMana(int count = 1)
+            {
+                ManaCount = ManaCount + count;
+                if (ManaCount >= ManaCountMax)
+                {
+                    user.Mana = user.Mana + (ManaCount / ManaCountMax);
+                    ManaCount = ManaCount % ManaCountMax;
+                }
+                else if (ManaCount <= ManaCountMin)
+                {
+                    user.Mana = user.Mana - (ManaCount / ManaCountMin);
+                    ManaCount = ManaCount % ManaCountMin;
+                }
+            }
+            public void IncCountMana()
+            {
+                CountMana(1);
+            }
+
+            public void DecCountMana()
+            {
+                CountMana(-1);
+            }
+
+        }
+
     }
 }
