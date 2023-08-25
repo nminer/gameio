@@ -357,7 +357,7 @@ class Damage {
             damages.splice(i, 1);
         }
         // grow the font for the next draw
-        this.fontSize += 1;
+        this.fontSize += .5;
         if (this.fontSize > 40) {
             this.fontSize = 40;
         }
