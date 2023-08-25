@@ -696,6 +696,30 @@ namespace server
             return adapter.Update(data);
         }
 
+        public double GetHitDistence()
+        {
+            return 10;
+        }
+
+        public long GitHitDamage()
+        {
+            Random rnd = new Random();
+            return rnd.Next(1, 10);
+        }
+
+        public SoundAffect GetTakeHitSound(bool critacalHit)
+        {
+            Random rnd = new Random();
+            int i = rnd.Next(1, 10);
+            string gender = "male";
+            if (BodyStyle != "01")
+            {
+                gender = "female";
+            }
+            SoundAffect hit = new SoundAffect($"sounds/char/{gender}Hit{i}.wav", false, this.Location, 60, 200);
+            return hit;
+        } 
+
         /// <summary>
         /// returns json string for user.
         /// </summary>
@@ -809,7 +833,8 @@ namespace server
                 // this is not the place i want to keep the sound for the user.
                 SoundAffect punch = new SoundAffect("sounds/char/punch.wav", false, this.Location, 60, 200);
                 GameServer.AddGameSoundAffect(this.Map_Id, punch);
-                SetCoolDown(Stamina > 0 ? 40 : 60);
+                GameServer.GetMapById(this.Map_Id).PlayerHit(this);
+                SetCoolDown(Stamina > 2 ? 40 : 60);
                 Stamina = Stamina - 3; // hit takes 3 stam
                 counters.ResetRecharge();
                 return new Point(0, 0);

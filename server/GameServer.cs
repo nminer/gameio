@@ -142,6 +142,8 @@ namespace server
                     writer.WriteEnd();
                     writer.WritePropertyName("soundAffects");
                     writer.WriteRawValue(map.GetAllJsonSoundAffects());
+                    writer.WritePropertyName("damages");
+                    writer.WriteRawValue(map.GetAllJsonDamages());
                     writer.WriteEndObject();
                 }
                 foreach (User user in mapUsers)

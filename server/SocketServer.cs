@@ -207,6 +207,18 @@ namespace server
             }
         }
 
+        /// <summary>
+        /// send a message to a user. pass in message and the from string.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="message"></param>
+        /// <param name="messageFromString"></param>
+        public static void SendMessageToUser(User user, string message, string messageFromString)
+        {
+            Guid? sendtoGuid = UserSystem.GetSocketIdFromUserName(user.UserName);
+            SendServerMessage(message, messageFromString, sendtoGuid);
+        }
+
         public static void SendServerMessage(string message, string fromUserName, Guid? socketId = null)
         {
             Console.WriteLine($"Client ({fromUserName}) Message: " + message);

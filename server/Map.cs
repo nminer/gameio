@@ -53,6 +53,11 @@ namespace server
         private ConcurrentQueue<SoundAffect> soundAffects = new ConcurrentQueue<SoundAffect>();
 
         /// <summary>
+        /// all the damage to be sent out on next update
+        /// </summary>
+        private ConcurrentQueue<Damage> damages = new ConcurrentQueue<Damage>();
+
+        /// <summary>
         /// The map id
         /// </summary>
         public Int64 Id
@@ -273,6 +278,30 @@ namespace server
             soundAffects.Enqueue(soundAffect);
         }
 
+        public void AddDamage(Damage damageIn)
+        {
+            damages.Enqueue(damageIn);
+        }
+
+
+        public void PlayerHit(User user)
+        {
+            // hard coded hit.
+            foreach (User u in GetUsers())
+            {
+                if (u == user || user.Solid.Distance(u.Solid) > user.GetHitDistence())
+                {
+                    continue;
+                }
+                long damage = user.GitHitDamage();
+                u.Health = u.Health - damage;
+                AddDamage(new Damage(u.Location, damage, 211, 0, 0));
+                AddSoundAffect(u.GetTakeHitSound(false));
+                SocketServer.SendMessageToUser(u, damage.ToString(), $"Damage from {user.UserName}");
+                SocketServer.SendMessageToUser(user, damage.ToString(), $"You hit {u.UserName}");
+            }
+        }
+
         private void LoadMapSounds()
         {
             lock (portalsLock)
@@ -437,6 +466,20 @@ namespace server
                 }
             }
             return JsonConvert.SerializeObject(sounds.ToArray());
+        }
+
+        public string GetAllJsonDamages()
+        {
+            List<object> damagesOut = new List<object>();
+            while (damages.Count > 0)
+            {
+                Damage? d;
+                if (damages.TryDequeue(out d))
+                {
+                    damagesOut.Add(d.GetJsonDamageObject());
+                }
+            }
+            return JsonConvert.SerializeObject(damagesOut.ToArray());
         }
 
         public void TickGameUpdate()
