@@ -932,7 +932,7 @@ function darken(x, y, w, h, darkenColor, amount) {
     c.globalAlpha = 1;
 }
 
-function ligthenGradient(x, y, offsetx, offsety, radius, amount) {
+function ligthenGradient(x, y, offsetx, offsety, radius, mainColor, midColor, amount) {
     var newx = x + offsetx;
     var newy = y + offsety;
     c.save();
@@ -941,10 +941,10 @@ function ligthenGradient(x, y, offsetx, offsety, radius, amount) {
     var rnd = 0.05 * Math.sin(1.1 * Date.now() / 1000);
     radius = radius * (1 + rnd);
     var radialGradient = c.createRadialGradient(newx, newy, 0, newx, newy, radius);
-    radialGradient.addColorStop(0.0, '#616100');
+    radialGradient.addColorStop(0.0, mainColor);
     //radialGradient.addColorStop(0.2 + rnd, '#AA8');
     //radialGradient.addColorStop(0.7 + rnd, '#330');
-    radialGradient.addColorStop(0.50, '#110');
+    radialGradient.addColorStop(0.50, midColor);
     radialGradient.addColorStop(1, '#000');
     c.fillStyle = radialGradient;
     c.beginPath();
@@ -1062,18 +1062,17 @@ function animate() {
         drawList.forEach((d) => {
             d.draw(offsetx, offsety);
         })
-        // time of day 
-        var amount = 0.5;
-        //darken(0, 0, canvas.width, canvas.height, '#003', amount);
+        // time of day
+        // set how dark the sky is.
         darken(0, 0, canvas.width, canvas.height, lastUpdateFrame["sky"]['color'], lastUpdateFrame["sky"]['amount']);
+        // add in all the map lights.
         for (let i = 0; i < mapLights.length; i++) {
-            var ml = mapLights[i];
-            //ligthenGradient(1867, 2242, offsetx, offsety, 250, amount);
-            var a = ml['amount'];
-            if (a < 0) {
-                a = lastUpdateFrame["sky"]['amount'];
+            var mapLight = mapLights[i];
+            var lightAmount = mapLight['amount'];
+            if (lightAmount < 0) {
+                lightAmount = lastUpdateFrame["sky"]['amount'];
             }
-            ligthenGradient(ml['x'], ml['y'], offsetx, offsety, ml['radius'], a);
+            ligthenGradient(mapLight['x'], mapLight['y'], offsetx, offsety, mapLight['radius'], mapLight['mainColor'], mapLight['midColor'], lightAmount);
         }
         
         // draw player names

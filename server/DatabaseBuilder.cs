@@ -197,9 +197,12 @@ internal class DatabaseBuilder
         Excute(createMapSoundsTable, Connection);
 
         // define map light source -1 amount will be set as out side light and not always on.
+		// main color and midcolor should be hex colors - '#ffffff'
         string createMapLightsTable = @"CREATE TABLE 'Map_Lights' (
 	            'Map_Light_Id'	INTEGER NOT NULL UNIQUE,
 	            'Description'	TEXT NOT NULL,
+	            'Main_Color'	TEXT NOT NULL,
+	            'Mid_Color'	TEXT NOT NULL,
 				'Radius'	INTEGER NOT NULL DEFAULT 0,
 				'Amount'	REAL NOT NULL DEFAULT -1,
 				'Map_Id'	INTEGER NOT NULL DEFAULT 0,

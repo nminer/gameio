@@ -75,6 +75,44 @@ namespace server.mapObjects
         }
 
         /// <summary>
+        /// The main color hex code.
+        /// this is the color at the center of the light.
+        /// </summary>
+        public String MainColor
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return "";
+                    }
+                    return (string)row["Main_Color"];
+                }
+            }
+        }
+
+        /// <summary>
+        /// The mid color hex code.
+        /// this is the color in the middle of the fade for the light.
+        /// </summary>
+        public String MidColor
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return "";
+                    }
+                    return (string)row["Mid_Color"];
+                }
+            }
+        }
+
+        /// <summary>
         /// amount of light 0-1. 0.5 is a good amount.
         /// </summary>
         public double Amount
@@ -136,13 +174,15 @@ namespace server.mapObjects
         /// set the lights position on the map. 
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public MapLight? Create(Map map, Point mapPosistion, long radius, double amount = -1, string description = "")
+        static public MapLight? Create(Map map, Point mapPosistion, long radius, string mainColor = "#616100", string midColor = "#110", double amount = -1, string description = "")
         {
-            string insertNewSolid = $"INSERT INTO Map_Lights (Description, Radius, Amount, Map_Id, Map_X, Map_Y)" +
-                $" VALUES($Description, $Radius, $Amount, $MapId, $MapX, $MapY);";
+            string insertNewSolid = $"INSERT INTO Map_Lights (Description, Radius, Main_Color, Mid_Color, Amount, Map_Id, Map_X, Map_Y)" +
+                $" VALUES($Description, $Radius, $mainColor, $MidColor, $Amount, $MapId, $MapX, $MapY);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Description", description);
             command.Parameters.AddWithValue("$Radius", radius);
+            command.Parameters.AddWithValue("$MainColor", mainColor);
+            command.Parameters.AddWithValue("$MidColor", midColor);
             command.Parameters.AddWithValue("$Amount", amount);
             command.Parameters.AddWithValue("$MapId", map.Id);
             command.Parameters.AddWithValue("$MapX", mapPosistion.X);
@@ -170,7 +210,7 @@ namespace server.mapObjects
         public object? GetJsonLightObject(Point? position = null)
         {
             if (position is null) position = mapPosition;
-            return new {x = mapPosition.X, y = mapPosition.Y, radius = Radius, amount = Amount};
+            return new {x = mapPosition.X, y = mapPosition.Y, radius = Radius, mainColor = MainColor, midColor=MidColor, amount = Amount};
         }
     }
 }

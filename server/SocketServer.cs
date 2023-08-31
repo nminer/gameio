@@ -122,7 +122,7 @@ namespace server
             } else if (command.StartsWith("/time"))
             {
                 TimeSpan t = GameServer.GetWorldTime();
-                SendServerMessage($"In Game Time: {t.Hours}:{t.Minutes}" , "Information", guid);
+                SendServerMessage($"In Game Time: {t.Hours.ToString("00")}:{t.Minutes.ToString("00")}" , "Information", guid);
             }
         }
 
