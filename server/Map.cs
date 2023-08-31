@@ -156,6 +156,7 @@ namespace server
         /// lock to keep the ports list safe
         /// </summary>
         private object portalsLock = new object();
+
         /// <summary>
         /// a list of all the portals
         /// </summary>
@@ -175,6 +176,12 @@ namespace server
 
 
         private List<MapSound> MapSounds = new List<MapSound>();
+
+        /// <summary>
+        /// lock to keep the lights list safe
+        /// </summary>
+        private object lightsLock = new object();
+        private List<MapLight> MapLights = new List<MapLight>();
 
         /// <summary>
         /// Load a user from its user id in the database.
@@ -209,6 +216,7 @@ namespace server
             LoadMapSolids();
             LoadMapVisuals();
             LoadMapSounds();
+            LoadMapLights();
         }
 
         private void LoadPortals()
@@ -344,6 +352,32 @@ namespace server
             }
         }
 
+        private void LoadMapLights()
+        {
+            lock (lightsLock)
+            {
+                SQLiteDataAdapter adapterMapLights = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderMapLights= new SQLiteCommandBuilder(adapterMapLights);
+
+                DataSet dataMapLights = new DataSet();
+                string queryMapLights = "SELECT * FROM Map_Lights WHERE Map_Id=$id;";
+                SQLiteCommand commandMapLights = new SQLiteCommand(queryMapLights, DatabaseBuilder.Connection);
+                commandMapLights.Parameters.AddWithValue("$id", Id);
+                adapterMapLights.SelectCommand = commandMapLights;
+                adapterMapLights.Fill(dataMapLights);
+                if (dataMapLights.Tables.Count > 0 && dataMapLights.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataMapLights.Tables[0].Rows)
+                    {
+                        MapLight ml = new MapLight((Int64)r["Map_Light_Id"]);
+                        MapLights.Add(ml);
+                    }
+
+                }
+            }
+        }
+
         static public Map? Create(string mapName, string imagePath, bool outside = true)
         {
             System.Drawing.Image img;
@@ -468,6 +502,11 @@ namespace server
             {
                 tempMapSounds.Add(mapSound.GetJsonSoundObject());
             }
+            List<Object> tempMapLights = new List<Object>();
+            foreach (MapLight mapLight in MapLights)
+            {
+                tempMapLights.Add(mapLight.GetJsonLightObject());
+            }
             return JsonConvert.SerializeObject(new {
                 mapName = Name,
                 width = Width,
@@ -476,7 +515,8 @@ namespace server
                 outside = Outside,
                 mapImages = tempMapSolids.ToArray(),
                 mapAnimations = tempMapAnimations.ToArray(),
-                mapSounds = tempMapSounds.ToArray()
+                mapSounds = tempMapSounds.ToArray(),
+                mapLights = tempMapLights.ToArray()
             });
         }
 

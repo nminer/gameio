@@ -184,7 +184,7 @@ internal class DatabaseBuilder
             );";
         Excute(createSoundsTable, Connection);
 
-        // define shapes
+        // define map sounds
         string createMapSoundsTable = @"CREATE TABLE 'Map_Sounds' (
 	            'Map_Sound_Id'	INTEGER NOT NULL UNIQUE,
 	            'Description'	TEXT NOT NULL,
@@ -195,6 +195,19 @@ internal class DatabaseBuilder
 	            PRIMARY KEY('Map_Sound_Id' AUTOINCREMENT)
             );";
         Excute(createMapSoundsTable, Connection);
+
+        // define map light source -1 amount will be set as out side light and not always on.
+        string createMapLightsTable = @"CREATE TABLE 'Map_Lights' (
+	            'Map_Light_Id'	INTEGER NOT NULL UNIQUE,
+	            'Description'	TEXT NOT NULL,
+				'Radius'	INTEGER NOT NULL DEFAULT 0,
+				'Amount'	REAL NOT NULL DEFAULT -1,
+				'Map_Id'	INTEGER NOT NULL DEFAULT 0,
+	            'Map_X'	INTEGER NOT NULL DEFAULT 0,
+	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
+	            PRIMARY KEY('Map_Light_Id' AUTOINCREMENT)
+            );";
+        Excute(createMapLightsTable, Connection);
 
     }
 

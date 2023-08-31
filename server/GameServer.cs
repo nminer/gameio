@@ -115,7 +115,7 @@ namespace server
             }
             if (DayTimer == null)
             {
-                DayTimer = new GameDayTimer(1200000); // 20 minute day
+                DayTimer = new GameDayTimer(1200000,23); // 20 minute day
             }
         }
 
@@ -123,6 +123,11 @@ namespace server
         {
             TimeSpan gameRunTime = DayTimer.GetGameTime();
             return new { day = gameRunTime.Days, hour = gameRunTime.Hours, minutes = gameRunTime.Minutes, seconds = gameRunTime.Seconds };
+        }
+
+        public static TimeSpan GetWorldTime()
+        {
+            return DayTimer.GetGameTime();
         }
 
         private static object getWorldSkyUpdate(Map map)

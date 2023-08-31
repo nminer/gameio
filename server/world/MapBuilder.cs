@@ -39,6 +39,7 @@ namespace server
             GameImage? campfire = GameImage.CreateNewImage("campfire", "img/maps/objects/animations/campfire.png");
             GameAnimation? gaFire = GameAnimation.CreateNewAnimation("Camp Fire", campfire, 64, 64, 5, 5, new Point(0, 0), true, 0, true);
             MapVisual? mFire = MapVisual.Create(outside, new Point(1834, 2200), animationId: gaFire.AnimationId, drawOrder: new Point(32, 50));
+            MapLight? mFireLight = MapLight.Create(outside, new Point(1867, 2242), 250);
 
             GameSound? fireSound = GameSound.CreateNewSound("camp fire", "sounds/login/campfire.mp3", fadeRadius: 200, fullRadius: 30);
             MapSound? mSound = MapSound.Create(outside, new Point(1864, 2240), fireSound.SoundId);

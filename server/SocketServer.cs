@@ -119,6 +119,10 @@ namespace server
             if (command.StartsWith("/location")) {
                 string locStr = $"Location - ({Convert.ToInt32(user.X_Coord)} , {Convert.ToInt32(user.Y_Coord)}) x:{user.X_Coord}, y:{user.Y_Coord}, map:{GameServer.GetMapById(user.Map_Id).Name}";
                 SendServerMessage(locStr, "Information", guid);
+            } else if (command.StartsWith("/time"))
+            {
+                TimeSpan t = GameServer.GetWorldTime();
+                SendServerMessage($"In Game Time: {t.Hours}:{t.Minutes}" , "Information", guid);
             }
         }
 

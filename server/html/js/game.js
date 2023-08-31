@@ -886,6 +886,7 @@ const playerLookup = new Map();
 const mapImages = [];
 const mapAnimations = [];
 const damages = [];
+const mapLights = [];
 
 function loadMap(data) {
     //var worldbackground = new Image();
@@ -899,6 +900,7 @@ function loadMap(data) {
     mapAnimations.length = 0;
     damages.length = 0;
     clearMapSounds();
+    mapLights.length = 0;
     var imagesToLoad = data["mapImages"];
     for (let i = 0; i < imagesToLoad.length; i++) {
         var img = imagesToLoad[i];
@@ -914,6 +916,11 @@ function loadMap(data) {
     for (let i = 0; i < soundsToLoad.length; i++) {
         var snd = soundsToLoad[i];
         addMapSound(new MapSound(snd["path"], snd["repeat"], snd["x"], snd["y"], snd["fullRadius"], snd["fadeRadius"]));
+    }
+    var lightsToLoad = data["mapLights"];
+    for (let i = 0; i < lightsToLoad.length; i++) {
+        var ml = lightsToLoad[i];
+        mapLights.push(ml);
     }
 }
 
@@ -1059,7 +1066,16 @@ function animate() {
         var amount = 0.5;
         //darken(0, 0, canvas.width, canvas.height, '#003', amount);
         darken(0, 0, canvas.width, canvas.height, lastUpdateFrame["sky"]['color'], lastUpdateFrame["sky"]['amount']);
-        ligthenGradient(1867, 2242, offsetx, offsety, 250, amount);
+        for (let i = 0; i < mapLights.length; i++) {
+            var ml = mapLights[i];
+            //ligthenGradient(1867, 2242, offsetx, offsety, 250, amount);
+            var a = ml['amount'];
+            if (a < 0) {
+                a = lastUpdateFrame["sky"]['amount'];
+            }
+            ligthenGradient(ml['x'], ml['y'], offsetx, offsety, ml['radius'], a);
+        }
+        
         // draw player names
         for (const p of playerLookup.values()) {
             p.drawName(offsetx, offsety);
