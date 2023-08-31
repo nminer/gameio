@@ -918,7 +918,33 @@ function loadMap(data) {
 }
 
 
+function darken(x, y, w, h, darkenColor, amount) {
+    c.fillStyle = darkenColor;
+    c.globalAlpha = amount;
+    c.fillRect(x, y, w, h);
+    c.globalAlpha = 1;
+}
 
+function ligthenGradient(x, y, offsetx, offsety, radius, amount) {
+    var newx = x + offsetx;
+    var newy = y + offsety;
+    c.save();
+    c.globalAlpha = amount;
+    c.globalCompositeOperation = 'lighter';
+    var rnd = 0.05 * Math.sin(1.1 * Date.now() / 1000);
+    radius = radius * (1 + rnd);
+    var radialGradient = c.createRadialGradient(newx, newy, 0, newx, newy, radius);
+    radialGradient.addColorStop(0.0, '#616100');
+    //radialGradient.addColorStop(0.2 + rnd, '#AA8');
+    //radialGradient.addColorStop(0.7 + rnd, '#330');
+    radialGradient.addColorStop(0.50, '#110');
+    radialGradient.addColorStop(1, '#000');
+    c.fillStyle = radialGradient;
+    c.beginPath();
+    c.arc(newx, newy, radius, 0, 2 * Math.PI);
+    c.fill();
+    c.restore();
+}
 
 //============================================================
 var stop = false;
@@ -1029,6 +1055,11 @@ function animate() {
         drawList.forEach((d) => {
             d.draw(offsetx, offsety);
         })
+        // time of day 
+        var amount = 0.5;
+        //darken(0, 0, canvas.width, canvas.height, '#003', amount);
+        darken(0, 0, canvas.width, canvas.height, lastUpdateFrame["sky"]['color'], lastUpdateFrame["sky"]['amount']);
+        ligthenGradient(1867, 2242, offsetx, offsety, 250, amount);
         // draw player names
         for (const p of playerLookup.values()) {
             p.drawName(offsetx, offsety);

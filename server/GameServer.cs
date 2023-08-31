@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using server;
 using server.mapObjects;
+using server.mods;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -37,6 +38,8 @@ namespace server
         /// timer to update game (moves monsters...)
         /// </summary>
         private static Timer? GameUpdateTimer;
+
+        private static GameDayTimer? DayTimer;
 
         public static void PlayerJoing(Guid socketId, User user)
         {
@@ -110,6 +113,45 @@ namespace server
             {
                 GameUpdateTimer = new Timer(new TimerCallback(UpdateGame), null, 0, UpdateRate);
             }
+            if (DayTimer == null)
+            {
+                DayTimer = new GameDayTimer(1200000); // 20 minute day
+            }
+        }
+
+        private static object getWorldTimeUpdate()
+        {
+            TimeSpan gameRunTime = DayTimer.GetGameTime();
+            return new { day = gameRunTime.Days, hour = gameRunTime.Hours, minutes = gameRunTime.Minutes, seconds = gameRunTime.Seconds };
+        }
+
+        private static object getWorldSkyUpdate(Map map)
+        {
+            string skyColor = "#003";
+            double amount = 0;
+            if (!map.Outside)
+            {
+                return new { color = skyColor, amount = amount };
+            }
+            TimeSpan gametime = DayTimer.GetGameTime();
+            if (gametime.Hours >= 6 && gametime.Hours < 20)
+            {
+                amount = 0;
+            } else if (gametime.Hours >= 20 && gametime.Hours <= 21)
+            {
+                int spanseconds = ((gametime.Hours - 20) * 60 * 60) + (gametime.Minutes * 60);
+                int totaleSeconds = 2 * 60 * 60;
+                amount = ((double)spanseconds / (double)totaleSeconds) * 0.6;
+            } else if ((gametime.Hours >= 22 && gametime.Hours <= 24) || (gametime.Hours >= 0 && gametime.Hours < 4))
+            {
+                amount = 0.6;
+            } else if (gametime.Hours >= 4 && gametime.Hours <= 5)
+            {
+                int spanseconds = ((gametime.Hours - 4) * 60 * 60) + (gametime.Minutes * 60);
+                int totaleSeconds = 2 * 60 * 60;
+                amount = 0.6 - (((double)spanseconds / (double)totaleSeconds) * 0.6);
+            }
+            return new { color = skyColor, amount = amount};
         }
 
         private static void UpdateGame(object? state)
@@ -144,6 +186,10 @@ namespace server
                     writer.WriteRawValue(map.GetAllJsonSoundAffects());
                     writer.WritePropertyName("damages");
                     writer.WriteRawValue(map.GetAllJsonDamages());
+                    writer.WritePropertyName("time");
+                    writer.WriteRawValue(JsonConvert.SerializeObject(getWorldTimeUpdate()));
+                    writer.WritePropertyName("sky");
+                    writer.WriteRawValue(JsonConvert.SerializeObject(getWorldSkyUpdate(map)));
                     writer.WriteEndObject();
                 }
                 foreach (User user in mapUsers)

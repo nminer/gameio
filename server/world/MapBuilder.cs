@@ -11,7 +11,7 @@ namespace server
     {
         public static void BuildOutsid()
         {
-            Map.Create("Home", "img/maps/houseinside.png");
+            Map.Create("Home", "img/maps/houseinside.png", false);
 
             Map? outside = Map.Create("outside", "img/maps/main_map.png");
             Portal.Create("Door out", 1, 60, 720, 2, 1666, 1960);

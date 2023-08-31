@@ -128,6 +128,22 @@ namespace server
         }
 
         /// <summary>
+        /// true if map is an outside map.
+        /// affected by time of day.
+        /// </summary>
+        public bool Outside
+        {
+            get
+            {
+                lock (databaseLock)
+                {
+                    return (Int64)row["Outside"] == 1;
+                }
+            }
+        }
+        
+
+        /// <summary>
         /// keep the solids thread friendly.
         /// </summary>
         private object solidsLock = new object();
@@ -328,7 +344,7 @@ namespace server
             }
         }
 
-        static public Map? Create(string mapName, string imagePath)
+        static public Map? Create(string mapName, string imagePath, bool outside = true)
         {
             System.Drawing.Image img;
             try
@@ -343,12 +359,13 @@ namespace server
             Int64 width = img.Width;
             Int64 height = img.Height;
             // insert new user
-            string insertNewMap = $"INSERT INTO Maps (MapName, ImagePath, Height,Width) VALUES($name, $path, $height, $width);";
+            string insertNewMap = $"INSERT INTO Maps (MapName, ImagePath, Height, Width, Outside) VALUES($name, $path, $height, $width, $outside);";
             SQLiteCommand command = new SQLiteCommand(insertNewMap, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$name", mapName);
             command.Parameters.AddWithValue("$path", imagePath);
             command.Parameters.AddWithValue("$height", height);
             command.Parameters.AddWithValue("$width", width);
+            command.Parameters.AddWithValue("$outside", outside ? 1 : 0);
             SQLiteTransaction transaction = null;
             try
             {
@@ -451,7 +468,16 @@ namespace server
             {
                 tempMapSounds.Add(mapSound.GetJsonSoundObject());
             }
-            return JsonConvert.SerializeObject(new { mapName = Name, width = Width, height = Height, image = ImagePath, mapImages = tempMapSolids.ToArray(), mapAnimations = tempMapAnimations.ToArray(), mapSounds = tempMapSounds.ToArray()});
+            return JsonConvert.SerializeObject(new {
+                mapName = Name,
+                width = Width,
+                height = Height,
+                image = ImagePath, 
+                outside = Outside,
+                mapImages = tempMapSolids.ToArray(),
+                mapAnimations = tempMapAnimations.ToArray(),
+                mapSounds = tempMapSounds.ToArray()
+            });
         }
 
         public string GetAllJsonSoundAffects()

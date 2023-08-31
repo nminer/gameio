@@ -68,6 +68,7 @@ internal class DatabaseBuilder
 	            'ImagePath'	TEXT NOT NULL,
 	            'Height'	INTEGER NOT NULL DEFAULT 0,
 	            'Width'	INTEGER NOT NULL DEFAULT 0,
+	            'Outside'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Id' AUTOINCREMENT)
             );";
         Excute(createMapsTable, Connection);
