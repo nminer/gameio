@@ -137,7 +137,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Health"] + (Strength / 3);
+                    return (long)(((Int64)row["Max_Health"] + (Strength / 3)) * Death_Penalty);
                 }
             }
             set
@@ -194,7 +194,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Stamina"] + (Speed / 3);
+                    return (long)(((Int64)row["Max_Stamina"] + (Speed / 3)) * Death_Penalty);
                 }
             }
             set
@@ -250,7 +250,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Max_Mana"] + (Wisdom / 3);
+                    return (long)(((Int64)row["Max_Mana"] + (Wisdom / 3)) * Death_Penalty);
                 }
             }
             set
@@ -307,7 +307,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Strength"];
+                    return (long)((Int64)row["Strength"] * Death_Penalty);
                 }
             }
             set
@@ -328,7 +328,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Speed"];
+                    return (long)((Int64)row["Speed"] * Death_Penalty);
                 }
             }
             set
@@ -361,7 +361,7 @@ namespace server
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Wisdom"];
+                    return (long)((Int64)row["Wisdom"] * Death_Penalty);
                 }
             }
             set
@@ -460,6 +460,120 @@ namespace server
                         row["Direction"] = 0;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// amount of times the user has died.
+        /// </summary>
+        public Int64 Deaths
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Deaths"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                     row["Deaths"] = value;
+                }
+            }
+        }
+
+        public Int64 Spawn_Map_Id
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Spawn_Map_Id"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Spawn_Map_Id"] = value;
+                }
+            }
+        }
+
+        public Int64 Spawn_X
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Spawn_X"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Spawn_X"] = value;
+                }
+            }
+        }
+
+        public Int64 Spawn_Y
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Int64)row["Spawn_Y"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    row["Spawn_Y"] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// amount of death points the user has.
+        /// this directly relates to the death penalty. 
+        /// </summary>
+        public Double Death_Points
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return (Double)row["Death_Points"];
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    if (value < 0)
+                    {
+                        row["Death_Points"] = 0;
+                    } else if (value > 0.4)
+                    {
+                        row["Death_Points"] = 0.4;
+                    } else
+                    {
+                        row["Death_Points"] = value;
+                    }                   
+                }
+            }
+        }
+
+        private double Death_Penalty
+        {
+            get
+            {
+                return 1 - Death_Points;
             }
         }
 
@@ -707,6 +821,22 @@ namespace server
             return rnd.Next(1, 10);
         }
 
+        public void TakeDamage(long damageAmount)
+        {
+            counters.ResetRecharge();
+            Health -= damageAmount;
+        }
+
+        public void Died()
+        {
+            counters.ResetRecharge();
+            Death_Points += 0.05;
+            Health = (long)(MaxHealth * .9);
+            Stamina = (long)(MaxStamina * .9);
+            Mana = (long)(MaxMana * .9);
+            Deaths += 1;
+        }
+
         public SoundAffect GetTakeHitSound(bool critacalHit)
         {
             Random rnd = new Random();
@@ -803,6 +933,10 @@ namespace server
         /// </summary>
         public Point GetNetMoveAmount()
         {
+            if (Health <= 0)
+            {
+                return new Point(0, 0);
+            }
             if (HasCoolDown)
             {
                 decCoolDown();

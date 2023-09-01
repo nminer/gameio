@@ -115,7 +115,7 @@ namespace server
             }
             if (DayTimer == null)
             {
-                DayTimer = new GameDayTimer(1200000); // 20 minute day
+                DayTimer = new GameDayTimer(1200000); //1200000 = 20 minute days
             }
         }
 

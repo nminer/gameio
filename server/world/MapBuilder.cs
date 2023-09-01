@@ -9,7 +9,7 @@ namespace server
 {
     static class MapBuilder
     {
-        public static void BuildOutsid()
+        public static void BuildOutside()
         {
             Map.Create("Home", "img/maps/houseinside.png", false);
 

@@ -39,6 +39,11 @@ internal class DatabaseBuilder
 	            'X_Coordinate'	REAL NOT NULL DEFAULT 60,
 	            'Y_Coordinate'	REAL NOT NULL DEFAULT 60,
 	            'Direction'	INTEGER NOT NULL DEFAULT 0,
+	            'Deaths'	INTEGER NOT NULL DEFAULT 0,
+	            'Spawn_Map_Id'	INTEGER NOT NULL DEFAULT 1,
+	            'Spawn_X'	INTEGER NOT NULL DEFAULT 60,
+	            'Spawn_Y'	INTEGER NOT NULL DEFAULT 60,
+	            'Death_Points'	REAL NOT NULL DEFAULT 0,
 	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
 		Excute(createUserTable, Connection);

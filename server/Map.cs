@@ -318,11 +318,19 @@ namespace server
                     continue;
                 }
                 long damage = user.GitHitDamage();
-                u.Health = u.Health - damage;
+                u.TakeDamage(damage);
                 AddDamage(new Damage(u.Location, damage, 211, 0, 0));
                 AddSoundAffect(u.GetTakeHitSound(false));
-                SocketServer.SendMessageToUser(u, damage.ToString(), $"Damage from {user.UserName}");
-                SocketServer.SendMessageToUser(user, damage.ToString(), $"You hit {u.UserName}");
+                if (u.Health <= 0)
+                {
+                    SocketServer.SendMessageToUser(u, damage.ToString(), $"{user.UserName} killed you!");
+                    SocketServer.SendMessageToUser(user, damage.ToString(), $"You Killed {u.UserName}.");
+                } 
+                else
+                {
+                    SocketServer.SendMessageToUser(u, damage.ToString(), $"Damage from {user.UserName}");
+                    SocketServer.SendMessageToUser(user, damage.ToString(), $"You hit {u.UserName}");
+                }
             }
         }
 
@@ -592,7 +600,7 @@ namespace server
                     if (!canMove && nextMoveStep.Y == 0 && nextMoveStep.X != 0)
                     {
                         tempUser.Center.Y = user.Y_Coord + (nextMoveStep.X / 2);
-                        double tempx = nextMoveStep.X /2;
+                        double tempx = nextMoveStep.X / 2;
                         tempUser.Center.X = user.X_Coord + tempx;
                         canMove = !CheckCollisionWithSolids(tempUser);
                         if (!canMove)
@@ -609,7 +617,15 @@ namespace server
                         user.Y_Coord = tempUser.Center.Y;
                     }
                 }
-
+                // check for dead players
+                foreach (var user in GetUsers())
+                {
+                    if (user.Health <= 0)
+                    {
+                        user.Died();
+                        GameServer.ChangeUserMap(user, user.Spawn_Map_Id, user.Spawn_X, user.Spawn_Y);
+                    }
+                }
             }
         }
 
