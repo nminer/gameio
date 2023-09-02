@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using server;
 using server.mapObjects;
 using server.mods;
 using System;
@@ -65,13 +64,24 @@ namespace server
             newMap.AddUser(user, targetX, targetY);
         }
 
-        public static void CheckForPortal(User user)
+        /// <summary>
+        /// check the map to see if the user can use any thing close by
+        /// </summary>
+        /// <param name="user"></param>
+        public static void CheckForUserUse(User user)
         {
             Map playersMap = GetMapById(user.Map_Id);
-            Portal portalToUser = playersMap.CheckUsePortal(user);
+            Portal? portalToUser = playersMap.CheckUsePortal(user);
             if (portalToUser != null)
             {
                 ChangeUserMap(user, portalToUser.TargetMapId, portalToUser.Target_X_Coord, portalToUser.Target_Y_Coord);
+                return;
+            }
+            SoulStone? soulStone = playersMap.CheckUseSoulStone(user);
+            if (soulStone != null)
+            {
+                user.SetSoulStone();
+                return;
             }
         }
 

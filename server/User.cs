@@ -502,13 +502,13 @@ namespace server
             }
         }
 
-        public Int64 Spawn_X
+        public Double Spawn_X
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Spawn_X"];
+                    return (Double)row["Spawn_X"];
                 }
             }
             set
@@ -520,13 +520,13 @@ namespace server
             }
         }
 
-        public Int64 Spawn_Y
+        public Double Spawn_Y
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Spawn_Y"];
+                    return (Double)row["Spawn_Y"];
                 }
             }
             set
@@ -837,6 +837,13 @@ namespace server
             Deaths += 1;
         }
 
+        public void SetSoulStone()
+        {
+            Spawn_Map_Id = Map_Id;
+            Spawn_X = X_Coord;
+            Spawn_Y = Y_Coord;
+        }
+
         public SoundAffect GetTakeHitSound(bool critacalHit)
         {
             Random rnd = new Random();
@@ -923,7 +930,7 @@ namespace server
             if (HasCoolDown) return; 
             if (!oldUse && controls.Use)
             {
-                GameServer.CheckForPortal(this);
+                GameServer.CheckForUserUse(this);
             }
         }
 

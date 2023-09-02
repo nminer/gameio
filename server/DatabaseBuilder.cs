@@ -41,8 +41,8 @@ internal class DatabaseBuilder
 	            'Direction'	INTEGER NOT NULL DEFAULT 0,
 	            'Deaths'	INTEGER NOT NULL DEFAULT 0,
 	            'Spawn_Map_Id'	INTEGER NOT NULL DEFAULT 1,
-	            'Spawn_X'	INTEGER NOT NULL DEFAULT 60,
-	            'Spawn_Y'	INTEGER NOT NULL DEFAULT 60,
+	            'Spawn_X'	REAL NOT NULL DEFAULT 60,
+	            'Spawn_Y'	REAL NOT NULL DEFAULT 60,
 	            'Death_Points'	REAL NOT NULL DEFAULT 0,
 	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
@@ -217,7 +217,20 @@ internal class DatabaseBuilder
             );";
         Excute(createMapLightsTable, Connection);
 
+		// define soul stone table 
+		string createSoulStoneTable = @"CREATE TABLE 'Soul_Stones' (
+					'Soul_Stone_Id'	INTEGER NOT NULL UNIQUE,
+					'Map_Id'	INTEGER NOT NULL,
+					'Map_X'	INTEGER NOT NULL DEFAULT 0,
+					'Map_Y'	INTEGER NOT NULL DEFAULT 0,
+					'Radius'	INTEGER NOT NULL DEFAULT 0,
+					'Name'	TEXT NOT NULL UNIQUE,
+					PRIMARY KEY('Soul_Stone_Id' AUTOINCREMENT)
+				);";
+		Excute(createSoulStoneTable, Connection);
     }
+
+    
 
 
     /// <summary>

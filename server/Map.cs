@@ -171,10 +171,10 @@ namespace server
         /// </summary>
         private List<MapSolid> MapSolids = new List<MapSolid>();
 
-
+        private object MapVisualsLock = new object();
         private List<MapVisual> MapVisuals = new List<MapVisual>();
 
-
+        private object MapSoundsLock = new object();
         private List<MapSound> MapSounds = new List<MapSound>();
 
         /// <summary>
@@ -182,6 +182,12 @@ namespace server
         /// </summary>
         private object lightsLock = new object();
         private List<MapLight> MapLights = new List<MapLight>();
+
+        /// <summary>
+        /// lock to keep the SoulStones list safe
+        /// </summary>
+        private object SoulStoneLock = new object();
+        private List<SoulStone> MapSoulStones = new List<SoulStone>();
 
         /// <summary>
         /// Load a user from its user id in the database.
@@ -217,6 +223,7 @@ namespace server
             LoadMapVisuals();
             LoadMapSounds();
             LoadMapLights();
+            LoadSoulStones();
         }
 
         private void LoadPortals()
@@ -246,7 +253,7 @@ namespace server
 
         private void LoadMapSolids()
         {
-            lock (portalsLock)
+            lock (MapSolidsLock)
             {
                 SQLiteDataAdapter adapterMapSolids = new SQLiteDataAdapter();
 
@@ -273,7 +280,7 @@ namespace server
 
         private void LoadMapVisuals()
         {
-            lock (portalsLock)
+            lock (MapVisualsLock)
             {
                 SQLiteDataAdapter adapterMapSolids = new SQLiteDataAdapter();
 
@@ -291,6 +298,30 @@ namespace server
                     {
                         MapVisual ms = new MapVisual((Int64)r["Map_Visual_Id"]);
                         MapVisuals.Add(ms);
+                    }
+
+                }
+            }
+        }
+        private void LoadSoulStones()
+        {
+            lock (SoulStoneLock)
+            {
+                SQLiteDataAdapter adapterSoulStones = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderSoulStones = new SQLiteCommandBuilder(adapterSoulStones);
+
+                DataSet dataSoulStones = new DataSet();
+                string querySoulStones = "SELECT * FROM Soul_Stones WHERE Map_Id=$id;";
+                SQLiteCommand commandSoulStones = new SQLiteCommand(querySoulStones, DatabaseBuilder.Connection);
+                commandSoulStones.Parameters.AddWithValue("$id", Id);
+                adapterSoulStones.SelectCommand = commandSoulStones;
+                adapterSoulStones.Fill(dataSoulStones);
+                if (dataSoulStones.Tables.Count > 0 && dataSoulStones.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataSoulStones.Tables[0].Rows)
+                    {
+                        MapSoulStones.Add(new SoulStone((Int64)r["Soul_Stone_Id"]));
                     }
 
                 }
@@ -336,7 +367,7 @@ namespace server
 
         private void LoadMapSounds()
         {
-            lock (portalsLock)
+            lock (MapSoundsLock)
             {
                 SQLiteDataAdapter adapterMapSolids = new SQLiteDataAdapter();
 
@@ -675,6 +706,25 @@ namespace server
                 if (dist < 70) {
                     // TODO add directions.
                     return p;
+                }
+            }
+            return null;
+        }
+
+        public SoulStone? CheckUseSoulStone(User player)
+        {
+            List<SoulStone> tempStones;
+            lock (SoulStoneLock)
+            {
+                tempStones = new List<SoulStone>(MapSoulStones);
+            }
+            Point userLocation = player.Location;
+            foreach (SoulStone ss in tempStones)
+            {
+                double dist = Point.Distance(ss.mapPosition, userLocation);
+                if (dist <= ss.Radius)
+                {
+                    return ss;
                 }
             }
             return null;

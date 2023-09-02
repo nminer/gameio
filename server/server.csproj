@@ -111,6 +111,9 @@
     <None Update="html\img\maps\objects\house1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\maps\objects\soulStone1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\maps\objects\tree1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

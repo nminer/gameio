@@ -11,17 +11,34 @@ namespace server
     {
         public static void BuildOutside()
         {
-            Map.Create("Home", "img/maps/houseinside.png", false);
+
+
+            Map? house = Map.Create("Home", "img/maps/houseinside.png", false);
+            if (house == null)
+            {
+                // no need to build now.
+                return;
+            }
 
             Map? outside = Map.Create("outside", "img/maps/main_map.png");
             Portal.Create("Door out", 1, 60, 720, 2, 1666, 1960);
             Portal.Create("Door In", 2, 1666, 1910, 1, 60, 700);
 
+            //soul stone
+            GameImage? stoneImage = GameImage.CreateNewImage("soulStone", "img/maps/objects/soulStone1.png");
+            Shape stoneShape = new Shape().AddPoint(0, 107).AddPoint(9, 119).AddPoint(29, 124).AddPoint(72, 115).AddPoint(72,107);
+            stoneShape.Save("soulStone1 Shape");
+            Solid? stoneSolid = Solid.Create(stoneShape, shapePosition: new Point(0, 0), imageId: stoneImage.ImageId, drawOrder: new Point(32, 107));
+            MapSolid? stoneMapSolid = MapSolid.Create(outside, stoneSolid, new Point(2487, 2152));
+
+            //MapVisual? stoneVisual = MapVisual.Create(outside, new Point(2487, 2152), imageId: stoneImage.ImageId, drawOrder: new Point(32, 50));
+            SoulStone.Create(outside, new Point(2519, 2278), 20);
+
             // build tree 1
             GameImage? tree = GameImage.CreateNewImage("tree1", "img/maps/objects/tree1.png");
             Shape treeshape = new Shape(20, 100);
             treeshape.Save("20x100");
-            Solid? treesolid = Solid.Create(treeshape, shapePosition: new Point(88, 225), imageId: tree.ImageId, drawOrder: new Point(240, 125));
+            Solid? treesolid = Solid.Create(treeshape, shapePosition: new Point(88, 225), imageId: tree.ImageId, drawOrder: new Point(125, 240));
 
             // build house 1
             GameImage? house1 = GameImage.CreateNewImage("house1", "img/maps/objects/house1.png");

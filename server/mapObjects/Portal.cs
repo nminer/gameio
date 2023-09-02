@@ -1,5 +1,4 @@
-﻿using server.mapObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Data;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace server
+namespace server.mapObjects
 {
     class Portal
     {
@@ -24,13 +23,13 @@ namespace server
         /// <summary>
         /// The portal id in the database.
         /// </summary>
-        public Int64 PortalId
+        public long PortalId
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Portal_Id"];
+                    return (long)row["Portal_Id"];
                 }
             }
         }
@@ -38,13 +37,13 @@ namespace server
         /// <summary>
         /// The map id where the portal is located.
         /// </summary>
-        public Int64 MapId
+        public long MapId
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Map_Id"];
+                    return (long)row["Map_Id"];
                 }
             }
             set
@@ -59,13 +58,13 @@ namespace server
         /// <summary>
         /// the x cood on the current map. this is from the top left of the map.
         /// </summary>
-        public Double X_Coord
+        public double X_Coord
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Double)row["X_Coordinate"];
+                    return (double)row["X_Coordinate"];
                 }
             }
             set
@@ -80,13 +79,13 @@ namespace server
         /// <summary>
         /// the y cood on the current map. this is from the top left of the map.
         /// </summary>
-        public Double Y_Coord
+        public double Y_Coord
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Double)row["Y_Coordinate"];
+                    return (double)row["Y_Coordinate"];
                 }
             }
             set
@@ -101,13 +100,13 @@ namespace server
         /// <summary>
         /// The map id where the portal is sending the player.
         /// </summary>
-        public Int64 TargetMapId
+        public long TargetMapId
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Int64)row["Target_Map_Id"];
+                    return (long)row["Target_Map_Id"];
                 }
             }
             set
@@ -122,13 +121,13 @@ namespace server
         /// <summary>
         /// the y cood on the target map. this is from the top left of the map.
         /// </summary>
-        public Double Target_X_Coord
+        public double Target_X_Coord
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Double)row["Target_X"];
+                    return (double)row["Target_X"];
                 }
             }
             set
@@ -143,13 +142,13 @@ namespace server
         /// <summary>
         /// the y cood on the target map. this is from the top left of the map.
         /// </summary>
-        public Double Target_Y_Coord
+        public double Target_Y_Coord
         {
             get
             {
                 lock (dbDataLock)
                 {
-                    return (Double)row["Target_Y"];
+                    return (double)row["Target_Y"];
                 }
             }
             set
@@ -187,12 +186,12 @@ namespace server
         }
 
 
-        public Portal(Int64 portalId)
+        public Portal(long portalId)
         {
             LoadPortalFromDatabase(portalId);
         }
 
-        private void LoadPortalFromDatabase(Int64 portalId)
+        private void LoadPortalFromDatabase(long portalId)
         {
             lock (dbDataLock)
             {
@@ -212,7 +211,7 @@ namespace server
             }
         }
 
-        static public void Create(string portalName, Int64 mapId, double x, double y, Int64 targetMapId, Int64 tartgetX, Int64 targetY)
+        static public void Create(string portalName, long mapId, double x, double y, long targetMapId, long tartgetX, long targetY)
         {
             // insert new user
             string insertNewUser = $"INSERT INTO Portals (Map_Id, X_Coordinate, Y_Coordinate, Target_Map_Id, Target_X, Target_Y, PortalName) VALUES($Map_Id, $X_Coordinate, $Y_Coordinate, $Target_Map_Id, $Target_X, $Target_Y, $PortalName);";
@@ -223,7 +222,7 @@ namespace server
             command.Parameters.AddWithValue("$Target_Map_Id", targetMapId);
             command.Parameters.AddWithValue("$Target_X", tartgetX);
             command.Parameters.AddWithValue("$Target_Y", targetY);
-            command.Parameters.AddWithValue("$PortalName", portalName);       
+            command.Parameters.AddWithValue("$PortalName", portalName);
             if (command.ExecuteNonQuery() != 1)
             {
                 throw new Exception("Could Not create portal.");

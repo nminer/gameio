@@ -8,7 +8,7 @@ Console.WriteLine("Here we go! Hello, World!");
 
 DatabaseBuilder db = new DatabaseBuilder();
 
-//MapBuilder.BuildOutside();
+MapBuilder.BuildOutside();
 
 List<string> hostNames = new List<string> { "127.0.0.1", "localhost" };
 string? localip = WebServer.GetIpAddress();

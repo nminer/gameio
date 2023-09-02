@@ -187,7 +187,7 @@ namespace server.mapObjects
             {
                 shape.Save(description + " shape.");
             }
-            string insertNewSolid = $"INSERT INTO Solids (Description, Image_Id, Animation_Id, Shape_Id, Shape_Offset_X, Shape_Offset_Y, Draw_Order_Y, Draw_Order_X)" +
+            string insertNewSolid = $"INSERT INTO Solids (Description, Image_Id, Animation_Id, Shape_Id, Shape_Offset_X, Shape_Offset_Y, Draw_Order_X, Draw_Order_Y)" +
                 $" VALUES($descript, $imgId, $animId, $shapeId, $shapeX, $shapeY, $drawX, $drawY);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$descript", description);
