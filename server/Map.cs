@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using server.mapObjects;
 using System.Collections.Concurrent;
+using System.Reflection.Metadata.Ecma335;
 
 namespace server
 {
@@ -349,7 +350,10 @@ namespace server
                     continue;
                 }
                 long damage = user.GitHitDamage();
-                u.TakeDamage(damage);
+                if (u.Health <=0 || !u.TakeDamage(damage))
+                {
+                    continue;
+                }
                 AddDamage(new Damage(u.Location, damage, 211, 0, 0));
                 AddSoundAffect(u.GetTakeHitSound(false));
                 if (u.Health <= 0)
@@ -651,7 +655,7 @@ namespace server
                 // check for dead players
                 foreach (var user in GetUsers())
                 {
-                    if (user.Health <= 0)
+                    if (user.Health <= 0 && !user.HasCoolDown)
                     {
                         user.Died();
                         GameServer.ChangeUserMap(user, user.Spawn_Map_Id, user.Spawn_X, user.Spawn_Y);

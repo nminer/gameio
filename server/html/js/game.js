@@ -718,6 +718,7 @@ class Player {
         let standUpAnimation = new CharAnimation(images, 1, 0, 512, 64, 64, this, this);
         let standLeftAnimation = new CharAnimation(images, 1, 0, 576, 64, 64, this, this);
         let standRightAnimatin = new CharAnimation(images, 1, 0, 704, 64, 63, this, this);
+        let deadDownAnimation = new CharAnimation(images, 1, 320, 1280, 64, 64, this, this);
         this.animations =
         {
             walkDown: new CharAnimation(images, 8, 64, 640, 64, 64, this, this),
@@ -733,6 +734,7 @@ class Player {
             swingUp: new CharAnimation(images, 5, 64, 768, 64, 64, this, this, standUpAnimation),
             swingLeft: new CharAnimation(images, 5, 64, 832, 64, 64, this, this, standLeftAnimation),
             swingRight: new CharAnimation(images, 5, 64, 960, 64, 63, this, this, standRightAnimatin),
+            dieingDown: new CharAnimation(images, 5, 0, 1280, 64, 64, this, this, deadDownAnimation),
         }
     }
 
@@ -780,7 +782,9 @@ class Player {
         //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
         //this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
         c.fillStyle = 'rgba(0,0,0,.2)';
-        drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
+        if (this.animationName != "dieingDown") {
+            drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
+        }
         this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66, this.width, this.height);
         this.animation.step();
     }

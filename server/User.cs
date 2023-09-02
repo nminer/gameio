@@ -1,20 +1,8 @@
 ﻿using System.Data.SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-using System.Data.Common;
 using System.Data;
-using System.Reflection.PortableExecutable;
-using BCrypt.Net;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Runtime.InteropServices;
 using server.mapObjects;
-using System.CodeDom.Compiler;
 
 namespace server
 {
@@ -41,7 +29,7 @@ namespace server
 
         private Double CoolDown = 0.0;
         private Double CoolDownCount = 0.0;
-
+         
         public bool HasCoolDown
         {
             get
@@ -129,7 +117,7 @@ namespace server
         }
 
         /// <summary>
-        /// the max helth the player can have.
+        /// the max health the player can have.
         /// </summary>
 		public Int64 MaxHealth
         {
@@ -174,7 +162,9 @@ namespace server
                         row["Health"] = MaxHealth;
                     }
                     else if (value < 0)
-                    {
+                    {     
+                        SetCoolDown(140);
+                        AnimationName = "dieingDown";
                         row["Health"] = 0;
                     }
                     else
@@ -821,10 +811,21 @@ namespace server
             return rnd.Next(1, 10);
         }
 
-        public void TakeDamage(long damageAmount)
+        /// <summary>
+        /// make user take damage
+        /// returns true if damage was taken.
+        /// </summary>
+        /// <param name="damageAmount"></param>
+        /// <returns></returns>
+        public bool TakeDamage(long damageAmount)
         {
+            if (Health <= 0)
+            {
+                return false;
+            }
             counters.ResetRecharge();
             Health -= damageAmount;
+            return true;
         }
 
         public void Died()
@@ -942,6 +943,10 @@ namespace server
         {
             if (Health <= 0)
             {
+                if (HasCoolDown)
+                {
+                    decCoolDown();
+                }
                 return new Point(0, 0);
             }
             if (HasCoolDown)
