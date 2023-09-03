@@ -30,9 +30,11 @@ namespace server
             stoneShape.Save("soulStone1 Shape");
             Solid? stoneSolid = Solid.Create(stoneShape, shapePosition: new Point(0, 0), imageId: stoneImage.ImageId, drawOrder: new Point(32, 107));
             MapSolid? stoneMapSolid = MapSolid.Create(outside, stoneSolid, new Point(2487, 2152));
-
             //MapVisual? stoneVisual = MapVisual.Create(outside, new Point(2487, 2152), imageId: stoneImage.ImageId, drawOrder: new Point(32, 50));
-            SoulStone.Create(outside, new Point(2519, 2278), 20);
+            SoulStone.Create(outside, new Point(2519, 2278), 120);
+            MapLight? stonelight = MapLight.Create(outside, new Point(2530, 2248), 100, mainColor:"#00fcff", midColor: "#84d7d8", amount:0.07);
+            GameSound? stonesound = GameSound.CreateNewSound("camp fire", "sounds/outside/soulStone1.mp3", fadeRadius: 300, fullRadius: 50);
+            MapSound? sSound = MapSound.Create(outside, new Point(2530, 2248), stonesound.SoundId);
 
             // build tree 1
             GameImage? tree = GameImage.CreateNewImage("tree1", "img/maps/objects/tree1.png");

@@ -108,6 +108,12 @@
     <None Update="html\img\maps\objects\animations\smoke.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\img\maps\objects\fern1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\img\maps\objects\fern2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\img\maps\objects\house1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -6739,6 +6745,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="html\sounds\outside\beach.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\soulStone1.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="html\sounds\town\Ale-and-Anecdotes.mp3">
