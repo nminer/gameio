@@ -3,6 +3,7 @@ using System.Data;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using server.mapObjects;
+using System.Numerics;
 
 namespace server
 {
@@ -854,6 +855,23 @@ namespace server
             Spawn_Map_Id = Map_Id;
             Spawn_X = X_Coord;
             Spawn_Y = Y_Coord;
+            SetCoolDown(60);
+            if (Direction < 45 || Direction > 315)
+            {
+                AnimationName = "castDown";
+            }
+            else if (Direction >= 45 && Direction <= 135)
+            {
+                AnimationName = "castLeft";
+            }
+            else if (Direction > 135 && Direction <= 225)
+            {
+                AnimationName = "castUp";
+            }
+            else
+            {
+                AnimationName = "castRight";
+            }
         }
 
         public SoundAffect GetTakeHitSound(bool critacalHit)

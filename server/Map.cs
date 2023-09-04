@@ -53,6 +53,12 @@ namespace server
         /// </summary>
         private ConcurrentQueue<SoundAffect> soundAffects = new ConcurrentQueue<SoundAffect>();
 
+
+        /// <summary>
+        /// all the visual effects to send out on the next update.
+        /// </summary>
+        private ConcurrentQueue<VisualEffect> visualEffects = new ConcurrentQueue<VisualEffect>();
+
         /// <summary>
         /// all the damage to be sent out on next update
         /// </summary>
@@ -334,6 +340,11 @@ namespace server
             soundAffects.Enqueue(soundAffect);
         }
 
+        public void AddVisualEffect(VisualEffect visualEffect)
+        {
+            visualEffects.Enqueue(visualEffect);
+        }
+
         public void AddDamage(Damage damageIn)
         {
             damages.Enqueue(damageIn);
@@ -577,6 +588,21 @@ namespace server
             return JsonConvert.SerializeObject(sounds.ToArray());
         }
 
+        public string GetAllJsonVisualEffects()
+        {
+            List<object> visuals = new List<object>();
+            while (visualEffects.Count > 0)
+            {
+                VisualEffect? v;
+                if (visualEffects.TryDequeue(out v))
+                {
+                    visuals.Add(v.GetJsonVisualObject());
+                }
+            }
+            return JsonConvert.SerializeObject(visuals.ToArray());
+        }
+
+
         public string GetAllJsonDamages()
         {
             List<object> damagesOut = new List<object>();
@@ -728,7 +754,9 @@ namespace server
                 double dist = Point.Distance(ss.mapPosition, userLocation);
                 if (dist <= ss.Radius)
                 {
-                    AddSoundAffect(new SoundAffect("sounds/spells/blessing.ogg", false, player.Location, 60, 200));
+                    Point p = new Point(player.Location.X - 64, player.Location.Y - 54);
+                    AddSoundAffect(new SoundAffect("sounds/spells/blessing.ogg", false, player.Location, 100, 300));
+                    AddVisualEffect(new VisualEffect("img/spells/bind.png", p, new Point(0,0), 32, 128, 128, 5));
                     return ss;
                 }
             }

@@ -199,6 +199,8 @@ namespace server
                     writer.WriteEnd();
                     writer.WritePropertyName("soundAffects");
                     writer.WriteRawValue(map.GetAllJsonSoundAffects());
+                    writer.WritePropertyName("visualEffects");
+                    writer.WriteRawValue(map.GetAllJsonVisualEffects());
                     writer.WritePropertyName("damages");
                     writer.WriteRawValue(map.GetAllJsonDamages());
                     writer.WritePropertyName("time");

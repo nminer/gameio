@@ -101,6 +101,7 @@ function connectToWS() {
             lastUpdateTime = data["update"];
             lastUpdateFrame = data["frame"];
             addAllSoundAffects(data["frame"]);
+            addAllVisualEffects(data["frame"]);
             addAllDamages(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
@@ -128,6 +129,14 @@ function addAllSoundAffects(data) {
     for (let i = 0; i < soundsToLoad.length; i++) {
         var snd = soundsToLoad[i];
         addSoundAffect(new MapSound(snd["path"], snd["repeat"], snd["x"], snd["y"], snd["fullRadius"], snd["fadeRadius"], true));
+    }
+}
+
+function addAllVisualEffects(data) {
+    var visualsToLoad = data["visualEffects"];
+    for (let i = 0; i < visualsToLoad.length; i++) {
+        var vis = visualsToLoad[i];
+        addVisualEffect(new MapAnimation(vis["path"], vis["x"], vis["y"], vis["frameCount"], vis["frameX"], vis["frameY"], vis["width"], vis["height"], vis["slowDown"], vis["horizontal"], 0, vis["drawOrder"]));
     }
 }
 
@@ -491,7 +500,6 @@ class CharAnimation {
 
 function addVisualEffect(mapAnimation) {
     visualEffects.push(mapAnimation);
-
 }
 
 function checkAllVisualEffects() {
@@ -778,6 +786,10 @@ class Player {
             swingUp: new CharAnimation(images, 5, 64, 768, 64, 64, this, this, standUpAnimation),
             swingLeft: new CharAnimation(images, 5, 64, 832, 64, 64, this, this, standLeftAnimation),
             swingRight: new CharAnimation(images, 5, 64, 960, 64, 63, this, this, standRightAnimatin),
+            castDown: new CharAnimation(images, 7, 0, 128, 64, 64, this, this, standDownAnimation),
+            castUp: new CharAnimation(images, 7, 0, 0, 64, 64, this, this, standUpAnimation),
+            castLeft: new CharAnimation(images, 7, 0, 64, 64, 64, this, this, standLeftAnimation),
+            castRight: new CharAnimation(images, 7, 0, 192, 64, 64, this, this, standRightAnimatin),
             dieingDown: new CharAnimation(images, 5, 0, 1280, 64, 64, this, this, deadDownAnimation),
         }
     }
@@ -1096,6 +1108,10 @@ function animate() {
         for (let i = 0; i < mapAnimations.length; i++) {
             drawList.push(mapAnimations[i]);
         }
+        // add all visual effects
+        for (let i = 0; i < visualEffects.length; i++) {
+            drawList.push(visualEffects[i]);
+        }
         // add all damages
         for (let i = 0; i < damages.length; i++) {
             drawList.push(damages[i]);
@@ -1132,6 +1148,7 @@ function animate() {
         topPlayerBar.draw(curPlayer);
         // check for map sounds.
         checkAllMapSounds(curPlayer.X, curPlayer.Y);
+        checkAllVisualEffects();
     }
 }
 
