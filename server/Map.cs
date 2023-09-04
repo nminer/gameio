@@ -728,6 +728,7 @@ namespace server
                 double dist = Point.Distance(ss.mapPosition, userLocation);
                 if (dist <= ss.Radius)
                 {
+                    AddSoundAffect(new SoundAffect("sounds/spells/blessing.ogg", false, player.Location, 60, 200));
                     return ss;
                 }
             }

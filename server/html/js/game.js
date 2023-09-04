@@ -36,6 +36,9 @@ var lastSentKeys = "";
 var lastUpdateFrame = "";
 var lastUpdateTime = 0;
 
+// a list of mapAnimations that should playonly one tmie and then becleared.
+var visualEffects = [];
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -486,6 +489,17 @@ class CharAnimation {
     }
 }
 
+function addVisualEffect(mapAnimation) {
+    visualEffects.push(mapAnimation);
+
+}
+
+function checkAllVisualEffects() {
+    visualEffects = visualEffects.filter(function (s) {
+        return !s.finshed;
+    });
+}
+
 class MapAnimation {
     /**
      * call step to go to next image in the animations.
@@ -516,6 +530,7 @@ class MapAnimation {
         this.startFrameSet = false;
         this.drawX = this.imageX;
         this.drawY = this.imageY;
+        this.finshed = false; // set to true when currentFrame = frames count - 1.
     }
 
     /**
@@ -586,6 +601,7 @@ class MapAnimation {
             offsetx + this.mapX,
             offsety + this.mapY,
             this.width, this.height);
+        this.finshed = this.currentFrame == this.frames - 1
         this.step();
     }
 }
@@ -932,6 +948,7 @@ function loadMap(data) {
     mapAnimations.length = 0;
     damages.length = 0;
     clearMapSounds();
+    visualEffects.length = 0;
     mapLights.length = 0;
     var imagesToLoad = data["mapImages"];
     for (let i = 0; i < imagesToLoad.length; i++) {
