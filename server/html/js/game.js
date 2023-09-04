@@ -498,7 +498,7 @@ class MapAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, horizontal = true, startFram = 0, draworder = 0) {
+    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, horizontal = true, startFrame = 0, draworder = 0) {
         this.image = ImageLoader.GetImage("./" + imagepath);
         this.mapX = mapx;
         this.mapY = mapy;
@@ -508,17 +508,14 @@ class MapAnimation {
         this.width = width;
         this.height = height;
         this.stepHorizontal = horizontal;
-        this.currentFrame = startFram;
+        this.startFrame = startFrame;
+        this.currentFrame = 0;
         this.slowdown = slowdown;
         this.countSlowdown = 0;
         this.drawOrder = draworder;
-        if (this.stepHorizontal) {
-            this.drawX = this.imageX + (this.width * this.currentFrame);
-            this.drawY = this.imageY;
-        } else {
-            this.drawY = this.imageY + (this.height * this.currentFrame);
-            this.drawX = this.imageX;
-        }
+        this.startFrameSet = false;
+        this.drawX = this.imageX;
+        this.drawY = this.imageY;
     }
 
     /**
@@ -529,16 +526,40 @@ class MapAnimation {
         if (this.countSlowdown >= this.slowdown) {
             this.currentFrame += 1;
             this.countSlowdown = 0;
-        }
+            this.setDrawXYAndFrame(); 
+        }       
+    }
+
+    setDrawXYAndFrame() {
         if (this.currentFrame >= this.frames) {
             this.currentFrame = 0;
         }
-        if (this.stepHorizontal) {
-            this.drawX = this.imageX + (this.width * this.currentFrame);
-        } else {
-            this.drawY = this.imageY + (this.height * this.currentFrame);
+        if (this.currentFrame == 0) {
+            this.drawX = this.imageX;
+            this.drawY = this.imageY;
+            return;
         }
-        
+        if (this.stepHorizontal) {
+            if ((this.drawX + this.width + this.width) > this.image.width) {
+                this.drawX = this.imageX;
+                this.drawY = this.drawY + this.height;
+            } else {
+                this.drawX = this.drawX + this.width;
+            }
+        } else {
+            if ((this.drawY + this.height + this.height) > this.image.height) {
+                this.drawY = this.imageY;
+                this.drawX = this.drawX + this.width;
+            }
+        }
+    }
+
+    setStartFrame() {
+        this.startFrameSet = true;
+        while (this.currentFrame < this.startFrame) {
+            this.setDrawXYAndFrame();
+            this.currentFrame += 1;
+        }
     }
 
     /**
@@ -550,6 +571,13 @@ class MapAnimation {
      * @param {number} height
      */
     draw(offsetx, offsety) {
+        if (!this.image.complete) {
+            // make sure the image is loaded.
+            return;
+        }
+        if (!this.startFrameSet) {
+            this.setStartFrame()
+        }
         c.drawImage(this.image,
             this.drawX,
             this.drawY,

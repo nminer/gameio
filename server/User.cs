@@ -27,6 +27,7 @@ namespace server
 
         private string AnimationName = "standDown";
 
+        private object coolDownLock = new object();
         private Double CoolDown = 0.0;
         private Double CoolDownCount = 0.0;
          
@@ -34,22 +35,32 @@ namespace server
         {
             get
             {
-                return CoolDown > 0 && CoolDownCount >= 0;
+                lock (coolDownLock)
+                {
+                    return CoolDown > 0 && CoolDownCount >= 0;
+                }
             }
         }
 
         public void SetCoolDown(double cooldown)
         {
-            CoolDown = cooldown;
-            CoolDownCount = cooldown;
+            lock (coolDownLock)
+            {
+                CoolDown = cooldown;
+                CoolDownCount = cooldown;
+            }
         }
 
         public void decCoolDown(double amount = 1.0) 
         {
-            CoolDownCount -= amount;
-            if (CoolDownCount < 0) {
-                CoolDown = 0;
-                CoolDownCount = 0;
+            lock (coolDownLock)
+            {
+                CoolDownCount -= amount;
+                if (CoolDownCount < 0)
+                {
+                    CoolDown = 0;
+                    CoolDownCount = 0;
+                }
             }
         }
 
@@ -952,7 +963,7 @@ namespace server
             if (HasCoolDown)
             {
                 decCoolDown();
-                if (CoolDownCount > 0)
+                if (HasCoolDown)
                 {
                     return new Point(0, 0);
                 }
