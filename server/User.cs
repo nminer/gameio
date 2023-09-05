@@ -173,8 +173,8 @@ namespace server
                     {
                         row["Health"] = MaxHealth;
                     }
-                    else if (value < 0)
-                    {     
+                    else if (value <= 0)
+                    {
                         SetCoolDown(140);
                         AnimationName = "dieingDown";
                         row["Health"] = 0;
