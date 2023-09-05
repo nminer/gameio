@@ -60,6 +60,32 @@ namespace server.mapObjects
             Y = y;
         }
 
+        /// <summary>
+        /// our directions is 0 when going down 
+        /// this is due to top left being 0,0 and y going up as we move down and x going up as we move right.
+        /// the 0 direction is set by vector1.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <returns></returns>
+        public static double Direction(Point source, Point destination)
+        {
+            var vector2 = destination - source;
+            var vector1 = new Point(0, 1); // 12 o'clock == 0°, assuming that y goes from bottom to top
+            double angleInRadians = Math.Atan2(vector2.Y, vector2.X) - Math.Atan2(vector1.Y, vector1.X);
+            double degrees = (180 / Math.PI) * angleInRadians;
+            if (degrees < 0)
+            {
+                degrees = 360 + degrees;
+            }
+            return degrees;
+        }
+
+        public double Direction(Point Destination)
+        {
+            return Point.Direction(this, Destination);
+        }
+
         public static double Distance(Point p1, Point p2)
         {
             double distance = Math.Sqrt(Math.Pow((p2.X - p1.X), 2) + Math.Pow((p2.Y - p1.Y), 2));
@@ -117,6 +143,12 @@ namespace server.mapObjects
         public static Point operator +(Point a, Point b)
         {
             Point newPoint = new Point(a.X + b.X, a.Y + b.Y);
+            return newPoint;
+        }
+
+        public static Point operator -(Point a, Point b)
+        {
+            Point newPoint = new Point(a.X - b.X, a.Y - b.Y);
             return newPoint;
         }
     }

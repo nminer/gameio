@@ -350,13 +350,17 @@ namespace server
             damages.Enqueue(damageIn);
         }
 
-
         public void PlayerHit(User user)
         {
             // hard coded hit.
             foreach (User u in GetUsers())
             {
                 if (u == user || user.Solid.Distance(u.Solid) > user.GetHitDistence())
+                {
+                    continue;
+                }
+                double targetDirection = user.Location.Direction(u.Location);
+                if (!user.InHitDirection(targetDirection))
                 {
                     continue;
                 }
@@ -733,9 +737,13 @@ namespace server
             foreach (Portal p in tempPortals)
             {
                 double dist = Point.Distance(p.Location, userLocation);
-                if (dist < 70) {
-                    // TODO add directions.
-                    return p;
+                if (dist < 60) {
+                    double portalDirection = player.Location.Direction(p.Location);
+                    if (player.InHitDirection(portalDirection, 180))
+                    {
+                        // TODO add directions.
+                        return p;
+                    }
                 }
             }
             return null;

@@ -440,6 +440,9 @@ namespace server
             }
         }
 
+        /// <summary>
+        /// zero is down. clockwise to 359.
+        /// </summary>
         public Int64 Direction
         {
             get
@@ -821,6 +824,13 @@ namespace server
         {
             Random rnd = new Random();
             return rnd.Next(1, 10);
+        }
+
+        public bool InHitDirection(double toHitDirection, double hitRange = 120)
+        {
+            hitRange = hitRange / 2;
+            double anglediff = (Direction - toHitDirection + 180 + 360) % 360 - 180;
+            return anglediff <= hitRange && anglediff >= -hitRange;
         }
 
         /// <summary>
