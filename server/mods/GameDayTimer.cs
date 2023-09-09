@@ -102,6 +102,11 @@ namespace server.mods
             return gametime;
         }
 
-
+        public TimeSpan MillisecondsToGameTime(long milliseconds)
+        {
+            long seconds = milliseconds / SecondsLengthInMilliseconds;
+            TimeSpan gametime = new TimeSpan(0, 0, 0, (int)seconds);
+            return gametime;
+        }
     }
 }

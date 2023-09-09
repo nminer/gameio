@@ -140,6 +140,11 @@ namespace server
             return DayTimer.GetGameTime();
         }
 
+        public static TimeSpan MillisecondsToGameTime(long milliseconds)
+        {
+            return DayTimer.MillisecondsToGameTime(milliseconds);
+        }
+
         private static object getWorldSkyUpdate(Map map)
         {
             string skyColor = "#003";
