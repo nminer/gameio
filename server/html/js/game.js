@@ -632,6 +632,7 @@ class Storm {
         var raindropCount = convertRange(0, 100, 0, canvas.width + canvas.height, amountOfRain);
         raindropCount = raindropCount | 0;
         this.targetRainDops = raindropCount;
+        setStormSounds(amountOfRain);
     }
 
     makeRainDrop(offsetx = 0, offsety = 0) {
@@ -1062,6 +1063,16 @@ function darken(x, y, w, h, darkenColor, amount) {
     c.globalAlpha = amount;
     c.fillRect(x, y, w, h);
     c.globalAlpha = 1;
+}
+
+function lighten(x, y, w, h, lightColor, amount) {
+    c.save();
+    c.globalAlpha = amount;
+    c.globalCompositeOperation = 'lighter';
+    c.fillStyle = lightColor;
+    c.globalAlpha = amount;
+    c.fillRect(x, y, w, h);
+    c.restore();
 }
 
 function ligthenGradient(x, y, offsetx, offsety, radius, mainColor, midColor, amount) {

@@ -8,6 +8,7 @@ let mapSounds = [];
 let soundAffects = [];
 
 
+
 /**
  * stop and removes all the map sounds.
  */
@@ -141,7 +142,55 @@ function checkAllMapSounds(playerX, playerY) {
         sound.checkDistance(playerX, playerY);
     }
 }
+//======================== stormSounds ===================================
+class StormSounds {
+    constructor() {
+        this.startStopSound = new MapSound('sounds/outside/stop-rain.mp3', true, 0, 0, 0, 0);
+        this.startStopSound.loadSound();
+        this.lightSound = new MapSound('sounds/outside/light-rain.mp3', true, 0, 0, 0);
+        this.lightSound.loadSound();
+        this.midSound = new MapSound('sounds/outside/mid-rain.mp3', true, 0, 0, 0, 0);
+        this.midSound.loadSound();
+        this.heavySound = new MapSound('sounds/outside/heavy-rain.mp3', true, 0, 0, 0, 0);
+        this.heavySound.loadSound();
+    }
 
+    setStorm(amount) {
+        if (amount < 10) {
+            // start or stopping rain.
+            this.startStopSound.play();
+            this.lightSound.pause();
+            this.midSound.pause();
+            this.heavySound.pause();
+        } else if (amount >= 1 && amount < 60) {
+            // light rain
+            this.startStopSound.pause();
+            this.lightSound.play();
+            this.midSound.pause();
+            this.heavySound.pause();
+        } else if (amount >= 60 && amount < 100) { 
+            //mid rain.
+            this.startStopSound.pause();
+            this.lightSound.pause();
+            this.midSound.play();
+            this.heavySound.pause();
+        } else if (amount >= 100) {
+            // heavy rain.
+            this.startStopSound.pause();
+            this.lightSound.pause();
+            this.midSound.pause();
+            this.heavySound.play();
+        }
+        
+    }
+}
+let stormSounds = null;
+function setStormSounds(amount) {
+    if (stormSounds == null) {
+        stormSounds = new StormSounds()
+    }
+    stormSounds.setStorm(amount);
+}
 //=============================== baackground sounds =====================
 // this is for back ground sounds.
 let playingList = [];
@@ -273,3 +322,6 @@ class SoundLoader {
         });
     }
 }
+
+
+

@@ -204,6 +204,8 @@ namespace server
                     writer.WriteEnd();
                     writer.WritePropertyName("soundAffects");
                     writer.WriteRawValue(map.GetAllJsonSoundAffects());
+                    writer.WritePropertyName("fullMapSoundEffects");
+                    writer.WriteRawValue(map.GetAllJsonFullMapSoundEffects());
                     writer.WritePropertyName("visualEffects");
                     writer.WriteRawValue(map.GetAllJsonVisualEffects());
                     writer.WritePropertyName("damages");

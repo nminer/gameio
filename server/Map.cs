@@ -53,6 +53,11 @@ namespace server
         /// </summary>
         private ConcurrentQueue<SoundAffect> soundAffects = new ConcurrentQueue<SoundAffect>();
 
+        /// <summary>
+        /// All the sounds effects that cove the full map.
+        /// </summary>
+        private ConcurrentQueue<FullMapSoundEffect> fullMapSoundEffects = new ConcurrentQueue<FullMapSoundEffect>();
+
 
         /// <summary>
         /// all the visual effects to send out on the next update.
@@ -340,6 +345,11 @@ namespace server
             soundAffects.Enqueue(soundAffect);
         }
 
+        public void AddFullMapSoundEffect(FullMapSoundEffect fullMapSoundEffect)
+        {
+            fullMapSoundEffects.Enqueue(fullMapSoundEffect);
+        }
+
         public void AddVisualEffect(VisualEffect visualEffect)
         {
             visualEffects.Enqueue(visualEffect);
@@ -585,6 +595,20 @@ namespace server
             {
                 SoundAffect? s;
                 if (soundAffects.TryDequeue(out s))
+                {
+                    sounds.Add(s.GetJsonSoundObject());
+                }
+            }
+            return JsonConvert.SerializeObject(sounds.ToArray());
+        }
+
+        public string GetAllJsonFullMapSoundEffects()
+        {
+            List<object> sounds = new List<object>();
+            while (fullMapSoundEffects.Count > 0)
+            {
+                FullMapSoundEffect? s;
+                if (fullMapSoundEffects.TryDequeue(out s))
                 {
                     sounds.Add(s.GetJsonSoundObject());
                 }
