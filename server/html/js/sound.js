@@ -7,7 +7,7 @@ let mapSounds = [];
 // sound affects play one time and then are removed.
 let soundAffects = [];
 
-
+let fullMapSounds = [];
 
 /**
  * stop and removes all the map sounds.
@@ -21,6 +21,10 @@ function clearMapSounds() {
         s.pause();
     });
     soundAffects.length = 0;
+    fullMapSounds.forEach((s) => {
+        s.pause();
+    });
+    fullMapSounds.length = 0;
 }
 
 function addMapSound(mapSoundToAdd) {
@@ -31,6 +35,13 @@ function addSoundAffect(mapSoundToAdd) {
     if (playing) {
         mapSoundToAdd.loadSound();
         soundAffects.push(mapSoundToAdd);
+    }
+}
+
+function addFullMapSound(fullMapSound) {
+    if (playing) {
+        fullMapSound.loadSound();
+        fullMapSounds.push(mapSounds);
     }
 }
 
@@ -141,7 +152,63 @@ function checkAllMapSounds(playerX, playerY) {
         let sound = soundAffects[i];
         sound.checkDistance(playerX, playerY);
     }
+    fullMapSounds = fullMapSounds.filter(function (s) {
+        return !s.finishedPlaying()
+    });
 }
+//========================== full map sound ===============================
+class fullMapSound {
+
+    constructor(soundFileStr, repeat, volume = 1) {
+        this.soundFileStr = soundFileStr;
+        this.repeatLoop = repeat;
+        this.volume = volume;
+        this.startLoading = false;
+    }
+
+    setSound(audioObject) {
+        this.sound = audioObject;
+        this.sound.loop = this.repeatLoop;
+        this.sound.volume = this.volume;
+        if (playing) {       
+            this.play();
+        } else {
+            this.pause();
+        }
+    }
+
+    pause() {
+        if (this.sound !== undefined) {
+            this.sound.pause();
+        }
+    }
+
+    play() {
+        if (this.sound !== undefined && playing) {
+            this.sound.play();
+        }
+    }
+
+    isPlaying() {
+        if (this.sound !== undefined) {
+            return !this.sound.paused;
+        }
+        return false;
+    }
+
+    // returns true if the sound was loaded and finished playing
+    finishedPlaying() {
+        return this.sound !== undefined && this.sound.paused;
+    }
+
+    loadSound() {
+        if (this.sound === undefined && !this.startLoading) {
+            this.startLoading = true;
+            SoundLoader.GetSound(this.soundFileStr, this);
+        }
+    }
+}
+
 //======================== stormSounds ===================================
 class StormSounds {
     constructor() {
@@ -273,6 +340,13 @@ function soundonoff(saveSetting = true) {
         }
     });
     soundAffects.forEach((s) => {
+        if (!playing) {
+            s.pause();
+        } else {
+            s.play();
+        }
+    });
+    fullMapSounds.forEach((s) => {
         if (!playing) {
             s.pause();
         } else {

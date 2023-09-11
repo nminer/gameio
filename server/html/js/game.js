@@ -39,6 +39,8 @@ var lastUpdateTime = 0;
 // a list of mapAnimations that should playonly one tmie and then becleared.
 var visualEffects = [];
 
+var lightningStrikes = [];
+
 function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -101,6 +103,7 @@ function connectToWS() {
             lastUpdateTime = data["update"];
             lastUpdateFrame = data["frame"];
             addAllSoundAffects(data["frame"]);
+            addAllFullMapSounds(data["frame"]);
             addAllVisualEffects(data["frame"]);
             addAllDamages(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
@@ -129,6 +132,14 @@ function addAllSoundAffects(data) {
     for (let i = 0; i < soundsToLoad.length; i++) {
         var snd = soundsToLoad[i];
         addSoundAffect(new MapSound(snd["path"], snd["repeat"], snd["x"], snd["y"], snd["fullRadius"], snd["fadeRadius"], true));
+    }
+}
+
+function addAllFullMapSounds(data) {
+    var soundsToLoad = data["fullMapSoundEffects"];
+    for (let i = 0; i < soundsToLoad.length; i++) {
+        var snd = soundsToLoad[i];
+        addFullMapSound(new fullMapSound(snd["path"], snd["repeat"], snd["volume"]));
     }
 }
 
@@ -508,6 +519,16 @@ function checkAllVisualEffects() {
     });
 }
 
+function addLightning(lightning) {
+    lightningStrikes.push(lightning);
+}
+
+function checkAllLightningStrikes() {
+    lightningStrikes = lightningStrikes.filter(function (s) {
+        return !s.finshed;
+    });
+}
+
 class MapAnimation {
     /**
      * call step to go to next image in the animations.
@@ -620,6 +641,22 @@ function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
     let newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
     return newValue;
 }
+//================================= lightning ===========================
+class Lightning {
+    constructor(startingAmount = .8) {
+        this.amount = startingAmount;
+        this.finshed = false;
+    }
+
+    draw() {
+        lighten(0, 0, canvas.width, canvas.height, '#ffffff', this.amount);
+        this.amount = this.amount - 0.03;
+        if (this.amount <= 0) {
+            this.finshed = true;
+        }
+    }
+}
+
 //=================================== storm ===========================================
 class Storm {
 
@@ -1096,7 +1133,7 @@ function ligthenGradient(x, y, offsetx, offsety, radius, mainColor, midColor, am
     c.restore();
 }
 
-//============================================================
+//================================= Main animation ======================================
 var stop = false;
 var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
@@ -1224,6 +1261,10 @@ function animate() {
             ligthenGradient(mapLight['x'], mapLight['y'], offsetx, offsety, mapLight['radius'], mapLight['mainColor'], mapLight['midColor'], lightAmount);
         }
         storm.draw(offsetx, offsety);
+        for (let i = 0; i < lightningStrikes.length; i++) {
+            var l = lightningStrikes[i];
+            l.draw();
+        }
         // draw player names
         for (const p of playerLookup.values()) {
             p.drawName(offsetx, offsety);
@@ -1233,10 +1274,11 @@ function animate() {
         // check for map sounds.
         checkAllMapSounds(curPlayer.X, curPlayer.Y);
         checkAllVisualEffects();
-        
+        checkAllLightningStrikes();
     }
 }
 
+//==============================================================================================
 
 const addToUsersBox = (userName) => {
     if (!!document.querySelector(`.${userName}-userlist`)) {

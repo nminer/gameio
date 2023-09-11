@@ -13,19 +13,22 @@ namespace server.mapObjects
 
         public string SoundPath;
 
+        public double Volume;
+
         /// <summary>
         /// Load a sound from its sound id in the database.
         /// </summary>
         /// <param name="imageId"></param>
-        public FullMapSoundEffect(string path, int repeat)
+        public FullMapSoundEffect(string path, int repeat, double volume = 1)
         {
             this.SoundPath = path;
             this.Repeat = repeat;
+            Volume = volume;
         }
 
         public object? GetJsonSoundObject()
         {
-            return new {path = SoundPath, repeat = Repeat};
+            return new {path = SoundPath, repeat = Repeat, volume = Volume};
         }
     }
 }
