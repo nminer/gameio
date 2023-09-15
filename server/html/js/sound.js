@@ -223,7 +223,12 @@ class StormSounds {
     }
 
     setStorm(amount) {
-        if (amount < 10) {
+        if (amount < 1) {
+            this.startStopSound.pause();
+            this.lightSound.pause();
+            this.midSound.pause();
+            this.heavySound.pause();
+        } else if (amount < 10) {
             // start or stopping rain.
             this.startStopSound.play();
             this.lightSound.pause();

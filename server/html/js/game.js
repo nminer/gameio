@@ -665,7 +665,7 @@ class Storm {
         this.targetRainDops = 50;
     }
 
-    setup(amountOfRain) {
+    setRainAmount(amountOfRain) {
         var raindropCount = convertRange(0, 100, 0, canvas.width + canvas.height, amountOfRain);
         raindropCount = raindropCount | 0;
         this.targetRainDops = raindropCount;
@@ -1139,7 +1139,7 @@ var frameCount = 0;
 var fps, fpsInterval, startTime, now, then, elapsed;
 var topPlayerBar = new topbar();
 var storm = new Storm();
-storm.setup(50);
+storm.setRainAmount(0);
 // initialize the timer variables and start the animation
 
 function startAnimating(fps) {
@@ -1260,6 +1260,7 @@ function animate() {
             }
             ligthenGradient(mapLight['x'], mapLight['y'], offsetx, offsety, mapLight['radius'], mapLight['mainColor'], mapLight['midColor'], lightAmount);
         }
+        storm.setRainAmount(lastUpdateFrame["storm"]['amount']);
         storm.draw(offsetx, offsety);
         for (let i = 0; i < lightningStrikes.length; i++) {
             var l = lightningStrikes[i];

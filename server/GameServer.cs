@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using server.mapObjects;
 using server.mods;
+using server.world;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -39,6 +41,8 @@ namespace server
         private static Timer? GameUpdateTimer;
 
         private static GameDayTimer? DayTimer;
+
+        private static Storm? CurentStorm;
 
         public static void PlayerJoing(Guid socketId, User user)
         {
@@ -145,6 +149,11 @@ namespace server
             return DayTimer.MillisecondsToGameTime(milliseconds);
         }
 
+        public static long GameTimeSpanToMilliseconds(TimeSpan time)
+        {
+             return DayTimer.GameTimeSpanToMilliseconds(time);
+        }
+
         private static object getWorldSkyUpdate(Map map)
         {
             string skyColor = "#003";
@@ -172,6 +181,22 @@ namespace server
                 amount = 0.6 - (((double)spanseconds / (double)totaleSeconds) * 0.6);
             }
             return new { color = skyColor, amount = amount};
+        }
+
+        private static object getStormUpdate(Map map)
+        {
+            if (CurentStorm is null)
+            {
+                CurentStorm = Storm.GetNextStorm();
+            } else if (CurentStorm.Finished)
+            {
+                CurentStorm = null;
+            }
+            if (!map.Outside || CurentStorm is null)
+            {
+                return new {amount = 0};
+            }
+            return new { amount = CurentStorm.GetStormAmount()};
         }
 
         private static void UpdateGame(object? state)
@@ -214,6 +239,8 @@ namespace server
                     writer.WriteRawValue(JsonConvert.SerializeObject(getWorldTimeUpdate()));
                     writer.WritePropertyName("sky");
                     writer.WriteRawValue(JsonConvert.SerializeObject(getWorldSkyUpdate(map)));
+                    writer.WritePropertyName("storm");
+                    writer.WriteRawValue(JsonConvert.SerializeObject(getStormUpdate(map)));
                     writer.WriteEndObject();
                 }
                 foreach (User user in mapUsers)

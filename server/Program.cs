@@ -6,6 +6,13 @@ int port = 9000;
 
 Console.WriteLine("Here we go! Hello, World!");
 
+//RandomCurve curv = new RandomCurve(4, 20, 200, 5);
+//List<int> list = new List<int>();
+//for (double i = 0; i < 100; i = i + 0.01)
+//{
+//    list.Add((int)curv.GetY(i));
+//}
+
 DatabaseBuilder db = new DatabaseBuilder();
 
 MapBuilder.BuildOutside();

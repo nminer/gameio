@@ -9,7 +9,6 @@ namespace server.mods
     internal class GameDayTimer
     {
 
-
         /// <summary>
         ///  How many hours there are in a day
         /// </summary>
@@ -41,7 +40,7 @@ namespace server.mods
         public long MinuteLengthInMilliseconds;
 
         /// <summary>
-        /// the Milliseconds in one game sound.
+        /// the Milliseconds in one game second.
         /// </summary>
         public long SecondsLengthInMilliseconds;
 
@@ -107,6 +106,17 @@ namespace server.mods
             long seconds = milliseconds / SecondsLengthInMilliseconds;
             TimeSpan gametime = new TimeSpan(0, 0, 0, (int)seconds);
             return gametime;
+        }
+
+        /// <summary>
+        /// takes in a game timespan and returns how many real milliseconds
+        /// that game time would take.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public long GameTimeSpanToMilliseconds(TimeSpan time)
+        {
+            return (long)(time.TotalSeconds * SecondsLengthInMilliseconds);
         }
     }
 }
