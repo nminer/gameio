@@ -41,7 +41,7 @@ function addSoundAffect(mapSoundToAdd) {
 function addFullMapSound(fullMapSound) {
     if (playing) {
         fullMapSound.loadSound();
-        fullMapSounds.push(mapSounds);
+        fullMapSounds.push(fullMapSound);
     }
 }
 
@@ -87,6 +87,10 @@ class MapSound {
             return !this.sound.paused;
         }
         return false;
+    }
+
+    setVolume(amount) {
+        this.sound.volume = amount;
     }
 
     // returns true if the sound was loaded and finished playing
@@ -153,7 +157,7 @@ function checkAllMapSounds(playerX, playerY) {
         sound.checkDistance(playerX, playerY);
     }
     fullMapSounds = fullMapSounds.filter(function (s) {
-        return !s.finishedPlaying()
+        return !s.finishedPlaying();
     });
 }
 //========================== full map sound ===============================
@@ -222,8 +226,15 @@ class StormSounds {
         this.heavySound.loadSound();
     }
 
+    convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
+        let oldRange = oldMax - oldMin;
+        let newRange = newMax - newMin;
+        let newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+        return newValue;
+    }
+
     setStorm(amount) {
-        if (amount < 1) {
+        if (amount < 1 || !playing) {
             this.startStopSound.pause();
             this.lightSound.pause();
             this.midSound.pause();
@@ -234,23 +245,29 @@ class StormSounds {
             this.lightSound.pause();
             this.midSound.pause();
             this.heavySound.pause();
-        } else if (amount >= 1 && amount < 60) {
+        } else if (amount >= 10 && amount < 60) {
             // light rain
-            this.startStopSound.pause();
+            this.startStopSound.setVolume(1);
+            this.lightSound.setVolume(convertRange(10, 59, 0.0, 1.0, amount));
+            this.startStopSound.play();
             this.lightSound.play();
             this.midSound.pause();
             this.heavySound.pause();
         } else if (amount >= 60 && amount < 100) { 
             //mid rain.
+            this.lightSound.setVolume(1);
+            this.midSound.setVolume(convertRange(60, 99, 0.0, 1.0, amount));
             this.startStopSound.pause();
-            this.lightSound.pause();
+            this.lightSound.play();
             this.midSound.play();
             this.heavySound.pause();
         } else if (amount >= 100) {
             // heavy rain.
+            this.midSound.setVolume(1);
+            this.heavySound.setVolume(convertRange(100, 200, 0.0, 1.0, amount));
             this.startStopSound.pause();
             this.lightSound.pause();
-            this.midSound.pause();
+            this.midSound.play();
             this.heavySound.play();
         }
         

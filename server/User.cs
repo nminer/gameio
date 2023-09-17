@@ -1031,7 +1031,7 @@ namespace server
             double moveKeys = controls.CountDirectionKeys();
             //if (moveKeys == 0 || moveKeys == 4) { return new Point(0,0); }
             //double speedMove = (Speed / 5) / moveKeys;
-            double modspeed = mods.Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, SpeedMoveMod);
+            double modspeed = Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, SpeedMoveMod);
             if (controls.Run && Stamina > 0)
             {
                 modspeed += 2;

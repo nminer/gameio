@@ -165,6 +165,10 @@ namespace server
             TimeSpan gametime = DayTimer.GetGameTime();
             if (gametime.Hours >= 6 && gametime.Hours < 20)
             {
+                if (CurentStorm != null && !CurentStorm.Finished)
+                {
+                    skyColor = CurentStorm.skyColor;
+                }
                 amount = 0;
             } else if (gametime.Hours >= 20 && gametime.Hours <= 21)
             {
@@ -179,6 +183,14 @@ namespace server
                 int spanseconds = ((gametime.Hours - 4) * 60 * 60) + (gametime.Minutes * 60);
                 int totaleSeconds = 2 * 60 * 60;
                 amount = 0.6 - (((double)spanseconds / (double)totaleSeconds) * 0.6);
+            }
+            if (CurentStorm != null && !CurentStorm.Finished)
+            {
+                amount += Mods.ConvertRange(0, 200, 0, 0.2, CurentStorm.GetLastAmount());
+                if (amount > 0.6)
+                {
+                    amount = 0.6;
+                }
             }
             return new { color = skyColor, amount = amount};
         }
@@ -209,8 +221,18 @@ namespace server
 
         private static void UpdatePlayersFrames(object? state)
         {
+            LightningStrike? strike = null;
+            if (CurentStorm is not null && !CurentStorm.Finished)
+            {
+                strike = CurentStorm.GetLightning();
+            }
             foreach (Map map in mapIdToMaps.Values)
             {
+                // add lightning sound to map if it is outside.
+                if (map.Outside && strike is not null)
+                {
+                    map.AddFullMapSoundEffect(strike.Thunder);
+                }
                 List<User> mapUsers = map.GetUsers();
                 // build the state of the games.
                 // right now just players update
@@ -239,6 +261,11 @@ namespace server
                     writer.WriteRawValue(JsonConvert.SerializeObject(getWorldTimeUpdate()));
                     writer.WritePropertyName("sky");
                     writer.WriteRawValue(JsonConvert.SerializeObject(getWorldSkyUpdate(map)));
+                    if (map.Outside && strike is not null && strike.FlashAmount > 0)
+                    {
+                        writer.WritePropertyName("lightning");
+                        writer.WriteRawValue(strike.getJasonString());
+                    }
                     writer.WritePropertyName("storm");
                     writer.WriteRawValue(JsonConvert.SerializeObject(getStormUpdate(map)));
                     writer.WriteEndObject();

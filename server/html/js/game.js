@@ -105,6 +105,7 @@ function connectToWS() {
             addAllSoundAffects(data["frame"]);
             addAllFullMapSounds(data["frame"]);
             addAllVisualEffects(data["frame"]);
+            addAllLightning(data["frame"]);
             addAllDamages(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
@@ -140,6 +141,12 @@ function addAllFullMapSounds(data) {
     for (let i = 0; i < soundsToLoad.length; i++) {
         var snd = soundsToLoad[i];
         addFullMapSound(new fullMapSound(snd["path"], snd["repeat"], snd["volume"]));
+    }
+}
+function addAllLightning(data) {
+    if ('lightning' in data) { 
+        var lightning = data["lightning"];
+        addLightning(new Lightning(lightning["amount"]));
     }
 }
 
@@ -639,6 +646,12 @@ function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
     let oldRange = oldMax - oldMin;
     let newRange = newMax - newMin;
     let newValue = (((oldValue - oldMin) * newRange) / oldRange) + newMin;
+    if (newValue > newMax) {
+        newValue = newMax;
+    }
+    if (newValue < newMin) {
+        newValue = newMin;
+    }
     return newValue;
 }
 //================================= lightning ===========================

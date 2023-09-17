@@ -6765,6 +6765,24 @@
     <None Update="html\sounds\outside\stop-rain.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\sounds\outside\thunder1.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\thunder2.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\thunder3rolling.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\thunder4.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\thunder5.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\outside\thunder5rolling.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\sounds\spells\blessing.ogg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

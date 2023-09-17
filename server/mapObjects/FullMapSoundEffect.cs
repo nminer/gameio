@@ -9,7 +9,7 @@ namespace server.mapObjects
     class FullMapSoundEffect
     {
 
-        public int Repeat;
+        public bool Repeat;
 
         public string SoundPath;
 
@@ -19,7 +19,7 @@ namespace server.mapObjects
         /// Load a sound from its sound id in the database.
         /// </summary>
         /// <param name="imageId"></param>
-        public FullMapSoundEffect(string path, int repeat, double volume = 1)
+        public FullMapSoundEffect(string path, bool repeat, double volume = 1)
         {
             this.SoundPath = path;
             this.Repeat = repeat;
