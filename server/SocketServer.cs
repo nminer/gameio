@@ -19,7 +19,8 @@ namespace server
         private static Dictionary<string, string> PlayerCommands = new Dictionary<string, string>{
             { "/help | /?", "Returns all commands" },
             { "/location", "Returns the players location and map. Copies the location to clipboard." },
-            { "/deaths", "Return the number of deaths for the player." }
+            { "/deaths", "Return the number of deaths for the player." },
+            { "/time", "Return the in-game time of day." }
         };
 
         /// <summary>

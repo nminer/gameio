@@ -229,7 +229,6 @@ namespace server.world
             if (NextStrike is null)
             {
                 Random rnd = new Random();
-                //int hours = rnd.Next(2, 60);
                 int hours = 0;
                 if (lastValue < 100)
                 {
