@@ -118,5 +118,20 @@ namespace server.mods
         {
             return (long)(time.TotalSeconds * SecondsLengthInMilliseconds);
         }
+
+        public void setTimeOfDay(int hour)
+        {
+            int trueHour = hour % 24;
+            TimeSpan ts = GetGameTime();
+            if (ts.Hours != trueHour) {
+                if (ts.Hours < trueHour)
+                {
+                    ModStartTimeHours += (trueHour - ts.Hours) * HourLengthInMilliseconds;
+                } else if (ts.Hours > trueHour)
+                {
+                    ModStartTimeHours += ((24 - ts.Hours) + trueHour) * HourLengthInMilliseconds;
+                }
+            }
+        }
     }
 }

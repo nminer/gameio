@@ -16,6 +16,12 @@ namespace server
     /// </summary>
     internal class SocketServer
     {
+        private static Dictionary<string, string> PlayerCommands = new Dictionary<string, string>{
+            { "/help | /?", "Returns all commands" },
+            { "/location", "Returns the players location and map. Copies the location to clipboard." },
+            { "/deaths", "Return the number of deaths for the player." }
+        };
+
         /// <summary>
         /// the server
         /// </summary>
@@ -126,6 +132,16 @@ namespace server
             } else if (command.StartsWith("/deaths"))
             {
                 SendServerMessage($"Deaths: {user.Deaths}, Death Penalty: %{(int)(user.Death_Points * 100)}", "Information", guid);
+            } else if (command.StartsWith("/?") || command.StartsWith("/help")){
+                string re = "Commands:";
+                foreach (KeyValuePair<string, string> kvp in PlayerCommands)
+                {
+                    string spaces = "                    ";
+                    spaces = spaces.Substring(0, spaces.Length - kvp.Key.Length);
+                    spaces = spaces.Replace(" ", "&nbsp;");
+                   re += "<br />" + $"{kvp.Key} {spaces} {kvp.Value}";
+                }
+                SendServerMessage(re, "Information", guid);
             }
         }
 

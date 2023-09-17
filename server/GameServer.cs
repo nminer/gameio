@@ -281,5 +281,9 @@ namespace server
             }
         }
 
+        public static void AdminSetGameTimeHour(int hour)
+        {
+            DayTimer.setTimeOfDay(hour);
+        }
     }
 }
