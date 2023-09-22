@@ -296,141 +296,6 @@ function randomInt(low, high) {
     return Math.floor(Math.random() * (high + 1 - low) + low);
 }
 
-//========================== Text class ==========================
-class DisplayText {
-    /**
-     * 
-     * @param {string} text the text to display
-     * @param {int} r 0-255 color
-     * @param {int} g 0-255 color
-     * @param {int} b 0-255 color
-     * @param {double} fade <= 1 how much to fade the text
-     */
-    constructor(text, fontsize, r, g, b, fade) {
-        this.text = text;
-        this.fontsize = fontsize;
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.fade = fade;
-    }
-
-    draw(x, y) {
-        c.font = this.fontsize + 'px Comic Sans MS';
-        c.textAlign = "center";
-        c.fillStyle = 'rgba(' + this.r + ', ' + this.g + ', ' + this.b + ', ' + this.fade + ')';
-
-        c.fillText(this.text,  x, y);
-    }
-}
-
-// ====================================== Damages ======================================
-/**
- * a Class to animate damage popping out of characters.
- */
-class Damage {
-
-    /**
-     * animate damage. pops out from x,y and moves up and left or right while fading away.
-     * 
-     * @param {number} x x position on canvas
-     * @param {number} y y position on canvas
-     * @param {string} amount string to display
-     * @param {number} r red value 0-255
-     * @param {number} g green value 0-255
-     * @param {number} b blue value 0-255
-     */
-    constructor(x, y, amount, r, g, b) {
-        // set random amount of x
-        this.directionX = randomInt(2, 4);
-        // set direction of x. + or -
-        this.xlr = 1;
-        if (Math.random() > .5) {
-            this.xlr = -1;
-        }
-        // set random amount of y moving up.
-        this.directionY = -randomInt(3, 5);
-        this.x = x;
-        this.y = y;
-        this.drawOrder = y
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.amount = amount;
-        // starting font size.
-        this.fontSize = 8;
-        // starting fade amount.
-        this.fade = 1;
-        // push the damage to the damage list for the world.
-        damages.push(this);
-    }
-
-    /**
-     * call to update the damage position and fade
-     */
-    update() {
-        // update the position of the damage.
-        this.directionX -= .5;
-        if (this.directionX < 1) {
-            this.directionX = 1;
-        }
-        this.directionY += .07;
-        if (this.directionY > 2) {
-            this.directionY = 2;
-        }
-        this.x += (this.directionX * this.xlr);
-        this.y += this.directionY;
-        this.fade -= .01;
-        // remove damage.
-        if (this.fade < 0) {
-            const i = damages.indexOf(this);
-            damages.splice(i, 1);
-        }
-        // grow the font for the next draw
-        this.fontSize += .5;
-        if (this.fontSize > 40) {
-            this.fontSize = 40;
-        }
-    }
-
-    /**
-     * draw the damage to the canvas.
-     * @param {number} x players x position on the canvas
-     * @param {number} y players y position on the canvas
-     */
-    draw(x, y) {
-        c.font = this.fontSize + 'px Comic Sans MS';
-        c.textAlign = "center";
-        c.fillStyle = 'rgba(' + this.r + ', ' + this.g + ', ' + this.b + ', ' + this.fade + ')';
-        c.fillText(this.amount, this.x + x, this.y + y);
-        this.update();
-    }
-}
-
-//========================== Image loading ==========================
-/**
- * the image loader holds all the loaded images
- */
-class ImageLoader {
-    /**
-     * key path to image, value is the loaded image.
-     */
-    static LoadedImages = new Map();
-
-    /**
-     * 
-     * @param {string} path the path to the image
-     */
-    static GetImage(path) {
-        if (ImageLoader.LoadedImages.has(path)) {
-            return ImageLoader.LoadedImages.get(path);
-        }
-        var imageToAdd = new Image();
-        imageToAdd.src = path;
-        ImageLoader.LoadedImages.set(path, imageToAdd);
-        return imageToAdd;
-    }
-}
 
 //========================== Animation ==========================
 /**
@@ -536,112 +401,6 @@ function checkAllLightningStrikes() {
     });
 }
 
-class MapAnimation {
-    /**
-     * call step to go to next image in the animations.
-     * call draw to draw the image/frame to canvas.
-     * @param {Image} image sprite sheet
-     * @param {number} frames number of frames to be animated.
-     * @param {number} x x for where to start the animation from
-     * @param {number} y y for where to start the animation from
-     * @param {number} width width of each frame
-     * @param {number} height height of each frame
-     * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
-     */
-    constructor(imagepath, mapx, mapy, frames, imagex, imagey, width, height, slowdown, horizontal = true, startFrame = 0, draworder = 0) {
-        this.image = ImageLoader.GetImage("./" + imagepath);
-        this.mapX = mapx;
-        this.mapY = mapy;
-        this.frames = frames;
-        this.imageX = imagex;
-        this.imageY = imagey;
-        this.width = width;
-        this.height = height;
-        this.stepHorizontal = horizontal;
-        this.startFrame = startFrame;
-        this.currentFrame = 0;
-        this.slowdown = slowdown;
-        this.countSlowdown = 0;
-        this.drawOrder = draworder;
-        this.startFrameSet = false;
-        this.drawX = this.imageX;
-        this.drawY = this.imageY;
-        this.finshed = false; // set to true when currentFrame = frames count - 1.
-    }
-
-    /**
-     * step to the next image/frame in the animation.
-     */
-    step() {
-        this.countSlowdown += 1;
-        if (this.countSlowdown >= this.slowdown) {
-            this.currentFrame += 1;
-            this.countSlowdown = 0;
-            this.setDrawXYAndFrame(); 
-        }       
-    }
-
-    setDrawXYAndFrame() {
-        if (this.currentFrame >= this.frames) {
-            this.currentFrame = 0;
-        }
-        if (this.currentFrame == 0) {
-            this.drawX = this.imageX;
-            this.drawY = this.imageY;
-            return;
-        }
-        if (this.stepHorizontal) {
-            if ((this.drawX + this.width + this.width) > this.image.width) {
-                this.drawX = this.imageX;
-                this.drawY = this.drawY + this.height;
-            } else {
-                this.drawX = this.drawX + this.width;
-            }
-        } else {
-            if ((this.drawY + this.height + this.height) > this.image.height) {
-                this.drawY = this.imageY;
-                this.drawX = this.drawX + this.width;
-            }
-        }
-    }
-
-    setStartFrame() {
-        this.startFrameSet = true;
-        while (this.currentFrame < this.startFrame) {
-            this.setDrawXYAndFrame();
-            this.currentFrame += 1;
-        }
-    }
-
-    /**
-     * draw the frame to canvas.
-     * at the given x,y and at the passed in height and width.
-     * @param {number} x
-     * @param {number} y
-     * @param {number} width
-     * @param {number} height
-     */
-    draw(offsetx, offsety) {
-        if (!this.image.complete) {
-            // make sure the image is loaded.
-            return;
-        }
-        if (!this.startFrameSet) {
-            this.setStartFrame()
-        }
-        c.drawImage(this.image,
-            this.drawX,
-            this.drawY,
-            this.width,
-            this.height,
-            offsetx + this.mapX,
-            offsety + this.mapY,
-            this.width, this.height);
-        this.finshed = this.currentFrame == this.frames - 1
-        this.step();
-    }
-}
-
 function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
     let oldRange = oldMax - oldMin;
     let newRange = newMax - newMin;
@@ -653,167 +412,6 @@ function convertRange(oldMin, oldMax, newMin, newMax, oldValue) {
         newValue = newMin;
     }
     return newValue;
-}
-//================================= lightning ===========================
-class Lightning {
-    constructor(startingAmount = .8) {
-        this.amount = startingAmount;
-        this.finshed = false;
-    }
-
-    draw() {
-        lighten(0, 0, canvas.width, canvas.height, '#ffffff', this.amount);
-        this.amount = this.amount - 0.03;
-        if (this.amount <= 0) {
-            this.finshed = true;
-        }
-    }
-}
-
-//=================================== storm ===========================================
-class Storm {
-
-    constructor() {
-        this.rainDrops = [];
-        this.targetRainDops = 50;
-    }
-
-    setRainAmount(amountOfRain) {
-        var raindropCount = convertRange(0, 100, 0, canvas.width + canvas.height, amountOfRain);
-        raindropCount = raindropCount | 0;
-        this.targetRainDops = raindropCount;
-        setStormSounds(amountOfRain);
-    }
-
-    makeRainDrop(offsetx = 0, offsety = 0) {
-        this.rainDrops.push({
-            x: Math.random() * (canvas.width + 200) - offsetx - 50,
-            y: -20 - offsety,
-            l: Math.random() * 1,
-            xs: -2 + Math.random() * 2 + 1,
-            ys: Math.random() * 10 + 8,
-            endingY: Math.random() * (canvas.height + 200) - offsety + 20
-        })
-    }
-
-    draw(offsetx, offsety) {
-        c.strokeStyle = 'rgba(174,194,224,0.5)';
-        c.lineWidth = 1;
-        c.lineCap = 'round';
-        for (var i = 0; i < this.rainDrops.length; i++) {
-            var p = this.rainDrops[i];
-            if (p.x <= 0 || p.y <= 0 || p.x >= currentMap.width || p.y >= currentMap.height) {
-                continue;
-            }
-            c.beginPath();
-            c.moveTo(p.x + offsetx, p.y + offsety);
-            c.lineTo(p.x + offsetx + p.l * p.xs, p.y + offsety + p.l * p.ys);
-            c.stroke();
-        }
-        this.move(offsetx, offsety);
-    }
-    
-    move(offsetx, offsety) {
-        var toremove = [];
-        for (var b = 0; b < this.rainDrops.length; b++) {
-            var p = this.rainDrops[b];
-            p.x += p.xs;
-            p.y += p.ys;
-            if ((p.x + offsetx) > canvas.width || p.y + offsety > canvas.height || p.y > p.endingY) {
-                if ((this.rainDrops.length - toremove.length) > this.targetRainDops) {
-                    toremove.push(p);
-                }
-                p.x = Math.random() * (canvas.width + 200) - offsetx - 50;
-                p.y = -20 - offsety;
-                p.endingY = Math.random() * (canvas.height + 200) - offsety + 20
-            }
-        }
-        for (var i = 0; i < toremove.length; i++) {
-            var value = toremove[i];
-            this.rainDrops = this.rainDrops.filter(function (item) {
-                return item !== value;
-            })
-        }
-        for (var a = this.rainDrops.length; a < this.targetRainDops; a++) {
-            this.makeRainDrop(offsetx, offsety);
-        }
-
-    }
-
-}
-
-// ================================== ui ==============================================
-class topbar {
-
-    constructor() {
-        this.image = ImageLoader.GetImage("./img/gui/playerBar.png");
-        this.bag = ImageLoader.GetImage("./img/gui/bag.png"); //53 x59
-        this.bagOpen = ImageLoader.GetImage("./img/gui/bagOpen.png"); // 52 x 54
-        this.x = 5;
-        this.y = 5;
-        this.width = 389;
-        this.height = 98;
-    }
-
-    draw(player) {
-        //background
-        c.fillStyle = 'rgba(60, 36, 21, 1)';
-        c.fillRect(this.x + 50, this.y + 4, 330, 60);
-        //health
-        c.fillStyle = 'rgba(211, 0, 0, 1)';
-        let hp = (273 * (player.health / player.maxHealth));
-        c.fillRect(this.x + 102, this.y + 5, hp, 20);
-        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        c.fillRect(this.x + 102, this.y + 10, 273, 2);
-        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        c.fillRect(this.x + 102, this.y + 20, 273, 2);
-        //stam
-        c.fillStyle = 'rgba(255, 189, 36, 1)';
-        let st = (273 * (player.stamina / player.maxStamina));
-        c.fillRect(this.x + 102, this.y + 25, st, 20);
-        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        c.fillRect(this.x + 102, this.y + 31, 273, 2);
-        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        c.fillRect(this.x + 102, this.y + 41, 273, 2);
-        //mana
-        c.fillStyle = 'rgba(105, 0, 206, 1)';
-        let mt = (273 * (player.mana / player.maxMana));
-        c.fillRect(this.x + 102, this.y + 45, mt, 20);
-        c.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        c.fillRect(this.x + 102, this.y + 51, 273, 2);
-        c.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        c.fillRect(this.x + 102, this.y + 61, 273, 2);
-        // ui player bar.
-        c.drawImage(this.image,
-            this.x,
-            this.y,
-            this.width,
-            this.height);
-        c.drawImage(this.bag,
-            this.x + 23,
-            this.y + 17,
-            53,
-            59);
-        //c.drawImage(this.bagOpen,
-        //    this.x + 25,
-        //    this.y + 23,
-        //    52,
-        //    53);
-        c.font = '14px Comic Sans MS';
-        c.textAlign = "left";
-        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        c.fillText(player.health + "/" + player.maxHealth, this.x + 110, this.y + 21);
-        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        c.fillText(player.stamina + "/" + player.maxStamina, this.x + 110, this.y + 42);
-        c.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        c.fillText(player.mana + "/" + player.maxMana, this.x + 110, this.y + 63);
-        c.font = '12px Comic Sans MS';
-        c.textAlign = "center";
-        c.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        c.fillText("Health", this.x + 235, this.y + 21);
-        c.fillText("Stamina", this.x + 235, this.y + 41);
-        c.fillText("Mana", this.x + 235, this.y + 62);
-    }
 }
 
 //========================== Player ==========================
@@ -955,7 +553,7 @@ class Player {
         this.maxMana = frame["maxMana"];
     }
 
-    draw(xOffset, yOffset) {
+    draw(c, xOffset, yOffset) {
         //c.fillStyle = 'red';
         //c.fillRect(this.X + xOffset - 10, this.Y + yOffset - 40, 20, 50);
         //this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
@@ -967,8 +565,8 @@ class Player {
         this.animation.step();
     }
 
-    drawName(xOffset, yOffset) {
-        this.name.draw(this.X + xOffset, this.Y + yOffset - 60);
+    drawName(c, xOffset, yOffset) {
+        this.name.draw(c, this.X + xOffset, this.Y + yOffset - 60);
     }
 }
 
@@ -997,69 +595,6 @@ function drawEllipse(ctx, x, y, w, h) {
     ctx.fill();
 }
 
-class MapImage {
-    /**
-     * create a new image for a map.
-     * @param {number} width
-     * @param {number} height
-     * @param {Image} image
-     */
-    constructor(width, height, path, x, y, draworder) {
-        this.X = x;
-        this.Y = y;
-        this.drawOrder = draworder;
-        this.width = width;
-        this.height = height;
-        this.image = ImageLoader.GetImage("./" + path);
-    }
-
-    /**
-     * call to draw the map on the canvas
-     * @param {number} x players x position
-     * @param {number} y players y position
-     */
-    draw(xOffset, yOffset) {
-        c.drawImage(this.image,
-            xOffset + this.X,
-            yOffset + this.Y,
-            this.width,
-            this.height);
-    }
-}
-
-//============================ Map ===========================
-/**
- * Map class hold the back ground image for the world
- * Maps top left (0,0)
- * 
- */
-class GameMap {
-
-    /**
-     * create a new world with a background.
-     * @param {number} width
-     * @param {number} height
-     * @param {Image} image
-     */
-    constructor(width, height, image) {
-        this.width = width;
-        this.height = height;
-        this.image = image;
-    }
-
-    /**
-     * call to draw the map on the canvas
-     * @param {number} x players x position
-     * @param {number} y players y position
-     */
-    draw(x, y) {
-        c.drawImage(this.image,
-            x,
-            y,
-            this.width,
-            this.height);
-    }
-}
 let currentMap = null;
 // player name to player objects for current map.
 // name:Player
@@ -1106,7 +641,6 @@ function loadMap(data) {
         mapLights.push(ml);
     }
 }
-
 
 function darken(x, y, w, h, darkenColor, amount) {
     c.fillStyle = darkenColor;
@@ -1218,7 +752,7 @@ function animate() {
         var offsetx = centerx - curPlayer.X;
         var offsety = centery - curPlayer.Y;
         // get the map drawn
-        currentMap.draw(offsetx, offsety);
+        currentMap.draw(c, offsetx, offsety);
         drawList = [];
         // draw the players
         var playersToRemove = [];
@@ -1259,7 +793,7 @@ function animate() {
         }); 
         // draw everything
         drawList.forEach((d) => {
-            d.draw(offsetx, offsety);
+            d.draw(c, offsetx, offsety);
         })
         // time of day
         // set how dark the sky is.
@@ -1274,14 +808,14 @@ function animate() {
             ligthenGradient(mapLight['x'], mapLight['y'], offsetx, offsety, mapLight['radius'], mapLight['mainColor'], mapLight['midColor'], lightAmount);
         }
         storm.setRainAmount(lastUpdateFrame["storm"]['amount']);
-        storm.draw(offsetx, offsety);
+        storm.draw(c, offsetx, offsety);
         for (let i = 0; i < lightningStrikes.length; i++) {
             var l = lightningStrikes[i];
             l.draw();
         }
         // draw player names
         for (const p of playerLookup.values()) {
-            p.drawName(offsetx, offsety);
+            p.drawName(c, offsetx, offsety);
         }
         // gui
         topPlayerBar.draw(curPlayer);
@@ -1436,10 +970,6 @@ function tellUser(user) {
     inputField.value = "";
     inputField.value = "/t " + user + ",";
 }
-
-
-
-
 
 
 connectToWS();
