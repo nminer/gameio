@@ -6569,6 +6569,12 @@
     <None Update="html\js\mapImage.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\js\messaging.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\js\player.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\js\register.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

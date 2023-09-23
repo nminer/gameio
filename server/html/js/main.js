@@ -4,7 +4,7 @@ const inboxPeople = document.querySelector(".inbox__people");
 const players = document.querySelector("#players");
 const inputField = document.querySelector(".message_form__input");
 const messageForm = document.querySelector(".message_form");
-const messageBox = document.querySelector(".messages__history");
+
 const fallback = document.querySelector(".fallback");
 
 // your user name.
@@ -28,135 +28,7 @@ const addToUsersBox = (userName) => {
     players.innerHTML += userBox;
 };
 
-const addNewMessage = ({ user, message }) => {
-    const time = new Date();
-    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
-
-    const receivedMsg = `
-  <div class="incoming__message">
-    <div class="received__message">
-      <div class="message__info">
-        <span class="message__author">${user}: </span>
-        <span class="time_date">${formattedTime}</span>
-      </div>
-      <p>${message}</p>
-    </div>
-  </div>`;
-
-    const myMsg = `
-  <div class="outgoing__message">
-    <div class="sent__message">
-      <div class="message__info">
-        <span class="message__author">You: </span>
-        <span class="time_date">${formattedTime}</span>
-      </div>
-      <p>${message}</p>
-    </div>
-  </div>`;
-
-    messageBox.innerHTML += user === userName ? myMsg : receivedMsg;
-};
-
-const addNewPrivateMessage = ({ user, message }) => {
-    const time = new Date();
-    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
-
-    const receivedMsg = `
-  <div class="private__message">
-    <div class="received__message">
-      <div class="message__info">
-        <span class="message__author">${user}: </span>
-        <span class="time_date">${formattedTime}</span>
-      </div>
-      <p>${message}</p>
-    </div>
-  </div>`;
-
-    const myMsg = `
-  <div class="private__message">
-    <div class="sent__message">
-      <div class="message__info">
-        <span class="message__author">You think to yourself: </span>
-        <span class="time_date">${formattedTime}</span>
-      </div>
-      <p>${message}</p>
-    </div>
-  </div>`;
-
-    messageBox.innerHTML += user === userName ? myMsg : receivedMsg;
-};
-
-const addNewServerMessage = ({ user, message }) => {
-    const time = new Date();
-    const formattedTime = time.toLocaleString("en-US", { hour: "numeric", minute: "numeric" });
-
-    const receivedMsg = `
-  <div class="server__message">
-    <div class="received__message">
-      <div class="message__info">
-        <span class="message__author">${user}: </span>
-        <span class="time_date">${formattedTime}</span>
-      </div>
-      <p>${message}</p>
-    </div>
-  </div>`;
-
-    messageBox.innerHTML += receivedMsg;
-};
-
-messageForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (!inputField.value) {
-        return;
-    }
-    messages.unshift(inputField.value);
-    msgPos = -1;
-    if (messages.length > 50) {
-        messages.pop();
-    }
-
-    let sendData = {
-        message: inputField.value,
-    };
-    if (inputField.value.startsWith("/rt ")) {
-        sendData.reply = lastTell;
-    }
-    if (inputField.value.startsWith("/r ")) {
-        sendData.reply = lastReply;
-    }
-    if (inputField.value.startsWith("/t ")) {
-        lastTell = inputField.value.substr(3, inputField.value.indexOf(',') - 3);
-    }
-    socket.emit("chat message", sendData,);
-
-    inputField.value = "";
-});
-
-inputField.addEventListener("keyup", (e) => {
-    var keyCode = e.keyCode || e.which;
-    if (keyCode == '38') { //up key
-        msgPos++;
-        if (msgPos < messages.length && msgPos >= 0) {
-            inputField.value = messages[msgPos];            
-        } else {
-            msgPos--;
-        }
-    } else if (keyCode == '40') { //down key
-        msgPos--;
-        if (msgPos < messages.length && msgPos >= 0) {
-            inputField.value = messages[msgPos];
-        } else {
-            msgPos++;
-        }
-    } else {
-        msgPos = -1;
-    }
-    socket.emit("typing", {
-        isTyping: inputField.value.length > 0,
-        nick: userName,
-    });
-});
-
+//////////////////////////////////////////////////////////////////////
 socket.on("new user", function (data) {
     data.map((user) => addToUsersBox(user));
 });
