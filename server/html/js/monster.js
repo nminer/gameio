@@ -1,0 +1,242 @@
+const monsterLookup = new Map();
+
+const mapMonsters = new Map();
+//========================== MonsterType ========================
+class MonsterType {
+    constructor(type, animations)
+}
+
+class NotLoadedAnimation {
+    constructor(name, image, frames, x, y, width, height, after, slowdown, startFrame, horizontal) {
+        this.name = name;
+        this.image = image;
+        this.frames = frames;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.after = after;
+        this.slowDown = slowdown;
+        this.startFrame = startFrame;
+        this.horizontal = horizontal;
+    }
+}
+//========================== Animation ==========================
+/**
+ * class for animating sprite sheets.
+ */
+class MonsterAnimation {
+    /**
+     * call step to go to next image in the animations.
+     * call draw to draw the image/frame to canvas.
+     * @param {Image} image sprite sheet or a list/array of sprite sheets.
+     * @param {number} frames number of frames to be animated.
+     * @param {number} x x for where to start the animation from
+     * @param {number} y y for where to start the animation from
+     * @param {number} width width of each frame
+     * @param {number} height height of each frame
+     * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
+     */
+    constructor(image, frames, x, y, width, height, baseSlowdown, slowdown, beingAnimated, afterAnimationName, startFrame = 0, horizontal = true) {
+        this.image = image;
+        this.frames = frames;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.currentFrame = startFrame;
+        this.drawX = x;
+        this.drawY = y;
+        this.baseSlowdown = baseSlowdown;
+        this.slowdown = slowdown;
+        this.countSlowdown = 0;
+        this.afterAnimationName = afterAnimationName;
+        this.animated = beingAnimated;
+        this.stepHorizontal = horizontal;
+        this.startFrameSet = false;
+    }
+
+    /**
+     * step to the next image/frame in the animation.
+     */
+    step() {
+        this.countSlowdown += 1;
+        if (this.countSlowdown >= this.slowdown) {
+            this.currentFrame += 1;
+            this.countSlowdown = 0;
+            this.setDrawXYAndFrame();
+        }
+    }
+
+    setDrawXYAndFrame() {
+        if (this.currentFrame >= this.frames) {
+            this.currentFrame = 0;
+        }
+        if (this.currentFrame == 0) {
+            this.drawX = this.imageX;
+            this.drawY = this.imageY;
+            return;
+        }
+        if (this.stepHorizontal) {
+            if ((this.drawX + this.width + this.width) > this.image.width) {
+                this.drawX = this.imageX;
+                this.drawY = this.drawY + this.height;
+            } else {
+                this.drawX = this.drawX + this.width;
+            }
+        } else {
+            if ((this.drawY + this.height + this.height) > this.image.height) {
+                this.drawY = this.imageY;
+                this.drawX = this.drawX + this.width;
+            }
+        }
+    }
+
+    setStartFrame() {
+        this.startFrameSet = true;
+        while (this.currentFrame < this.startFrame) {
+            this.setDrawXYAndFrame();
+            this.currentFrame += 1;
+        }
+    }
+
+    /**
+     * draw the frame to canvas.
+     * at the given x,y and at the passed in height and width.
+     * @param {number} x
+     * @param {number} y
+     * @param {number} width
+     * @param {number} height
+     */
+    draw(x, y) {
+        if (!this.image.complete) {
+            // make sure the image is loaded.
+            return;
+        }
+        if (!this.startFrameSet) {
+            this.setStartFrame()
+        }
+        if (Array.isArray(this.image)) {
+            for (var i = 0; i < this.image.length; i++) {
+                let img = this.image[i];
+                c.drawImage(img,
+                    this.drawX,
+                    this.drawY,
+                    this.width,
+                    this.height,
+                    x,
+                    y,
+                    this.width,
+                    this.height);
+            }
+        } else {
+            c.drawImage(this.image,
+                this.drawX,
+                this.drawY,
+                this.width,
+                this.height,
+                x,
+                y,
+                this.width,
+                this.height);
+        }
+    }
+}
+
+//========================== Monster ==========================
+class Monster {
+    /**
+     * the monsters will have an x and y coord.
+     * current animation / action
+     * 
+     */
+    constructor(id, name, animations, slowdown) {
+        this.Id = id;
+        this.loadAnimation(animations);
+        this.animation = this.animations.standDown
+        this.speed = 1;
+        this.name = new DisplayText(name, 14, 35, 163, 255, .7);
+        this.animationName = "stand";
+        const animations = new Map();
+        this.slowdown = slowdown
+    }
+
+    /**
+     * linked with speed this on is used in the animations.
+     */
+    getSlowdown() {
+        //return 10 - this.speed/2;
+        return this.slowdown;
+    }
+
+    loadAnimation(animations) {
+        for (let i = 0; i < animations.length; i++) {
+            let toadd = animations[i];
+            this.animations.set(toadd.name, new MonsterAnimation(toadd.image, toadd.frames, toadd.x, toadd.y, toadd.width, toadd.height, toadd.slowdown, this, this, toadd.after, toadd.startFrame, toadd.horizontal));
+        }
+    }
+
+    // take in the frame from the server and update its stats.
+    // and animation.
+    updateFrame(frame) {
+        this.X = frame["x"];
+        this.Y = frame["y"];
+        this.drawOrder = frame["y"];
+        if (this.animationName != frame["animation"]) {
+            console.log(frame["animation"])
+            this.animation = this.animations[frame["animation"]];
+            this.animationName = frame["animation"];
+            if (this.animationName.includes("swing")) {
+                this.animation.currentFrame = 0;
+            }
+        }
+        this.slowdown = frame["slowdown"];
+    }
+
+    draw(c, xOffset, yOffset) {
+        c.fillStyle = 'rgba(0,0,0,.2)';
+        if (this.animationName != "dieingDown") {
+            drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
+        }
+        this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66);
+        this.animation.step();
+    }
+
+    drawName(c, xOffset, yOffset) {
+        this.name.draw(c, this.X + xOffset, this.Y + yOffset - 60);
+    }
+}
+
+// ========================== monster factory =======================================
+
+// messages being passed in frames will have: monster id, monster type, name, x, y, animation, slowdown
+function addAllMonsters(data) {
+    var monstersToLoad = data["monsters"];
+    for (let i = 0; i < monstersToLoad.length; i++) {
+        var mnst = monstersToLoad[i];
+        if (mapMonsters.has(mnst['id'])) {
+            // monster all loaded and in map monsters.
+            mapMonsters[mnst['id']].updateFrame(mnst);
+        } else if (monsterLookup.has[mnst['type']]) {
+            // have the monster type loaded but not this monster. so make a new monster.
+            let savedMonst = monsterLookup[mnst['type']];
+            mapMonsters.set(mnst['id'], new Monster(mnst['id'], mnst['name'], savedMonst, mnst['slowdown']));
+            mapMonsters[mnst['id']].updateFrame(mnst);
+        } else {
+            // don't have the monster type loaded to load the type.
+            requestMonster(mnst['type']);
+        }
+    }
+}
+
+function loadMonsterType(data) {
+    let monsterAnimations = data['animations'];
+    let toAdd = [];
+    for (i = 0; i < monsterAnimations.length; i++) {
+        let ma = monsterAnimations[i];
+        let img = ImageLoader.GetImage("./" + ma["image"]);
+        notanimation = new NotLoadedAnimation(ma['name'], img, ma['frames'], ma['x'], ma['y'], ma['width'], ma['height'], ma['after'], ma['slowdown'], ma['startFrame'], ma['horizontal']);
+        toAdd.push(notanimation);
+    }
+    monsterLookup.set(data['type'], toAdd);
+}

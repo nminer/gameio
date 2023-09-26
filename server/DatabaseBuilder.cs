@@ -46,7 +46,7 @@ internal class DatabaseBuilder
 	            'Death_Points'	REAL NOT NULL DEFAULT 0,
 	            PRIMARY KEY('User_Id' AUTOINCREMENT)
             );";
-		Excute(createUserTable, Connection);
+		Execute(createUserTable, Connection);
 
         // define the User avatar table
         string createAvatarTable = @"CREATE TABLE 'Avatar' (
@@ -64,7 +64,7 @@ internal class DatabaseBuilder
 	            'Eye_Color'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Avatar_Id' AUTOINCREMENT)
             );";
-        Excute(createAvatarTable, Connection);
+        Execute(createAvatarTable, Connection);
 
         // define maps table 
         string createMapsTable = @"CREATE TABLE 'Maps' (
@@ -76,7 +76,7 @@ internal class DatabaseBuilder
 	            'Outside'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Id' AUTOINCREMENT)
             );";
-        Excute(createMapsTable, Connection);
+        Execute(createMapsTable, Connection);
 
         // define portals table 
         string createPortalsTable = @"CREATE TABLE 'Portals' (
@@ -90,7 +90,7 @@ internal class DatabaseBuilder
 	            'PortalName'	TEXT NOT NULL UNIQUE,
 	            PRIMARY KEY('Portal_Id' AUTOINCREMENT)
             );";
-        Excute(createPortalsTable, Connection);
+        Execute(createPortalsTable, Connection);
 
         // define portals table 
         string createImagessTable = @"CREATE TABLE 'Images' (
@@ -101,7 +101,7 @@ internal class DatabaseBuilder
 	            'Width'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Image_Id' AUTOINCREMENT)
             );";
-		Excute(createImagessTable, Connection);
+		Execute(createImagessTable, Connection);
 
 		// define animations table 
         string createAnimationsTable = @"CREATE TABLE 'Animations' (
@@ -119,7 +119,7 @@ internal class DatabaseBuilder
 				'Random_Start_Frame'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Animation_Id' AUTOINCREMENT)
             );";
-        Excute(createAnimationsTable, Connection);
+        Execute(createAnimationsTable, Connection);
 
         // define visuals table 
         string createVisualsTable = @"CREATE TABLE 'Map_Visuals' (
@@ -134,7 +134,7 @@ internal class DatabaseBuilder
 				'Draw_Order_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Visual_Id' AUTOINCREMENT)
             );";
-        Excute(createVisualsTable, Connection);
+        Execute(createVisualsTable, Connection);
 
 		// define shapes
         string createShapesTable = @"CREATE TABLE 'Shapes' (
@@ -144,7 +144,7 @@ internal class DatabaseBuilder
 				'Is_Closed_Shape'	INTEGER NOT NULL DEFAULT 1,
 	            PRIMARY KEY('Shape_Id' AUTOINCREMENT)
             );";
-        Excute(createShapesTable, Connection);
+        Execute(createShapesTable, Connection);
 
         // define shapes
         string createSolidTable = @"CREATE TABLE 'Solids' (
@@ -159,7 +159,7 @@ internal class DatabaseBuilder
 				'Draw_Order_X'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Solid_Id' AUTOINCREMENT)
             );";
-        Excute(createSolidTable, Connection);
+        Execute(createSolidTable, Connection);
 
         // define map solids
         string createMapSolidTable = @"CREATE TABLE 'Map_Solids' (
@@ -172,7 +172,7 @@ internal class DatabaseBuilder
 	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Solid_Id' AUTOINCREMENT)
             );";
-        Excute(createMapSolidTable, Connection);
+        Execute(createMapSolidTable, Connection);
 
 		// define sounds
         string createSoundsTable = @"CREATE TABLE 'Sounds' (
@@ -187,7 +187,7 @@ internal class DatabaseBuilder
 				'Fade_Volume_Radius'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('sound_Id' AUTOINCREMENT)
             );";
-        Excute(createSoundsTable, Connection);
+        Execute(createSoundsTable, Connection);
 
         // define map sounds
         string createMapSoundsTable = @"CREATE TABLE 'Map_Sounds' (
@@ -199,7 +199,7 @@ internal class DatabaseBuilder
 	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Sound_Id' AUTOINCREMENT)
             );";
-        Excute(createMapSoundsTable, Connection);
+        Execute(createMapSoundsTable, Connection);
 
         // define map light source -1 amount will be set as out side light and not always on.
 		// main color and midcolor should be hex colors - '#ffffff'
@@ -215,9 +215,9 @@ internal class DatabaseBuilder
 	            'Map_Y'	INTEGER NOT NULL DEFAULT 0,
 	            PRIMARY KEY('Map_Light_Id' AUTOINCREMENT)
             );";
-        Excute(createMapLightsTable, Connection);
+        Execute(createMapLightsTable, Connection);
 
-		// define soul stone table 
+		// define monster types table 
 		string createSoulStoneTable = @"CREATE TABLE 'Soul_Stones' (
 					'Soul_Stone_Id'	INTEGER NOT NULL UNIQUE,
 					'Map_Id'	INTEGER NOT NULL,
@@ -227,7 +227,79 @@ internal class DatabaseBuilder
 					'Name'	TEXT NOT NULL UNIQUE,
 					PRIMARY KEY('Soul_Stone_Id' AUTOINCREMENT)
 				);";
-		Excute(createSoulStoneTable, Connection);
+		Execute(createSoulStoneTable, Connection);
+
+
+        // define monster animations table 
+        string createMonsterTypeTable = @"CREATE TABLE 'Monster_Types' (
+					'Monster_Type_Id'	INTEGER NOT NULL UNIQUE,
+					'Type'	TEXT NOT NULL,					
+					'Description'	TEXT NOT NULL,
+				);";
+        Execute(createMonsterTypeTable, Connection);
+
+        // define monster animation table 
+        string createMonsterAnimatinoTable = @"CREATE TABLE 'Monster_Animations' (
+					'Monster_Animation_Id' INTEGER NOT NULL UNIQUE,
+					'Monster_Type_Id' INTEGER NOT NULL,
+					'Animation'	TEXT NOT NULL,
+					'Image_Path' TEXT NOT NULL,
+					'X' INTEGER NOT NULL DEFAULT 0,
+					'Y' INTEGER NOT NULL DEFAULT 0,
+					'Height' INTEGER NOT NULL DEFAULT 0,
+					'Width'	INTEGER NOT NULL DEFAULT 0,
+					'Frames'	INTEGER NOT NULL DEFAULT 0,
+					'Slowdown'	INTEGER NOT NULL DEFAULT 0,
+					'After_Animation_Name'	TEXT NOT NULL DEFAULT '',
+					'Star_Frame'	INTEGER NOT NULL DEFAULT 0,
+					'Horizontal'	INTEGER NOT NULL DEFAULT 1,
+				);";
+        Execute(createMonsterAnimatinoTable, Connection);
+
+        // define monster animation table 
+        string createMonsterTable = @"CREATE TABLE 'Monsters' (
+					'Monster_Id' INTEGER NOT NULL UNIQUE,
+					'Monster_Type_Id' INTEGER NOT NULL,
+					'Name'	TEXT NOT NULL,
+					'Level'	INTEGER NOT NULL DEFAULT 1,
+					'Health'	INTEGER NOT NULL DEFAULT 100,
+					'Stamina'	INTEGER NOT NULL DEFAULT 100,
+					'Mana'	INTEGER NOT NULL DEFAULT 100,
+					'Strength'	INTEGER NOT NULL DEFAULT 10,
+					'Speed'	INTEGER NOT NULL DEFAULT 10,
+					'Wisdom'	INTEGER NOT NULL DEFAULT 10,
+					'Aggressive_Distance' INTEGER NOT NULL DEFAULT 100,
+					'Chase_Distance' INTEGER NOT NULL DEFAULT 100,
+					'Min_Damage' INTEGER NOT NULL DEFAULT 1,
+					'Max_Damage' INTEGER NOT NULL DEFAULT 10,
+					'Attack_Sound_Id' INTEGER NOT NULL DEFAULT 0,
+					'Idle_Sound_Id' INTEGER NOT NULL DEFAULT 0,
+					'Chase_Sound_Id' INTEGER NOT NULL DEFAULT 0,
+					'Death_Sound_Id' INTEGER NOT NULL DEFAULT 0,
+				);";
+        Execute(createMonsterTable, Connection);
+
+        // define monster spawn table 
+        string createMonsterSpawnTable = @"CREATE TABLE 'Monster_Spawns' (
+					'Monster_Spawn_Id' INTEGER NOT NULL UNIQUE,
+					'Map_Id'	INTEGER NOT NULL DEFAULT 0,
+					'Map_X'	INTEGER NOT NULL DEFAULT 0,
+					'Map_Y'	INTEGER NOT NULL DEFAULT 0,
+					'Spawn_Distance' INTEGER NOT NULL DEFAULT 0,
+					'Monster_Count'	INTEGER NOT NULL DEFAULT 1,
+					'Spawn_Timer' INTEGER NOT NULL DEFAULT 1000,
+					'Wander_Distance' INTEGER NOT NULL DEFAULT 100,
+				);";
+        Execute(createMonsterSpawnTable, Connection);
+
+        // define monster spawn link table 
+        string createMonsterSpawnLinkTable = @"CREATE TABLE 'Monster_Spawn_Link' (
+					'Monster_Spawn_Link_Id'	INTEGER NOT NULL UNIQUE,
+					'Monster_Spawn_Id'	INTEGER NOT NULL DEFAULT 0,				
+					'Monster_Id'	INTEGER NOT NULL DEFAULT 0,
+					'Monster_Spawn_Weight'	INTEGER NOT NULL DEFAULT 1,
+				);";
+        Execute(createMonsterSpawnLinkTable, Connection);
     }
 
     
@@ -238,7 +310,7 @@ internal class DatabaseBuilder
     /// </summary>
     /// <param name="query"></param>
     /// <param name="Connection"></param>
-    private void Excute(string query, SQLiteConnection Connection)
+    private void Execute(string query, SQLiteConnection Connection)
 	{
         SQLiteCommand cmd = Connection.CreateCommand();
         cmd.CommandText = query;

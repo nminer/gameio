@@ -109,6 +109,8 @@ function connectToWS() {
             addAllDamages(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
+        } else if (data.hasOwnProperty("monsterToLoad")) {
+            loadMonsterType(data); // load a monster type
         }
     }
 
@@ -725,6 +727,14 @@ messageForm.addEventListener("submit", (e) => {
 
     inputField.value = "";
 });
+
+// send a request for a monster type.
+function requestMonster(type) {
+    sendData = {
+        monsterRequest: type
+    };
+    myWebSocket.send(JSON.stringify(sendData));
+}
 
 function tellUser(user) {
     inputField.focus();

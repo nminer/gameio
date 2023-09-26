@@ -56,6 +56,9 @@
     <None Update="html\css\styles.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\game.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -6569,7 +6572,7 @@
     <None Update="html\js\mapImage.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="html\js\messaging.js">
+    <None Update="html\js\monster.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="html\js\player.js">
