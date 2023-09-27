@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using server.mapObjects;
 using System.Collections.Concurrent;
 using System.Reflection.Metadata.Ecma335;
+using server.monsters;
 
 namespace server
 {
@@ -202,6 +203,12 @@ namespace server
         private List<SoulStone> MapSoulStones = new List<SoulStone>();
 
         /// <summary>
+        /// lock to keep the SoulStones list safe
+        /// </summary>
+        private object SpawnLock = new object();
+        private List<MonsterSpawn> Spawns = new List<MonsterSpawn>();
+
+        /// <summary>
         /// Load a user from its user id in the database.
         /// </summary>
         /// <param name="userId"></param>
@@ -236,6 +243,7 @@ namespace server
             LoadMapSounds();
             LoadMapLights();
             LoadSoulStones();
+            LoadSpawns();
         }
 
         private void LoadPortals()
@@ -315,6 +323,30 @@ namespace server
                 }
             }
         }
+        private void LoadSpawns()
+        {
+            lock (SpawnLock)
+            {
+                SQLiteDataAdapter adapterSawns = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderSpawns = new SQLiteCommandBuilder(adapterSawns);
+
+                DataSet dataSpawns = new DataSet();
+                string querySoulStones = "SELECT * FROM Monster_Spawns WHERE Map_Id=$id;";
+                SQLiteCommand commandSoulStones = new SQLiteCommand(querySoulStones, DatabaseBuilder.Connection);
+                commandSoulStones.Parameters.AddWithValue("$id", Id);
+                adapterSawns.SelectCommand = commandSoulStones;
+                adapterSawns.Fill(dataSpawns);
+                if (dataSpawns.Tables.Count > 0 && dataSpawns.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataSpawns.Tables[0].Rows)
+                    {
+                        Spawns.Add(new MonsterSpawn((Int64)r["Monster_Spawn_Id"]));
+                    }
+                }
+            }
+        }
+
         private void LoadSoulStones()
         {
             lock (SoulStoneLock)
@@ -645,6 +677,19 @@ namespace server
             return JsonConvert.SerializeObject(damagesOut.ToArray());
         }
 
+        public string getAllJsonMonster()
+        {
+            List<object> monsterlist = new List<object>();
+            lock(SpawnLock)
+            {
+                foreach (MonsterSpawn mp in Spawns)
+                {
+                    monsterlist.AddRange(mp.GetAllMonsterJsonObjects());
+                }
+            }
+            return JsonConvert.SerializeObject(monsterlist.ToArray());
+        }
+
         public void TickGameUpdate()
         {
             lock (userListLock)
@@ -716,6 +761,17 @@ namespace server
                     }
                 }
             }
+            // update monster
+            //TODO Break out player and monster updates.
+            lock (SpawnLock)
+            {
+                foreach (MonsterSpawn spawner in Spawns)
+                {
+                    spawner.CheckSpawnMonsters();
+
+                }
+            }
+            
         }
 
         /// <summary>

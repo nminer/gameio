@@ -88,7 +88,7 @@ namespace server.monsters
                 adapter = new SQLiteDataAdapter();
                 builder = new SQLiteCommandBuilder(adapter);
                 data = new DataSet();
-                string findType = $"SELECT * FROM Monster_Type WHERE Monster_Type_Id=$id;";
+                string findType = $"SELECT * FROM Monster_Types WHERE Monster_Type_Id=$id;";
                 SQLiteCommand command = new SQLiteCommand(findType, DatabaseBuilder.Connection);
                 command.Parameters.AddWithValue("$id", monsterTypeId);
                 adapter.SelectCommand = command;
@@ -153,7 +153,7 @@ namespace server.monsters
         /// <param name="shapePosition"></param>
         static public MonsterType? Create(string Type, string Description = "")
         {
-            string insertNewSolid = $"INSERT INTO Monster_Type (Type, Description)" +
+            string insertNewSolid = $"INSERT INTO Monster_Types (Type, Description)" +
                 $" VALUES($Type, $Description);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Type", Type);

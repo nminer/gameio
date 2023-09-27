@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using server.mapObjects;
+using server.monsters;
 
 namespace server
 {
@@ -88,6 +89,17 @@ namespace server
             MapVisual? msmoke2 = MapVisual.Create(outside, new Point(1820, 2110), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 139));
             MapVisual? msmokehose = MapVisual.Create(outside, new Point(1790, 1518), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 500));
             MapVisual? msmokehose2 = MapVisual.Create(outside, new Point(1790, 1518), animationId: gaSmoke.AnimationId, drawOrder: new Point(40, 500));
+
+
+            // first go at monster
+            MonsterType pigman = MonsterType.Create("Pig Man", "fist monster is a pig man");
+            //let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
+            pigman.AddNewAnimation(Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 1, 10);
+            Monster pig = Monster.Create(pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 100, 100, 1, 10);
+            MonsterSpawn spawn1 = MonsterSpawn.Create(outside.Id, 1840, 2222, 0, 1, 10000, 0);
+            spawn1.AddMonster(pig);
+
+        
         }
     }
 }

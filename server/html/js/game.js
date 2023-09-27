@@ -107,6 +107,7 @@ function connectToWS() {
             addAllVisualEffects(data["frame"]);
             addAllLightning(data["frame"]);
             addAllDamages(data["frame"]);
+            addAllMonsters(data["frame"]);
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
         } else if (data.hasOwnProperty("monsterToLoad")) {

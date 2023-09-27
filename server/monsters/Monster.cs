@@ -100,6 +100,7 @@ namespace server.monsters
             {
                 MapPosition = location;
             }
+            id = Mods.RandomKey();
         }
 
         public void setLocation(Point location)
@@ -170,7 +171,7 @@ namespace server.monsters
         /// <param name="shapePosition"></param>
         static public Monster? Create(long Monster_Type_Id, string Name, long Level, long Health, long Stamina, long Mana, long Strength, long Speed, long Wisdom, long Aggressive_Distance, long Chase_Distance, long Min_Damage, long Max_Damage, long Attack_Sound_Id = 0, long Idle_Sound_Id = 0, long Chase_Sound_Id = 0, long Death_Sound_Id = 0)
         {
-            string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Name, Level, Health, Stamina, Mana, Strength, Speed, Wisdom, Aggressive_Distance, Chase_Distance, Min_Damage, Max_Damage, Attack_Sound_Id, Idle_Sound_Id, Chase_Sound_Id, Death_Sound_Id)" +
+            string insertNewSolid = $"INSERT INTO Monsters (Monster_Type_Id, Name, Level, Health, Stamina, Mana, Strength, Speed, Wisdom, Aggressive_Distance, Chase_Distance, Min_Damage, Max_Damage, Attack_Sound_Id, Idle_Sound_Id, Chase_Sound_Id, Death_Sound_Id)" +
                 $" VALUES($Monster_Type_Id, $Name, $Level, $Health, $Stamina, $Mana, $Strength, $Speed, $Wisdom, $Aggressive_Distance, $Chase_Distance, $Min_Damage, $Max_Damage, $Attack_Sound_Id, $Idle_Sound_Id, $Chase_Sound_Id, $Death_Sound_Id);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Monster_Type_Id", Monster_Type_Id);

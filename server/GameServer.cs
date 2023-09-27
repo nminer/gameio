@@ -257,6 +257,8 @@ namespace server
                     writer.WriteRawValue(map.GetAllJsonVisualEffects());
                     writer.WritePropertyName("damages");
                     writer.WriteRawValue(map.GetAllJsonDamages());
+                    writer.WritePropertyName("monsters");
+                    writer.WriteRawValue(map.getAllJsonMonster());                    
                     writer.WritePropertyName("time");
                     writer.WriteRawValue(JsonConvert.SerializeObject(getWorldTimeUpdate()));
                     writer.WritePropertyName("sky");

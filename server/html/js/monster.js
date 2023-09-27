@@ -3,7 +3,9 @@ const monsterLookup = new Map();
 const mapMonsters = new Map();
 //========================== MonsterType ========================
 class MonsterType {
-    constructor(type, animations)
+    constructor(type, animations) {
+
+    }
 }
 
 class NotLoadedAnimation {
@@ -152,12 +154,12 @@ class Monster {
      */
     constructor(id, name, animations, slowdown) {
         this.Id = id;
+        this.animations = new Map();
         this.loadAnimation(animations);
         this.animation = this.animations.standDown
         this.speed = 1;
         this.name = new DisplayText(name, 14, 35, 163, 255, .7);
-        this.animationName = "stand";
-        const animations = new Map();
+        this.animationName = "stand";       
         this.slowdown = slowdown
     }
 

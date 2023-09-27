@@ -235,6 +235,7 @@ internal class DatabaseBuilder
 					'Monster_Type_Id'	INTEGER NOT NULL UNIQUE,
 					'Type'	TEXT NOT NULL,					
 					'Description'	TEXT NOT NULL,
+					PRIMARY KEY('Monster_Type_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterTypeTable, Connection);
 
@@ -253,6 +254,7 @@ internal class DatabaseBuilder
 					'After_Animation_Name'	TEXT NOT NULL DEFAULT '',
 					'Star_Frame'	INTEGER NOT NULL DEFAULT 0,
 					'Horizontal'	INTEGER NOT NULL DEFAULT 1,
+					PRIMARY KEY('Monster_Animation_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterAnimatinoTable, Connection);
 
@@ -276,6 +278,7 @@ internal class DatabaseBuilder
 					'Idle_Sound_Id' INTEGER NOT NULL DEFAULT 0,
 					'Chase_Sound_Id' INTEGER NOT NULL DEFAULT 0,
 					'Death_Sound_Id' INTEGER NOT NULL DEFAULT 0,
+					PRIMARY KEY('Monster_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterTable, Connection);
 
@@ -289,15 +292,17 @@ internal class DatabaseBuilder
 					'Monster_Count'	INTEGER NOT NULL DEFAULT 1,
 					'Spawn_Timer' INTEGER NOT NULL DEFAULT 1000,
 					'Wander_Distance' INTEGER NOT NULL DEFAULT 100,
+					PRIMARY KEY('Monster_Spawn_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterSpawnTable, Connection);
 
         // define monster spawn link table 
-        string createMonsterSpawnLinkTable = @"CREATE TABLE 'Monster_Spawn_Link' (
+        string createMonsterSpawnLinkTable = @"CREATE TABLE 'Monster_Spawn_Links' (
 					'Monster_Spawn_Link_Id'	INTEGER NOT NULL UNIQUE,
 					'Monster_Spawn_Id'	INTEGER NOT NULL DEFAULT 0,				
 					'Monster_Id'	INTEGER NOT NULL DEFAULT 0,
 					'Monster_Spawn_Weight'	INTEGER NOT NULL DEFAULT 1,
+					PRIMARY KEY('Monster_Spawn_Link_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterSpawnLinkTable, Connection);
     }
