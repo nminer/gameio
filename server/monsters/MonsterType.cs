@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using server.mapObjects;
+using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace server.monsters
 {
@@ -178,8 +180,7 @@ namespace server.monsters
             return null;
         }
 
-
-        public object? GetJsonMonsterAnimationOject()
+        private object? GetJsonMonsterAnimationOjects()
         {
             List<Object> animationList = new List<object>();
             lock (animationsLock)
@@ -191,8 +192,18 @@ namespace server.monsters
             }
             return new
             {
-                animations = animationList
+                monsterToLoad = new
+                {
+                    type = MonsterTypeId,
+                    animations = animationList.ToArray()
+                }
             };
         }
+
+        public string GetJsonMonsterTypeString()
+        {
+            return JsonConvert.SerializeObject(GetJsonMonsterAnimationOjects());
+        }
+
     }
 }

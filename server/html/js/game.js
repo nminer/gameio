@@ -111,7 +111,7 @@ function connectToWS() {
         } else if (data.hasOwnProperty("mapName")) {
             loadMap(data);
         } else if (data.hasOwnProperty("monsterToLoad")) {
-            loadMonsterType(data); // load a monster type
+            loadMonsterType(data["monsterToLoad"]); // load a monster type
         }
     }
 
@@ -580,6 +580,9 @@ function animate() {
         // draw player names
         for (const p of playerLookup.values()) {
             p.drawName(c, offsetx, offsety);
+        }
+        for (const m of mapMonsters.values()) {
+            m.draw(c, offsetx, offsety);
         }
         // gui
         topPlayerBar.draw(curPlayer);

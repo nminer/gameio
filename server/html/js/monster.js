@@ -156,10 +156,10 @@ class Monster {
         this.Id = id;
         this.animations = new Map();
         this.loadAnimation(animations);
-        this.animation = this.animations.standDown
+        this.animation = this.animations.get("standDown");
         this.speed = 1;
         this.name = new DisplayText(name, 14, 35, 163, 255, .7);
-        this.animationName = "stand";       
+        this.animationName = "standDown";       
         this.slowdown = slowdown
     }
 
@@ -186,7 +186,7 @@ class Monster {
         this.drawOrder = frame["y"];
         if (this.animationName != frame["animation"]) {
             console.log(frame["animation"])
-            this.animation = this.animations[frame["animation"]];
+            this.animation = this.animations.get(frame["animation"]);
             this.animationName = frame["animation"];
             if (this.animationName.includes("swing")) {
                 this.animation.currentFrame = 0;
@@ -218,12 +218,12 @@ function addAllMonsters(data) {
         var mnst = monstersToLoad[i];
         if (mapMonsters.has(mnst['id'])) {
             // monster all loaded and in map monsters.
-            mapMonsters[mnst['id']].updateFrame(mnst);
-        } else if (monsterLookup.has[mnst['type']]) {
+            mapMonsters.get(mnst['id']).updateFrame(mnst);
+        } else if (monsterLookup.has(mnst['type'])) {
             // have the monster type loaded but not this monster. so make a new monster.
-            let savedMonst = monsterLookup[mnst['type']];
+            let savedMonst = monsterLookup.get(mnst['type']);
             mapMonsters.set(mnst['id'], new Monster(mnst['id'], mnst['name'], savedMonst, mnst['slowdown']));
-            mapMonsters[mnst['id']].updateFrame(mnst);
+            mapMonsters.get(mnst['id']).updateFrame(mnst);
         } else {
             // don't have the monster type loaded to load the type.
             requestMonster(mnst['type']);

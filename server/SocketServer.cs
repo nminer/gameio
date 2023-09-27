@@ -1,6 +1,7 @@
 ﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using server.monsters;
 using System;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -106,6 +107,9 @@ namespace server
                 case "command":
                     PlayerCommand(args.Client.Guid, json);
                     break;
+                case "monsterRequest":
+                    PlayerMonsterRequest(args.Client.Guid, json);
+                    break;
             }
             //foreach (ClientMetadata clientData in wsserver.ListClients())
             //{
@@ -113,6 +117,13 @@ namespace server
             //}
                 
             
+        }
+
+        static void PlayerMonsterRequest(Guid guid, JObject jsonMessage)
+        {
+            string command = (string)jsonMessage["monsterRequest"];
+            MonsterType mt = new MonsterType(1);
+            wsserver.SendAsync(guid, mt.GetJsonMonsterTypeString());
         }
 
         static void PlayerCommand(Guid guid, JObject jsonMessage)
