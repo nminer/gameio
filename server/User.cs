@@ -4,10 +4,11 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using server.mapObjects;
 using System.Numerics;
+using server.monsters;
 
 namespace server
 {
-    class User
+    class User : ICreature
     {
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;
@@ -22,7 +23,11 @@ namespace server
 
         public double Width = 80;
 
-        public Circle Solid = new Circle(new Point(0, 0), 15);
+        private Circle mySolid = new Circle(new Point(0, 0), 15);
+        public Circle Solid
+        {
+            get { return mySolid; }
+        }
 
         //private string[] Animations = {"walkDown", "walkUp", "walkLeft", "walkRight", "standDown", "standUp", "standLeft", "standRight", "swingDown", "swingUp", "swingLeft", "swingRight" };
 
@@ -413,7 +418,7 @@ namespace server
                 lock (dbDataLock)
                 {
                     row["X_Coordinate"] = value;
-                    Solid.Center.X = value;
+                    mySolid.Center.X = value;
                 }
             }
         }
@@ -435,7 +440,7 @@ namespace server
                 lock (dbDataLock)
                 {
                     row["Y_Coordinate"] = value;
-                    Solid.Center.Y = value;
+                    mySolid.Center.Y = value;
                 }
             }
         }

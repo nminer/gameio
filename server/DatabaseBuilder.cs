@@ -249,6 +249,8 @@ internal class DatabaseBuilder
 					'Y' INTEGER NOT NULL DEFAULT 0,
 					'Height' INTEGER NOT NULL DEFAULT 0,
 					'Width'	INTEGER NOT NULL DEFAULT 0,
+					'Draw_Height' INTEGER NOT NULL DEFAULT 0,
+					'Draw_Width'	INTEGER NOT NULL DEFAULT 0,
 					'Frames'	INTEGER NOT NULL DEFAULT 0,
 					'Slowdown'	INTEGER NOT NULL DEFAULT 0,
 					'After_Animation_Name'	TEXT NOT NULL DEFAULT '',

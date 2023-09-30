@@ -9,7 +9,7 @@ class MonsterType {
 }
 
 class NotLoadedAnimation {
-    constructor(name, image, frames, x, y, width, height, after, slowdown, startFrame, horizontal) {
+    constructor(name, image, frames, x, y, width, height, drawWidth, drawHeight, after, slowdown, startFrame, horizontal) {
         this.name = name;
         this.image = image;
         this.frames = frames;
@@ -17,6 +17,8 @@ class NotLoadedAnimation {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.drawWidth = drawWidth;
+        this.drawHeight = drawHeight;
         this.after = after;
         this.slowDown = slowdown;
         this.startFrame = startFrame;
@@ -39,13 +41,15 @@ class MonsterAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(image, frames, x, y, width, height, baseSlowdown, slowdown, beingAnimated, afterAnimationName, startFrame = 0, horizontal = true) {
+    constructor(image, frames, x, y, width, height, drawWidth, drawHeight, baseSlowdown, slowdown, beingAnimated, afterAnimationName, startFrame = 0, horizontal = true) {
         this.image = image;
         this.frames = frames;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.drawWidth = drawWidth;
+        this.drawHeight = drawHeight;
         this.currentFrame = startFrame;
         this.drawX = x;
         this.drawY = y;
@@ -128,8 +132,8 @@ class MonsterAnimation {
                     this.height,
                     x,
                     y,
-                    this.width,
-                    this.height);
+                    this.drawWidth,
+                    this.DrawHeight);
             }
         } else {
             c.drawImage(this.image,
@@ -139,8 +143,8 @@ class MonsterAnimation {
                 this.height,
                 x,
                 y,
-                this.width,
-                this.height);
+                this.drawWidth,
+                this.drawHeight);
         }
     }
 }
@@ -158,7 +162,7 @@ class Monster {
         this.loadAnimation(animations);
         this.animation = this.animations.get("standDown");
         this.speed = 1;
-        this.name = new DisplayText(name, 14, 35, 163, 255, .7);
+        this.name = new DisplayText(name, 14, 245, 39, 39, .7);
         this.animationName = "standDown";       
         this.slowdown = slowdown
     }
@@ -174,7 +178,7 @@ class Monster {
     loadAnimation(animations) {
         for (let i = 0; i < animations.length; i++) {
             let toadd = animations[i];
-            this.animations.set(toadd.name, new MonsterAnimation(toadd.image, toadd.frames, toadd.x, toadd.y, toadd.width, toadd.height, toadd.slowdown, this, this, toadd.after, toadd.startFrame, toadd.horizontal));
+            this.animations.set(toadd.name, new MonsterAnimation(toadd.image, toadd.frames, toadd.x, toadd.y, toadd.width, toadd.height, toadd.drawWidth, toadd.drawHeight, toadd.slowdown, this, this, toadd.after, toadd.startFrame, toadd.horizontal));
         }
     }
 
@@ -200,12 +204,12 @@ class Monster {
         if (this.animationName != "dieingDown") {
             drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
         }
-        this.animation.draw(this.X + xOffset - 40, this.Y + yOffset - 66);
+        this.animation.draw(this.X + xOffset - (this.animation.drawWidth / 2), this.Y + yOffset - (this.animation.drawWidth * .8));
         this.animation.step();
     }
 
     drawName(c, xOffset, yOffset) {
-        this.name.draw(c, this.X + xOffset, this.Y + yOffset - 60);
+        this.name.draw(c, this.X + xOffset, this.Y + yOffset - (this.animation.drawWidth * .8));
     }
 }
 
@@ -237,7 +241,7 @@ function loadMonsterType(data) {
     for (i = 0; i < monsterAnimations.length; i++) {
         let ma = monsterAnimations[i];
         let img = ImageLoader.GetImage("./" + ma["image"]);
-        notanimation = new NotLoadedAnimation(ma['name'], img, ma['frames'], ma['x'], ma['y'], ma['width'], ma['height'], ma['after'], ma['slowdown'], ma['startFrame'], ma['horizontal']);
+        notanimation = new NotLoadedAnimation(ma['name'], img, ma['frames'], ma['x'], ma['y'], ma['width'], ma['height'], ma['drawWidth'], ma['drawHeight'], ma['after'], ma['slowdown'], ma['startFrame'], ma['horizontal']);
         toAdd.push(notanimation);
     }
     monsterLookup.set(data['type'], toAdd);

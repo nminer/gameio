@@ -690,66 +690,71 @@ namespace server
             return JsonConvert.SerializeObject(monsterlist.ToArray());
         }
 
+        public void TryAndMoveCreature(ICreature user)
+        {
+            Point nextMoveStep = user.GetNetMoveAmount();
+            // if we are not moving skip this user.
+            if (nextMoveStep.X == 0 && nextMoveStep.Y == 0) { return; }
+            bool canMove = true;
+            Point nextMove = new Point(user.X_Coord + nextMoveStep.X, user.Y_Coord + nextMoveStep.Y);
+            Circle tempUser = new Circle(nextMove, user.Solid.Radius);
+            canMove = !CheckCollisionWithSolids(tempUser, user);
+            // if full move failed(canMove = false) check for just x move 
+            if (!canMove && nextMoveStep.X != 0)
+            {
+                tempUser.Center.Y = user.Y_Coord;
+                canMove = !CheckCollisionWithSolids(tempUser, user);
+            }
+            // if full move and x move fail check for just y move
+            if (!canMove && nextMoveStep.Y != 0)
+            {
+                tempUser.Center.X = user.X_Coord;
+                tempUser.Center.Y = user.Y_Coord + nextMoveStep.Y;
+                canMove = !CheckCollisionWithSolids(tempUser, user);
+            }
+            // see if we can slid a little
+            if (!canMove && nextMoveStep.X == 0 && nextMoveStep.Y != 0)
+            {
+                tempUser.Center.X = user.X_Coord + (nextMoveStep.Y / 2);
+                double tempy = nextMoveStep.Y / 2;
+                tempUser.Center.Y = user.Y_Coord + tempy;
+                canMove = !CheckCollisionWithSolids(tempUser, user);
+                if (!canMove)
+                {
+                    tempUser.Center.X = user.X_Coord - (nextMoveStep.Y / 2);
+                    tempUser.Center.Y = user.Y_Coord + tempy;
+                    canMove = !CheckCollisionWithSolids(tempUser, user);
+                }
+            }
+            if (!canMove && nextMoveStep.Y == 0 && nextMoveStep.X != 0)
+            {
+                tempUser.Center.Y = user.Y_Coord + (nextMoveStep.X / 2);
+                double tempx = nextMoveStep.X / 2;
+                tempUser.Center.X = user.X_Coord + tempx;
+                canMove = !CheckCollisionWithSolids(tempUser, user);
+                if (!canMove)
+                {
+                    tempUser.Center.Y = user.Y_Coord - (nextMoveStep.X / 2);
+                    tempUser.Center.X = user.X_Coord + tempx;
+                    canMove = !CheckCollisionWithSolids(tempUser, user);
+                }
+            }
+            if (canMove)
+            {
+                // set the user new position
+                user.X_Coord = tempUser.Center.X;
+                user.Y_Coord = tempUser.Center.Y;
+            }
+        }
+
         public void TickGameUpdate()
         {
             lock (userListLock)
             {
                 // get each user and check for movement.
-                foreach (var user in users)
+                foreach (User user in users)
                 {
-                    Point nextMoveStep = user.GetNetMoveAmount();
-                    // if we are not moving skip this user.
-                    if (nextMoveStep.X == 0 && nextMoveStep.Y == 0) { continue; }
-                    bool canMove = true;
-                    Point nextMove = new Point(user.X_Coord + nextMoveStep.X, user.Y_Coord + nextMoveStep.Y);
-                    Circle tempUser = new Circle(nextMove, user.Solid.Radius);
-                    canMove = !CheckCollisionWithSolids(tempUser);
-                    // if full move failed(canMove = false) check for just x move 
-                    if (!canMove && nextMoveStep.X != 0)
-                    {
-                        tempUser.Center.Y = user.Y_Coord;
-                        canMove = !CheckCollisionWithSolids(tempUser);
-                    }
-                    // if full move and x move fail check for just y move
-                    if (!canMove && nextMoveStep.Y != 0)
-                    {
-                        tempUser.Center.X = user.X_Coord;
-                        tempUser.Center.Y = user.Y_Coord + nextMoveStep.Y;
-                        canMove = !CheckCollisionWithSolids(tempUser);
-                    }
-                    // see if we can slid a little
-                    if (!canMove && nextMoveStep.X == 0 && nextMoveStep.Y != 0)
-                    {
-                        tempUser.Center.X = user.X_Coord + (nextMoveStep.Y / 2);
-                        double tempy = nextMoveStep.Y / 2;
-                        tempUser.Center.Y = user.Y_Coord + tempy;
-                        canMove = !CheckCollisionWithSolids(tempUser);
-                        if (!canMove)
-                        {
-                            tempUser.Center.X = user.X_Coord - (nextMoveStep.Y / 2);
-                            tempUser.Center.Y = user.Y_Coord + tempy;
-                            canMove = !CheckCollisionWithSolids(tempUser);
-                        }
-                    }
-                    if (!canMove && nextMoveStep.Y == 0 && nextMoveStep.X != 0)
-                    {
-                        tempUser.Center.Y = user.Y_Coord + (nextMoveStep.X / 2);
-                        double tempx = nextMoveStep.X / 2;
-                        tempUser.Center.X = user.X_Coord + tempx;
-                        canMove = !CheckCollisionWithSolids(tempUser);
-                        if (!canMove)
-                        {
-                            tempUser.Center.Y = user.Y_Coord - (nextMoveStep.X / 2);
-                            tempUser.Center.X = user.X_Coord + tempx;
-                            canMove = !CheckCollisionWithSolids(tempUser);
-                        }
-                    }
-                    if (canMove)
-                    {
-                        // set the user new position
-                        user.X_Coord = tempUser.Center.X;
-                        user.Y_Coord = tempUser.Center.Y;
-                    }
+                    TryAndMoveCreature(user);
                 }
                 // check for dead players
                 foreach (var user in GetUsers())
@@ -768,7 +773,12 @@ namespace server
                 foreach (MonsterSpawn spawner in Spawns)
                 {
                     spawner.CheckSpawnMonsters();
-
+                    List<Monster> monsters = spawner.GetAllMonster();
+                    foreach (Monster monst in  monsters)
+                    {
+                        monst.calculateNextMove(this);
+                        TryAndMoveCreature(monst);
+                    }
                 }
             }
             
@@ -779,7 +789,7 @@ namespace server
         /// </summary>
         /// <param name="circle"></param>
         /// <returns></returns>
-        private bool CheckCollisionWithSolids(Circle circle)
+        private bool CheckCollisionWithSolids(Circle circle, ICreature? selfCreature = null)
         {
             lock (solidsLock)
             {
@@ -795,6 +805,30 @@ namespace server
                             // we hit a solid and can not move.
                             return true;
                         }
+                    }
+                }
+            }
+            lock (SpawnLock)
+            {
+                foreach (MonsterSpawn spawn in Spawns)
+                {
+                    if (spawn.CheckCollisionWithMonster(circle, selfCreature))
+                    {
+                        return true;
+                    }
+                }
+            }
+            lock (userListLock)
+            {
+                foreach (User user in users)
+                {
+                    if (user == selfCreature)
+                    {
+                        continue;
+                    }
+                    if (user.Solid.DoesInterceptCircle(circle))
+                    {
+                        return true;
                     }
                 }
             }

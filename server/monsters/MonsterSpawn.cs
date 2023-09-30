@@ -50,6 +50,25 @@ namespace server.monsters
             }
         }
 
+        public bool CheckCollisionWithMonster(Circle circle, ICreature? selfCreature = null)
+        {
+            lock (monsterLock)
+            {
+                foreach (Monster m in monsters)
+                {
+                    if (m == selfCreature)
+                    {
+                        continue;
+                    }
+                    if (m.Solid.DoesInterceptCircle(circle))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// The monster spawn Id in the database.
         /// </summary>
@@ -273,7 +292,7 @@ namespace server.monsters
                         if (pick <= 0)
                         {
                             //TODO add in random position when we have a spawn dist.
-                            Monster monst = new Monster(link.MonsterId, MapPosition);
+                            Monster monst = new Monster(link.MonsterId, MapPosition, Wander_Distance);
                             lock (monsterLock)
                             {
                                 monsters.Add(monst);
@@ -284,6 +303,16 @@ namespace server.monsters
                 }
             }
             return null;
+        }
+
+        public List<Monster> GetAllMonster()
+        {
+            List<Monster> list = new List<Monster>();
+            lock(monsterLock)
+            {
+                list = monsters.ToList();
+            }
+            return list;
         }
 
         public List<Monster> CheckSpawnMonsters()

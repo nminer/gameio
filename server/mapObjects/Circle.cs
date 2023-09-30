@@ -28,5 +28,9 @@ namespace server.mapObjects
             return Distance(circleToCheck, this);
         }
 
+        public bool DoesInterceptCircle(Circle circleToCheck)
+        {
+            return Distance(circleToCheck) < 0;
+        }
     }
 }

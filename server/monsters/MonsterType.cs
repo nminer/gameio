@@ -100,9 +100,9 @@ namespace server.monsters
             }
         }
 
-        public MonsterType AddNewAnimation(Monster.AnimationNames Animation, string Image_Path, long X, long Y, long Height, long Width, long Frames, long Slowdown, string After_Animation_Name = "", long Star_Frame = 0, bool Horizontal = true)
+        public MonsterType AddNewAnimation(Monster.AnimationNames Animation, string Image_Path, long X, long Y, long Height, long Width, long Draw_Height, long Draw_Width, long Frames, long Slowdown, string After_Animation_Name = "", long Star_Frame = 0, bool Horizontal = true)
         {
-            MonsterAnimation? ma = MonsterAnimation.Create(MonsterTypeId, Animation, Image_Path, X, Y, Height, Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal); 
+            MonsterAnimation? ma = MonsterAnimation.Create(MonsterTypeId, Animation, Image_Path, X, Y, Height, Width, Draw_Height, Draw_Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal); 
             if (ma != null )
             {
                 lock (animationsLock)

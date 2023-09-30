@@ -532,6 +532,9 @@ function animate() {
         for (let i = 0; i < playersToRemove.length; i++) {
             playerLookup.delete(playersToRemove[i]);
         }
+        for (const m of mapMonsters.values()) {
+            drawList.push(m);
+        }
         // add map images to the draw list
         for (let i = 0; i < mapImages.length; i++) {
             drawList.push(mapImages[i]);
@@ -577,12 +580,13 @@ function animate() {
             var l = lightningStrikes[i];
             l.draw();
         }
+        // draw all monster names
+        for (const m of mapMonsters.values()) {
+            m.drawName(c, offsetx, offsety);
+        }
         // draw player names
         for (const p of playerLookup.values()) {
             p.drawName(c, offsetx, offsety);
-        }
-        for (const m of mapMonsters.values()) {
-            m.draw(c, offsetx, offsety);
         }
         // gui
         topPlayerBar.draw(curPlayer);

@@ -133,6 +133,41 @@ namespace server.monsters
         }
 
         /// <summary>
+        /// height of the animation when drawn on the canvus
+        /// </summary>
+        public Int64 DrawHeight
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 0;
+                    }
+                    return (Int64)row["Draw_Height"];
+                }
+            }
+        }
+
+        /// <summary>
+        /// width of the animation when drawn on the canvus
+        /// </summary>
+        public Int64 DrawWidth
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 0;
+                    }
+                    return (Int64)row["Draw_Width"];
+                }
+            }
+        }
+        /// <summary>
         /// number of frames in the animation
         /// </summary>
         public Int64 Frames
@@ -225,10 +260,10 @@ namespace server.monsters
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public MonsterAnimation? Create(long Monster_Type_Id, Monster.AnimationNames Animation, string Image_Path, long X, long Y, long Height,long Width, long Frames, long Slowdown, string After_Animation_Name = "", long Star_Frame = 0, bool Horizontal = true)
+        static public MonsterAnimation? Create(long Monster_Type_Id, Monster.AnimationNames Animation, string Image_Path, long X, long Y, long Height,long Width, long Draw_Height, long Draw_Width, long Frames, long Slowdown, string After_Animation_Name = "", long Star_Frame = 0, bool Horizontal = true)
         {
-            string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Animation, Image_Path, X, Y, Height, Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal)" +
-                $" VALUES($Monster_Type_Id, $Animation, $Image_Path, $X, $Y, $Height, $Width, $Frames, $Slowdown, $After_Animation_Name, $Star_Frame, $Horizontal);";
+            string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Animation, Image_Path, X, Y, Height, Width, Draw_Height, Draw_Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal)" +
+                $" VALUES($Monster_Type_Id, $Animation, $Image_Path, $X, $Y, $Height, $Width, $Draw_Height, $Draw_Width, $Frames, $Slowdown, $After_Animation_Name, $Star_Frame, $Horizontal);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Monster_Type_Id", Monster_Type_Id);
             command.Parameters.AddWithValue("$Animation", Monster.AnimationEnumToName(Animation));
@@ -237,6 +272,8 @@ namespace server.monsters
             command.Parameters.AddWithValue("$Y", Y);
             command.Parameters.AddWithValue("$Height", Height);
             command.Parameters.AddWithValue("$Width", Width);
+            command.Parameters.AddWithValue("$Draw_Height", Draw_Height);
+            command.Parameters.AddWithValue("$Draw_Width", Draw_Width);
             command.Parameters.AddWithValue("$Frames", Frames);
             command.Parameters.AddWithValue("$Slowdown", Slowdown);
             command.Parameters.AddWithValue("$After_Animation_Name", After_Animation_Name);
@@ -272,8 +309,10 @@ namespace server.monsters
                 frames = Frames,
                 x = AnimationPosition.X,
                 y = AnimationPosition.Y,
-                width = Width,
                 height = Height,
+                width = Width,
+                drawHeight = DrawHeight,
+                drawWidth = DrawWidth,
                 slowdown = Slowdown,
                 after = AfterAnimationName,
                 startFrame = StarFrame,

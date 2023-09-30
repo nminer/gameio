@@ -94,8 +94,8 @@ namespace server
             // first go at monster
             MonsterType pigman = MonsterType.Create("Pig Man", "fist monster is a pig man");
             //let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
-            pigman.AddNewAnimation(Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 1, 10);
-            Monster pig = Monster.Create(pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 100, 100, 1, 10);
+            pigman.AddNewAnimation(Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
+            Monster pig = Monster.Create(pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 300, 300, 1, 10);
             MonsterSpawn spawn1 = MonsterSpawn.Create(outside.Id, 1840, 2222, 0, 1, 10000, 0);
             spawn1.AddMonster(pig);
 
