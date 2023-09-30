@@ -16,7 +16,7 @@ using System.Diagnostics.Metrics;
 
 namespace server.monsters
 {
-    class Monster : ICreature
+    public class Monster : ICreature
     {
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;
@@ -321,28 +321,28 @@ namespace server.monsters
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public Monster? Create(long Monster_Type_Id, string Name, long Level, long Health, long Stamina, long Mana, long Strength, long Speed, long Wisdom, long Aggressive_Distance, long Chase_Distance, long Min_Damage, long Max_Damage, long Attack_Sound_Id = 0, long Idle_Sound_Id = 0, long Chase_Sound_Id = 0, long Death_Sound_Id = 0)
+        static public Monster? Create(MonsterAttributes attr)
         {
             string insertNewSolid = $"INSERT INTO Monsters (Monster_Type_Id, Name, Level, Health, Stamina, Mana, Strength, Speed, Wisdom, Aggressive_Distance, Chase_Distance, Min_Damage, Max_Damage, Attack_Sound_Id, Idle_Sound_Id, Chase_Sound_Id, Death_Sound_Id)" +
                 $" VALUES($Monster_Type_Id, $Name, $Level, $Health, $Stamina, $Mana, $Strength, $Speed, $Wisdom, $Aggressive_Distance, $Chase_Distance, $Min_Damage, $Max_Damage, $Attack_Sound_Id, $Idle_Sound_Id, $Chase_Sound_Id, $Death_Sound_Id);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
-            command.Parameters.AddWithValue("$Monster_Type_Id", Monster_Type_Id);
-            command.Parameters.AddWithValue("$Name", Name);
-            command.Parameters.AddWithValue("$Level", Level);
-            command.Parameters.AddWithValue("$Health", Health);
-            command.Parameters.AddWithValue("$Stamina", Stamina);
-            command.Parameters.AddWithValue("$Mana", Mana);
-            command.Parameters.AddWithValue("$Strength", Strength);
-            command.Parameters.AddWithValue("$Speed", Speed);
-            command.Parameters.AddWithValue("$Wisdom", Wisdom);
-            command.Parameters.AddWithValue("$Aggressive_Distance", Aggressive_Distance);
-            command.Parameters.AddWithValue("$Chase_Distance", Chase_Distance);
-            command.Parameters.AddWithValue("$Min_Damage", Min_Damage);
-            command.Parameters.AddWithValue("$Max_Damage", Max_Damage);
-            command.Parameters.AddWithValue("$Attack_Sound_Id", Idle_Sound_Id);
-            command.Parameters.AddWithValue("$Idle_Sound_Id", Idle_Sound_Id);
-            command.Parameters.AddWithValue("$Chase_Sound_Id", Chase_Sound_Id);
-            command.Parameters.AddWithValue("$Death_Sound_Id", Death_Sound_Id);
+            command.Parameters.AddWithValue("$Monster_Type_Id", attr.Monster_Type_Id);
+            command.Parameters.AddWithValue("$Name", attr.Name);
+            command.Parameters.AddWithValue("$Level", attr.Level);
+            command.Parameters.AddWithValue("$Health", attr.Health);
+            command.Parameters.AddWithValue("$Stamina", attr.Stamina);
+            command.Parameters.AddWithValue("$Mana", attr.Mana);
+            command.Parameters.AddWithValue("$Strength", attr.Strength);
+            command.Parameters.AddWithValue("$Speed", attr.Speed);
+            command.Parameters.AddWithValue("$Wisdom", attr.Wisdom);
+            command.Parameters.AddWithValue("$Aggressive_Distance", attr.Aggressive_Distance);
+            command.Parameters.AddWithValue("$Chase_Distance", attr.Chase_Distance);
+            command.Parameters.AddWithValue("$Min_Damage", attr.Min_Damage);
+            command.Parameters.AddWithValue("$Max_Damage", attr.Max_Damage);
+            command.Parameters.AddWithValue("$Attack_Sound_Id", attr.Idle_Sound_Id);
+            command.Parameters.AddWithValue("$Idle_Sound_Id", attr.Idle_Sound_Id);
+            command.Parameters.AddWithValue("$Chase_Sound_Id", attr.Chase_Sound_Id);
+            command.Parameters.AddWithValue("$Death_Sound_Id", attr.Death_Sound_Id);
             SQLiteTransaction transaction = null;
             try
             {
@@ -605,5 +605,96 @@ namespace server.monsters
 
     }
 
+    public class MonsterAttributes
+    {
+        /// <summary>
+        /// the monster type id. this is the id from the database.
+        /// </summary>
+        public long Monster_Type_Id { get; set; } = 0;
 
+        /// <summary>
+        /// the name of the Monster. is is what will appear in the game.
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
+        /// the level of the monster. used to help calculate the xp for the monster.
+        /// </summary>
+        public long Level { get; set; } = 1;
+
+        /// <summary>
+        /// how much max health the monster will have.
+        /// </summary>
+        public long Health { get; set; } = 100;
+
+        /// <summary>
+        /// how much max stamina the monster will have.
+        /// </summary>
+        public long Stamina { get; set; } = 100;
+
+        /// <summary>
+        /// how much max mana the monster will have.
+        /// </summary>
+        public long Mana { get; set; } = 100;
+
+        /// <summary>
+        /// how strong the monster is. used for how well the monster will hit.
+        /// </summary>
+        public long Strength { get; set; } = 10;
+
+        /// <summary>
+        /// how fast the monster moves.
+        /// </summary>
+        public long Speed { get; set; } = 10;
+
+        /// <summary>
+        /// used for spell casting.
+        /// </summary>
+        public long Wisdom { get; set; } = 10;
+
+        /// <summary>
+        /// how far away someone will be before the monster will start to try and chase.
+        /// </summary>
+        public long Aggressive_Distance { get; set; } = 300;
+
+        /// <summary>
+        /// the monster will continue to chase until target gets outside the chase dist.
+        /// </summary>
+        public long Chase_Distance { get; set; } = 320;
+
+        /// <summary>
+        /// the min damage the monster will hit for.
+        /// </summary>
+        public long Min_Damage { get; set; } = 1;
+
+        /// <summary>
+        /// the max damage the monster will hit for.
+        /// </summary>
+        public long Max_Damage { get; set; } = 10;
+
+
+        /// <summary>
+        /// the sound played for when the monster hits.
+        /// </summary>
+        public long Attack_Sound_Id { get; set; } = 0;
+
+        /// <summary>
+        /// random played sound while monster is just sitting idle.
+        /// </summary>
+        public long Idle_Sound_Id { get; set; } = 0;
+
+        /// <summary>
+        /// sound for when monster start chasing.
+        /// </summary>
+        public long Chase_Sound_Id { get; set; } = 0;
+
+        /// <summary>
+        /// sound played when monster dies.
+        /// </summary>
+        public long Death_Sound_Id { get; set; } = 0;
+
+        public MonsterAttributes() { 
+        }
+
+    }
 }

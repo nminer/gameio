@@ -8,7 +8,7 @@ using server.monsters;
 
 namespace server
 {
-    class User : ICreature
+    public class User : ICreature
     {
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;

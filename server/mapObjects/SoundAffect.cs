@@ -9,7 +9,7 @@ using System.Security.Permissions;
 
 namespace server.mapObjects
 {
-    internal class SoundAffect
+    public class SoundAffect
     {
 
 

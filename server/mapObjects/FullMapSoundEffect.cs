@@ -10,7 +10,7 @@ namespace server.mapObjects
     /// this is a sound effect to send to client that will be played for everyone on a map.
     /// this sound effect is not affected by where the player is on the map.
     /// </summary>
-    class FullMapSoundEffect
+    public class FullMapSoundEffect
     {
         // set to true if the sound should be repeated none stop.
         public bool Repeat;

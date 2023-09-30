@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using static server.monsters.Monster;
 
 namespace server.monsters
 {
@@ -260,25 +261,25 @@ namespace server.monsters
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public MonsterAnimation? Create(long Monster_Type_Id, Monster.AnimationNames Animation, string Image_Path, long X, long Y, long Height,long Width, long Draw_Height, long Draw_Width, long Frames, long Slowdown, string After_Animation_Name = "", long Star_Frame = 0, bool Horizontal = true)
+        static public MonsterAnimation? Create(MonsterAnimationAttributes animationAttr)
         {
             string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Animation, Image_Path, X, Y, Height, Width, Draw_Height, Draw_Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal)" +
                 $" VALUES($Monster_Type_Id, $Animation, $Image_Path, $X, $Y, $Height, $Width, $Draw_Height, $Draw_Width, $Frames, $Slowdown, $After_Animation_Name, $Star_Frame, $Horizontal);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
-            command.Parameters.AddWithValue("$Monster_Type_Id", Monster_Type_Id);
-            command.Parameters.AddWithValue("$Animation", Monster.AnimationEnumToName(Animation));
-            command.Parameters.AddWithValue("$Image_Path", Image_Path);
-            command.Parameters.AddWithValue("$X", X);
-            command.Parameters.AddWithValue("$Y", Y);
-            command.Parameters.AddWithValue("$Height", Height);
-            command.Parameters.AddWithValue("$Width", Width);
-            command.Parameters.AddWithValue("$Draw_Height", Draw_Height);
-            command.Parameters.AddWithValue("$Draw_Width", Draw_Width);
-            command.Parameters.AddWithValue("$Frames", Frames);
-            command.Parameters.AddWithValue("$Slowdown", Slowdown);
-            command.Parameters.AddWithValue("$After_Animation_Name", After_Animation_Name);
-            command.Parameters.AddWithValue("$Star_Frame", Star_Frame);
-            command.Parameters.AddWithValue("$Horizontal", Horizontal);
+            command.Parameters.AddWithValue("$Monster_Type_Id", animationAttr.Monster_Type_Id);
+            command.Parameters.AddWithValue("$Animation", Monster.AnimationEnumToName(animationAttr.Animation));
+            command.Parameters.AddWithValue("$Image_Path", animationAttr.Image_Path);
+            command.Parameters.AddWithValue("$X", animationAttr.X);
+            command.Parameters.AddWithValue("$Y", animationAttr.Y);
+            command.Parameters.AddWithValue("$Height", animationAttr.Height);
+            command.Parameters.AddWithValue("$Width", animationAttr.Width);
+            command.Parameters.AddWithValue("$Draw_Height", animationAttr.Draw_Height);
+            command.Parameters.AddWithValue("$Draw_Width", animationAttr.Draw_Width);
+            command.Parameters.AddWithValue("$Frames", animationAttr.Frames);
+            command.Parameters.AddWithValue("$Slowdown", animationAttr.Slowdown);
+            command.Parameters.AddWithValue("$After_Animation_Name", animationAttr.After_Animation_Name);
+            command.Parameters.AddWithValue("$Star_Frame", animationAttr.Star_Frame);
+            command.Parameters.AddWithValue("$Horizontal", animationAttr.Horizontal);
             SQLiteTransaction transaction = null;
             try
             {
@@ -318,6 +319,106 @@ namespace server.monsters
                 startFrame = StarFrame,
                 horizontal = Horizontal,
             };
+        }
+    }
+
+    public class MonsterAnimationAttributes
+    {
+        /// <summary>
+        /// the monster type id that this animation is for.
+        /// </summary>
+        public long? Monster_Type_Id { get; set; }
+
+        /// <summary>
+        /// the animation name for this animation.
+        /// each monster should have a full set of animations
+        /// walkDown
+        /// walkUp
+        /// walkLeft
+        /// walkRight
+        /// standDown
+        /// standUp
+        /// standLeft
+        /// standRight
+        /// swingDown
+        /// swingUp
+        /// swingLeft
+        /// swingRight
+        /// castDown
+        /// castUp
+        /// castLeft
+        /// castRight
+        /// dieingDown
+        /// </summary>
+        public Monster.AnimationNames Animation { get; set; }
+
+        /// <summary>
+        /// string path to the image sheet for the animation.
+        /// </summary>
+        public string Image_Path { get; set; }
+
+        /// <summary>
+        /// x pixel position for the first frame of the animation.
+        /// this is top left
+        /// </summary>
+        public long X { get; set; } = 0;
+
+        /// <summary>
+        /// the y pixel position for the first frame of the animation.
+        /// this is top left.
+        /// </summary>
+        public long Y { get; set; } = 0;
+
+        /// <summary>
+        /// height of each frame in pixels.
+        /// </summary>
+        public long Height { get; set; } = 64;
+
+        /// <summary>
+        /// the width of each frame in pixels.
+        /// </summary>
+        public long Width { get; set; } = 64;
+
+        /// <summary>
+        /// the draw height for in game. 
+        /// </summary>
+        public long Draw_Height { get; set; } = 80;
+
+        /// <summary>
+        /// the draw width for in game.
+        /// </summary>
+        public long Draw_Width { get; set; } = 80;
+
+        /// <summary>
+        /// number of frames for the animation.
+        /// </summary>
+        public long Frames { get; set; } = 1;
+
+        /// <summary>
+        /// this is the slow down for each frame.
+        /// </summary>
+        public long Slowdown { get; set; } = 10;
+
+        /// <summary>
+        /// name of animation to change to when the animation is finished.
+        /// if this is set to "" the animation will repeat.
+        /// </summary>
+        public string After_Animation_Name { get; set; } = "";
+
+        /// <summary>
+        /// frame to start at default 0. -1 is random.
+        /// </summary>
+        public long Star_Frame { get; set; } = 0;
+
+        /// <summary>
+        /// set to true by default.
+        /// step animation horizontally or vertical if false.
+        /// </summary>
+        public bool Horizontal { get; set; } = true;
+
+        public MonsterAnimationAttributes()
+        {
+
         }
     }
 }

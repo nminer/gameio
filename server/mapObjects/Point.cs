@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    internal class Point
+    public class Point
     {
         /// <summary>
         /// used to keep x and y thread safe.

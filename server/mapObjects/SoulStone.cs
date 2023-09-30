@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    class SoulStone
+    public class SoulStone
     {
         private object dbDataLock = new object();
 

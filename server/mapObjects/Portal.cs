@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    class Portal
+    public class Portal
     {
         private object dbDataLock = new object();
 

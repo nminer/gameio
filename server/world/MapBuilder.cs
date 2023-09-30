@@ -94,8 +94,38 @@ namespace server
             // first go at monster
             MonsterType pigman = MonsterType.Create("Pig Man", "fist monster is a pig man");
             //let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
-            pigman.AddNewAnimation(Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
-            Monster pig = Monster.Create(pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 300, 300, 1, 10);
+            pigman.AddNewAnimation(new MonsterAnimationAttributes() 
+            {
+                Animation = Monster.AnimationNames.standDown,
+                Image_Path = "img/monsters/pigman.png",
+                X = 0,
+                Y = 640,
+                Height = 64,
+                Width = 64,
+                Draw_Height = 80,
+                Draw_Width = 80,
+                Frames = 1,
+                Slowdown = 10
+            });
+                
+                //Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
+            Monster pig = Monster.Create(
+                new MonsterAttributes()
+                {
+                    Monster_Type_Id = pigman.MonsterTypeId,
+                    Name = "Hambo",
+                    Level = 1,
+                    Health = 100,
+                    Stamina = 100,
+                    Mana = 10,
+                    Speed = 10,
+                    Strength = 10,
+                    Wisdom = 1,
+                    Aggressive_Distance = 400,
+                    Chase_Distance = 450,
+                    Min_Damage = 1,
+                    Max_Damage = 10
+                });// pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 300, 300, 1, 10);
             MonsterSpawn spawn1 = MonsterSpawn.Create(outside.Id, 1840, 2222, 0, 1, 10000, 0);
             spawn1.AddMonster(pig);
 

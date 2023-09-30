@@ -14,7 +14,7 @@ using server.monsters;
 
 namespace server
 {
-    internal class Map
+    public class Map
     {
         /// <summary>
         /// keep the map database data thread safe.
@@ -765,19 +765,19 @@ namespace server
                         GameServer.ChangeUserMap(user, user.Spawn_Map_Id, user.Spawn_X, user.Spawn_Y);
                     }
                 }
-            }
-            // update monster
-            //TODO Break out player and monster updates.
-            lock (SpawnLock)
-            {
-                foreach (MonsterSpawn spawner in Spawns)
+                // update monster
+                //TODO Break out player and monster updates.
+                lock (SpawnLock)
                 {
-                    spawner.CheckSpawnMonsters();
-                    List<Monster> monsters = spawner.GetAllMonster();
-                    foreach (Monster monst in  monsters)
+                    foreach (MonsterSpawn spawner in Spawns)
                     {
-                        monst.calculateNextMove(this);
-                        TryAndMoveCreature(monst);
+                        spawner.CheckSpawnMonsters();
+                        List<Monster> monsters = spawner.GetAllMonster();
+                        foreach (Monster monst in monsters)
+                        {
+                            monst.calculateNextMove(this);
+                            TryAndMoveCreature(monst);
+                        }
                     }
                 }
             }

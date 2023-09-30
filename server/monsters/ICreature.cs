@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace server.monsters
 {
-    internal interface ICreature
+    public interface ICreature
     {
         public Double X_Coord
         {

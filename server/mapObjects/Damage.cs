@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    internal class Damage
+    public class Damage
     {
 
 

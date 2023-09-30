@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    internal class VisualEffect
+    public class VisualEffect
     {
         public string ImagePath;
 
