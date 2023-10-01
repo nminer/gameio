@@ -192,12 +192,13 @@ class Monster {
         this.Y = frame["y"];
         this.drawOrder = frame["y"];
         if (this.animationName != frame["animation"]) {
-            console.log(frame["animation"])
-            this.animation = this.animations.get(frame["animation"]);
+            console.log("monster:" + frame["animation"])
             this.animationName = frame["animation"];
             if (this.animationName.includes("swing")) {
-                this.animation.currentFrame = 0;
+                this.animations.get(frame["animation"]).currentFrame = 0;
+                this.animations.get(frame["animation"]).setDrawXYAndFrame();
             }
+            this.animation = this.animations.get(frame["animation"]);
         }
         this.slowdown = frame["slowdown"];
     }
