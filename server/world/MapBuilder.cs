@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -94,7 +95,7 @@ namespace server
             // first go at monster
             MonsterType pigman = MonsterType.Create("Pig Man", "fist monster is a pig man");
             //let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
-            pigman.AddNewAnimation(new MonsterAnimationAttributes() 
+            MonsterAnimationAttributes maa = new MonsterAnimationAttributes()
             {
                 Animation = Monster.AnimationNames.standDown,
                 Image_Path = "img/monsters/pigman.png",
@@ -106,9 +107,50 @@ namespace server
                 Draw_Width = 80,
                 Frames = 1,
                 Slowdown = 10
-            });
-                
-                //Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
+            };
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.standUp;
+            maa.Y = 512;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.standLeft;
+            maa.Y = 576;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.standRight;
+            maa.Y = 704;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.walkRight;
+            maa.X = 64;
+            maa.Y = 704;
+            maa.Frames = 8;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.walkDown;
+            maa.Y = 640;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.walkLeft;
+            maa.Y = 576;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.walkUp;
+            maa.Y = 512;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.swingRight;
+            maa.Y = 960;
+            maa.Frames = 5;
+            maa.After_Animation_Name = "standRight";
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.swingDown;
+            maa.After_Animation_Name = "standDown";
+            maa.Y = 896;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.swingLeft;
+            maa.After_Animation_Name = "standLeft";
+            maa.Y = 832;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.swingUp;
+            maa.After_Animation_Name = "standUp";
+            maa.Y = 768;
+            pigman.AddNewAnimation(maa);
+
+            //Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
             Monster pig = Monster.Create(
                 new MonsterAttributes()
                 {

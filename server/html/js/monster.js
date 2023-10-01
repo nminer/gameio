@@ -67,7 +67,7 @@ class MonsterAnimation {
      */
     step() {
         this.countSlowdown += 1;
-        if (this.countSlowdown >= this.slowdown) {
+        if (this.countSlowdown >= this.slowdown.getSlowdown()) {
             this.currentFrame += 1;
             this.countSlowdown = 0;
             this.setDrawXYAndFrame();
@@ -77,22 +77,25 @@ class MonsterAnimation {
     setDrawXYAndFrame() {
         if (this.currentFrame >= this.frames) {
             this.currentFrame = 0;
+            if (this.afterAnimationName !== undefined && this.afterAnimationName != "" && this.animated !== undefined) {
+                this.animated.animation = this.animated.animations.get(this.afterAnimationName);
+            }
         }
         if (this.currentFrame == 0) {
-            this.drawX = this.imageX;
-            this.drawY = this.imageY;
+            this.drawX = this.x;
+            this.drawY = this.y;
             return;
         }
         if (this.stepHorizontal) {
             if ((this.drawX + this.width + this.width) > this.image.width) {
-                this.drawX = this.imageX;
+                this.drawX = this.x;
                 this.drawY = this.drawY + this.height;
             } else {
                 this.drawX = this.drawX + this.width;
             }
         } else {
             if ((this.drawY + this.height + this.height) > this.image.height) {
-                this.drawY = this.imageY;
+                this.drawY = this.y;
                 this.drawX = this.drawX + this.width;
             }
         }

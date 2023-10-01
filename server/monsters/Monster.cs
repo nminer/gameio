@@ -13,6 +13,8 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Reflection.Emit;
 using System.Xml.Linq;
 using System.Diagnostics.Metrics;
+using static server.monsters.Monster;
+using System.Reflection.Metadata;
 
 namespace server.monsters
 {
@@ -58,6 +60,21 @@ namespace server.monsters
         private long maxStamina;
 
         private long myStamina;
+
+        /// <summary>
+        /// used to set the current animation direction.
+        /// </summary>
+        private string directionString = "Down";
+
+        /// <summary>
+        /// used to set the current animation action.
+        /// </summary>
+        private string actionString = "stand";
+
+        /// <summary>
+        /// the current animation.
+        /// </summary>
+        private string currentAnimation = "standDown";
 
         /// <summary>
         /// the monster current Stamina.
@@ -159,7 +176,7 @@ namespace server.monsters
             }
         }
 
-        private string currentAnimation = "standDown";
+
 
         /// <summary>
         /// the x coord on the current map. this is from the top left of the map.
@@ -411,7 +428,10 @@ namespace server.monsters
                         map.AddDamage(new Damage(target.Solid.Center, damage, 211, 0, 0));
                         map.AddSoundAffect(target.GetTakeHitSound(false));
                     }
-                    SetCoolDown(Stamina > 2 ? 40 : 60);
+                    SetCoolDown(Stamina > 2 ? 80 : 60);
+                    actionString = "swing";
+                    currentAnimation = actionString + directionString;
+                    return;
                 } else {
                     double modspeed = Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, SpeedMoveMod);
                     Point totalMove = targetPosition - MapPosition;
@@ -419,6 +439,7 @@ namespace server.monsters
                     moveAmount.Y = modspeed * (totalMove.Y / (Math.Abs(totalMove.X) + Math.Abs(totalMove.Y)));
                     nextMoveAmount = moveAmount;
                 }
+                actionString = "walk";
             } else
             {
                 double dist = MapPosition.Distance(Home);
@@ -432,10 +453,44 @@ namespace server.monsters
                     Point totalMove = Home - MapPosition;
                     moveAmount.X = modspeed * (totalMove.X / (Math.Abs(totalMove.X) + Math.Abs(totalMove.Y)));
                     moveAmount.Y = modspeed * (totalMove.Y / (Math.Abs(totalMove.X) + Math.Abs(totalMove.Y)));
-                    nextMoveAmount = moveAmount;
-
+                    nextMoveAmount = moveAmount; 
                 }
-            }            
+            }
+            if (nextMoveAmount.X != 0 || nextMoveAmount.Y != 0)
+            {
+                actionString = "walk";
+            } else
+            {
+                actionString = "stand";
+            }
+            setDirectionFromNextMove();
+            currentAnimation = actionString + directionString;
+        }
+
+        private void setDirectionFromNextMove()
+        {
+            if (nextMoveAmount.X != 0 || nextMoveAmount.Y != 0)
+            {
+                Point p = new Point();
+                double newDirection = p.Direction(nextMoveAmount);
+                if (newDirection < 45 || newDirection > 315)
+                {
+                    directionString = "Down";
+                }
+                else if (newDirection >= 45 && newDirection <= 135)
+                {
+                    directionString = "Left";
+                }
+                else if (newDirection > 135 && newDirection <= 225)
+                {
+                    directionString = "Up";
+                }
+                else
+                {
+                    directionString = "Right";
+                }
+                
+            }
         }
 
         public SoundAffect GetTakeHitSound(bool critacalHit)
