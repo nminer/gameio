@@ -413,6 +413,11 @@ namespace server.monsters
             if (HasCoolDown)
             {
                 decCoolDown();
+                if (!HasCoolDown)
+                {
+                    actionString = "stand";
+                    currentAnimation = actionString + directionString;
+                }
                 return;
             }
             if (target != null)
@@ -428,7 +433,7 @@ namespace server.monsters
                         map.AddDamage(new Damage(target.Solid.Center, damage, 211, 0, 0));
                         map.AddSoundAffect(target.GetTakeHitSound(false));
                     }
-                    SetCoolDown(Stamina > 2 ? 80 : 60);
+                    SetCoolDown(Stamina > 2 ? 40 : 60);
                     actionString = "swing";
                     currentAnimation = actionString + directionString;
                     return;
