@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using server.mapObjects;
 using System.Numerics;
 using server.monsters;
+using System.Xml.Linq;
 
 namespace server
 {
@@ -846,13 +847,35 @@ namespace server
         /// <returns></returns>
         public bool TakeDamage(long damageAmount)
         {
-            if (Health <= 0)
+            lock (dbDataLock)
             {
-                return false;
+                if (Health <= 0)
+                {
+                    return false;
+                }
+                counters.ResetRecharge();
+                Health -= damageAmount;
             }
-            counters.ResetRecharge();
-            Health -= damageAmount;
             return true;
+        }
+
+        public bool TakeDamage(long damageAmount, Monster monster)
+        {
+            lock (dbDataLock)
+            {
+                if (TakeDamage(damageAmount))
+                {
+                    if (Health > 0)
+                    {
+                        SocketServer.SendMessageToUser(this, damageAmount.ToString(), $"Damage from {monster.Name}");
+                    } else
+                    {
+                        SocketServer.SendMessageToUser(this, damageAmount.ToString(), $"{monster.Name} killed you!");
+                    }
+                    return true;
+                } 
+            }
+            return false;
         }
 
         public void Died()

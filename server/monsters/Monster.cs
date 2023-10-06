@@ -1,20 +1,7 @@
 ﻿using server.mapObjects;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.Entity;
-using static System.Net.Mime.MediaTypeNames;
-using System.Reflection.Emit;
-using System.Xml.Linq;
-using System.Diagnostics.Metrics;
-using static server.monsters.Monster;
-using System.Reflection.Metadata;
+
 
 namespace server.monsters
 {
@@ -23,10 +10,12 @@ namespace server.monsters
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;
 
+        private MonsterCounters counters;
+
         /// <summary>
         /// set to the user that the monster is targeting if any.
         /// </summary>
-        private ICreature? target;
+        private User? target;
 
         /// <summary>
         /// set to how long to target current target then recalculate a new target.
@@ -36,6 +25,7 @@ namespace server.monsters
 
         private MonsterType type;
 
+        private object damageTakenLock = new object();
         /// <summary>
         /// user and amount of damage dealt to the monster
         /// </summary>
@@ -50,13 +40,56 @@ namespace server.monsters
         private double hitDistance = 10;
 
         private string name;
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+        }
 
         private long level;
 
+        private object healthLock = new object();
         private long maxHealth;
 
         private long health;
 
+        /// <summary>
+        /// the current health of the monster.
+        /// </summary>
+        public long Health
+        {
+            get
+            {
+                lock (healthLock)
+                {
+                    return health;
+                }
+            }
+            set
+            {
+                lock (healthLock)
+                {
+                    if (value >= maxHealth)
+                    {
+                        health = maxHealth;
+                    }
+                    else if (value <= 0)
+                    {
+                        SetCoolDown(140);
+                        currentAnimation = "dieingDown";
+                        health = 0;
+                    }
+                    else
+                    {
+                        health = value;
+                    }
+                }
+            }
+        }
+
+        private object staminaLock = new object();
         private long maxStamina;
 
         private long myStamina;
@@ -79,41 +112,86 @@ namespace server.monsters
         /// <summary>
         /// the monster current Stamina.
         /// </summary>
-        public Int64 Stamina
+        public long Stamina
         {
             get
             {
-
-                if ((Int64)myStamina >= maxStamina)
+                lock (staminaLock)
                 {
-                    myStamina = maxStamina;
+                    if (myStamina >= maxStamina)
+                    {
+                        myStamina = maxStamina;
+                    }
+                    return myStamina;
                 }
-                return myStamina;
             }
             set
             {
-                if (value >= maxStamina)
+                lock (staminaLock)
                 {
-                    myStamina = maxStamina;
-                }
-                else if (value < 0)
-                {
-                    myStamina = 0;
-                }
-                else
-                {
-                    myStamina = value;
+                    if (value >= maxStamina)
+                    {
+                        myStamina = maxStamina;
+                    }
+                    else if (value < 0)
+                    {
+                        myStamina = 0;
+                    }
+                    else
+                    {
+                        myStamina = value;
+                    }
                 }
             }
         }
 
+        private object manaLock = new object();
         private long maxMana;
 
         private long mana;
+        /// <summary>
+        /// the current mana of the player.
+        /// </summary>
+        public long Mana
+        {
+            get
+            {
+                lock (manaLock)
+                {
+                    return mana;
+                }
+            }
+            set
+            {
+                lock (manaLock)
+                {
+                    if (value >= maxMana)
+                    {
+                        mana = maxMana;
+                    }
+                    else if (value <= 0)
+                    {
+                        mana = 0;
+                    }
+                    else
+                    {
+                        mana = value;
+                    }
+                }
+            }
+        }
 
         private long strength;
 
         private long speed;
+
+        public long Speed
+        {
+            get
+            {
+                return speed;
+            }
+        }
 
         private long wisdom;
 
@@ -175,8 +253,6 @@ namespace server.monsters
                 }
             }
         }
-
-
 
         /// <summary>
         /// the x coord on the current map. this is from the top left of the map.
@@ -269,6 +345,7 @@ namespace server.monsters
             }
             id = Mods.RandomKey();
             Wander = wander;
+            counters = new MonsterCounters(this);
         }
 
         public void setLocation(Point location)
@@ -391,7 +468,9 @@ namespace server.monsters
                 slowdown = Slowdown,
                 x = MapPosition.X,
                 y = MapPosition.Y,
-                animation = currentAnimation
+                animation = currentAnimation,
+                health = Health,
+                maxHealth = maxHealth
             };
         }
 
@@ -413,6 +492,7 @@ namespace server.monsters
             if (HasCoolDown)
             {
                 decCoolDown();
+                counters.ResetRecharge();
                 if (!HasCoolDown)
                 {
                     actionString = "stand";
@@ -428,7 +508,7 @@ namespace server.monsters
                 {
                     // hit
                     long damage = GitHitDamage();
-                    if (target.TakeDamage(damage))
+                    if (target.TakeDamage(damage, this))
                     {
                         map.AddDamage(new Damage(target.Solid.Center, damage, 211, 0, 0));
                         map.AddSoundAffect(target.GetTakeHitSound(false));
@@ -436,6 +516,7 @@ namespace server.monsters
                     SetCoolDown(Stamina > 2 ? 40 : 60);
                     actionString = "swing";
                     currentAnimation = actionString + directionString;
+                    counters.ResetRecharge();
                     return;
                 } else {
                     double modspeed = Mods.ConvertRange(MIN_SPEED, MAX_SPEED, 1, 10, SpeedMoveMod);
@@ -464,9 +545,11 @@ namespace server.monsters
             if (nextMoveAmount.X != 0 || nextMoveAmount.Y != 0)
             {
                 actionString = "walk";
+                counters.ResetRecharge();
             } else
             {
                 actionString = "stand";
+                counters.Recharge();
             }
             setDirectionFromNextMove();
             currentAnimation = actionString + directionString;
@@ -514,18 +597,48 @@ namespace server.monsters
 
         public long GitHitDamage()
         {
-            return Mods.IntBetween((int)minDamage, (int)maxDamage);
+            long damage = Mods.IntBetween((int)minDamage, (int)maxDamage);
             Stamina = Stamina - 3;
+            return damage;
         }
 
         public bool TakeDamage(long damageAmount)
         {
-            //if (Health <= 0)
-            //{
-            //    return false;
-            //}
-            //counters.ResetRecharge();
-            //Health -= damageAmount;
+            return TakeDamage(damageAmount, null);
+        }
+
+        public bool TakeDamage(long damageAmount, User? user)
+        {
+            if (Health <= 0)
+            {
+                return false;
+            }
+            if (user != null)
+            {
+                lock (damageTakenLock)
+                {
+                    if (damageTaken.ContainsKey(user))
+                    {
+                        damageTaken[user] += damageAmount;
+                    } else
+                    {
+                        damageTaken.Add(user, damageAmount);
+                    }
+                }
+            }
+            counters.ResetRecharge();
+            Health -= damageAmount;
+            if (user != null)
+            {
+                if (Health == 0)
+                {
+                    SocketServer.SendMessageToUser(user, damageAmount.ToString(), $"You Killed {Name}");
+                } else
+                {
+                    SocketServer.SendMessageToUser(user, damageAmount.ToString(), $"You hit {Name}");
+                }
+
+            }
             return true;
         }
 
@@ -552,6 +665,7 @@ namespace server.monsters
                     target = null;
                     targetTimer = null;
                 }
+                counters.ResetRecharge();
             }
             if (target == null || (target != null && (!targetTimer.HasValue || (targetTimer.Value - now).TotalMilliseconds < 0)))
             {
@@ -608,16 +722,21 @@ namespace server.monsters
         {
             User? user = null;
             long damage = 0;
-            foreach (KeyValuePair<User, long> kvp in damageTaken)
+            lock (damageTakenLock)
             {
-                if (user == null)
+                foreach (KeyValuePair<User, long> kvp in damageTaken)
                 {
-                    user = kvp.Key;
-                    damage = kvp.Value;
-                } else if (kvp.Value > damage)
-                {
-                    user = kvp.Key;
-                    damage = kvp.Value;
+                    if (user == null)
+                    {
+                        user = kvp.Key;
+                        damage = kvp.Value;
+                    }
+                    else if (kvp.Value > damage)
+                    {
+                        user = kvp.Key;
+                        damage = kvp.Value;
+                    }
+
                 }
             }
             return user;
@@ -754,6 +873,137 @@ namespace server.monsters
         public long Death_Sound_Id { get; set; } = 0;
 
         public MonsterAttributes() { 
+        }
+
+    }
+
+    /// <summary>
+    /// class to keep up with health mana and stam decreasing or increasing over time.
+    /// </summary>
+    public class MonsterCounters
+    {
+        private int WaitTimeMax
+        {
+            get
+            {
+                long v = 100 + (100 - monster.Speed);
+                return (int)v;
+            }
+        }
+
+        private int WaitTime = 0;
+
+        private int HealthCountMax = 100;
+        private int StaminaCountMax = 50;
+        private int ManaCountMax = 80;
+
+        private int HealthCountMin = -10;
+        private int StaminaCountMin = -10;
+        private int ManaCountMin = -10;
+
+        private int HealthCount = 0;
+        private int StaminaCount = 0;
+        private int ManaCount = 0;
+
+        private Monster monster;
+
+        public MonsterCounters(Monster monsterIn)
+        {
+            monster = monsterIn;
+        }
+
+        public void CountRecharge(int count = 1)
+        {
+            WaitTime = WaitTime + count;
+            if (WaitTime >= WaitTimeMax)
+            {
+                IncCountStamina();
+                IncCountHealth();
+                IncCountMana();
+            }
+        }
+
+        public void ResetRecharge()
+        {
+            WaitTime = 0;
+        }
+
+        public void Recharge()
+        {
+            CountRecharge(1);
+        }
+
+        public void CountStamina(int count = 1)
+        {
+            StaminaCount = StaminaCount + count;
+            if (StaminaCount >= StaminaCountMax)
+            {
+                monster.Stamina = monster.Stamina + (StaminaCount / StaminaCountMax);
+                StaminaCount = StaminaCount % StaminaCountMax;
+            }
+            else if (StaminaCount <= StaminaCountMin)
+            {
+                monster.Stamina = monster.Stamina - (StaminaCount / StaminaCountMin);
+                StaminaCount = StaminaCount % StaminaCountMin;
+            }
+        }
+
+        public void IncCountStamina()
+        {
+            CountStamina(1);
+        }
+
+        public void DecCountStamina()
+        {
+            CountStamina(-1);
+        }
+
+        public void CountHealth(int count = 1)
+        {
+            HealthCount = HealthCount + count;
+            if (HealthCount >= HealthCountMax)
+            {
+                monster.Health = monster.Health + (HealthCount / HealthCountMax);
+                HealthCount = HealthCount % HealthCountMax;
+            }
+            else if (HealthCount <= HealthCountMin)
+            {
+                monster.Health = monster.Health - (HealthCount / HealthCountMin);
+                HealthCount = HealthCount % HealthCountMin;
+            }
+        }
+        public void IncCountHealth()
+        {
+            CountHealth(1);
+        }
+
+        public void DecCountHealth()
+        {
+            CountHealth(-1);
+        }
+
+        public void CountMana(int count = 1)
+        {
+            ManaCount = ManaCount + count;
+            if (ManaCount >= ManaCountMax)
+            {
+                monster.Mana = monster.Mana + (ManaCount / ManaCountMax);
+                ManaCount = ManaCount % ManaCountMax;
+            }
+            else if (ManaCount <= ManaCountMin)
+            {
+                monster.Mana = monster.Mana - (ManaCount / ManaCountMin);
+                ManaCount = ManaCount % ManaCountMin;
+            }
+        }
+        public void IncCountMana()
+        {
+            CountMana(1);
+        }
+
+        public void DecCountMana()
+        {
+            CountMana(-1);
         }
 
     }

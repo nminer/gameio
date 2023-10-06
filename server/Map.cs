@@ -394,6 +394,28 @@ namespace server
 
         public void PlayerHit(User user)
         {
+            foreach (MonsterSpawn mp in Spawns)
+            {
+                foreach (Monster m in mp.GetAllMonster())
+                {
+                    if (m.Health <=0 || user.Solid.Distance(m.Solid) > user.GetHitDistence()) 
+                    {
+                        continue;
+                    }
+                    double targetDirection = user.Location.Direction(m.MapPosition);
+                    if (!user.InHitDirection(targetDirection))
+                    {
+                        continue;
+                    }
+                    long damage = user.GitHitDamage();
+                    if (m.TakeDamage(damage, user))
+                    {
+                        AddDamage(new Damage(m.MapPosition, damage, 211, 0, 0));                        
+                        return;
+                    }
+                }
+            }
+            
             // hard coded hit.
             foreach (User u in GetUsers())
             {
@@ -855,7 +877,6 @@ namespace server
                     double portalDirection = player.Location.Direction(p.Location);
                     if (player.InHitDirection(portalDirection, 180))
                     {
-                        // TODO add directions.
                         return p;
                     }
                 }

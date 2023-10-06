@@ -201,6 +201,8 @@ class Monster {
             this.animation = this.animations.get(frame["animation"]);
         }
         this.slowdown = frame["slowdown"];
+        this.health = frame["health"];
+        this.maxHealth = frame["maxHealth"];
     }
 
     draw(c, xOffset, yOffset) {
@@ -212,8 +214,23 @@ class Monster {
         this.animation.step();
     }
 
+    drawHealthBar(c, xOffset, yOffset) {
+        if (this.health != this.maxHealth && this.health > 0) {
+            c.fillStyle = 'rgba(0,0,0,.4)';
+            c.fillRect(this.X + xOffset - (this.animation.drawWidth * .3) - 2, this.Y + yOffset - (this.animation.drawHeight * .8) - 2 + 4, (this.animation.drawWidth * .6) + 4, 10);
+            c.fillStyle = 'rgba(155,0,0,.8)';
+            const p = this.health / this.maxHealth;
+            c.fillRect(this.X + xOffset - (this.animation.drawWidth * .3), this.Y + yOffset - (this.animation.drawHeight * .8) + 4, (this.animation.drawWidth * .6) * p, 6);
+            c.fillStyle = 'rgba(255,255,255,.2)';
+            c.fillRect(this.X + xOffset - (this.animation.drawWidth * .3), this.Y + yOffset - (this.animation.drawHeight * .8) + 1 + 4, (this.animation.drawWidth * .6) * p, 1);
+            c.fillStyle = 'rgba(0,0,0,.2)';
+            c.fillRect(this.X + xOffset - (this.animation.drawWidth * .3), this.Y + yOffset - (this.animation.drawHeight * .8) + 5 + 4, (this.animation.drawWidth * .6) * p, 1);
+        }
+    }
+
     drawName(c, xOffset, yOffset) {
-        this.name.draw(c, this.X + xOffset, this.Y + yOffset - (this.animation.drawWidth * .8));
+        this.drawHealthBar(c, xOffset, yOffset);
+        this.name.draw(c, this.X + xOffset, this.Y + yOffset - (this.animation.drawHeight * .8));
     }
 }
 
