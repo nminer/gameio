@@ -10,6 +10,8 @@ namespace server.monsters
         private const double MIN_SPEED = 0.0;
         private const double MAX_SPEED = 100.0;
 
+        public MonsterSpawn? Spawn = null;
+
         private MonsterCounters counters;
 
         /// <summary>
@@ -493,7 +495,14 @@ namespace server.monsters
             {
                 decCoolDown();
                 counters.ResetRecharge();
-                if (!HasCoolDown)
+                if (!HasCoolDown && Health == 0)
+                {
+                    // monster dead and need to be removed.
+                    if (Spawn != null)
+                    {
+                        Spawn.RemoveDeadMonster(this);
+                    }
+                } else if (!HasCoolDown)
                 {
                     actionString = "stand";
                     currentAnimation = actionString + directionString;
@@ -765,7 +774,8 @@ namespace server.monsters
             castUp,
             castLeft,
             castRight,
-            dieingDown
+            dieingDown,
+            deadDown,
         }
         public static AnimationNames? AnimationNameToEnum(String animationString)
         {

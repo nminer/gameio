@@ -132,6 +132,17 @@ namespace server
             maa.Animation = Monster.AnimationNames.walkUp;
             maa.Y = 512;
             pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.deadDown;
+            maa.Y = 1280;
+            maa.X = 320;
+            maa.Frames = 1;
+            pigman.AddNewAnimation(maa);
+            maa.Animation = Monster.AnimationNames.dieingDown;
+            maa.X = 64;
+            maa.Y = 1280;
+            maa.Frames = 5;
+            maa.After_Animation_Name = "deadDown";
+            pigman.AddNewAnimation(maa);
             maa.Animation = Monster.AnimationNames.swingRight;
             maa.Y = 960;
             maa.Frames = 5;

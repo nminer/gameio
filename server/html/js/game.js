@@ -380,6 +380,7 @@ function loadMap(data) {
     mapImages.length = 0;
     mapAnimations.length = 0;
     damages.length = 0;
+    clearMonsters();
     clearMapSounds();
     visualEffects.length = 0;
     mapLights.length = 0;

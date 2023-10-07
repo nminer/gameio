@@ -410,7 +410,7 @@ namespace server
                     long damage = user.GitHitDamage();
                     if (m.TakeDamage(damage, user))
                     {
-                        AddDamage(new Damage(m.MapPosition, damage, 211, 0, 0));                        
+                        AddDamage(new Damage(m.MapPosition, damage, 211, 0, 0));
                         return;
                     }
                 }

@@ -239,8 +239,10 @@ class Monster {
 // messages being passed in frames will have: monster id, monster type, name, x, y, animation, slowdown
 function addAllMonsters(data) {
     var monstersToLoad = data["monsters"];
+    var monstIds = [];
     for (let i = 0; i < monstersToLoad.length; i++) {
         var mnst = monstersToLoad[i];
+        monstIds.push(mnst['id']);
         if (mapMonsters.has(mnst['id'])) {
             // monster all loaded and in map monsters.
             mapMonsters.get(mnst['id']).updateFrame(mnst);
@@ -254,6 +256,15 @@ function addAllMonsters(data) {
             requestMonster(mnst['type']);
         }
     }
+    var toRemoveIds = [];
+    for (const mId of mapMonsters.keys()) {
+        if (!monstIds.includes(mId)) {
+            toRemoveIds.push(mId);
+        }
+    };
+    for (let i = 0; i < toRemoveIds.length; i++) {
+        mapMonsters.delete(toRemoveIds[i]);
+    }
 }
 
 function loadMonsterType(data) {
@@ -266,4 +277,8 @@ function loadMonsterType(data) {
         toAdd.push(notanimation);
     }
     monsterLookup.set(data['type'], toAdd);
+}
+
+function clearMonsters() {
+    mapMonsters.length = 0;
 }

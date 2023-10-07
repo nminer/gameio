@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using server.mapObjects;
 using System.Collections.Concurrent;
 
 namespace server.monsters
 {
-    internal class MonsterSpawn
+    public class MonsterSpawn
     {
         private object dbDataLock = new object();
 
@@ -201,7 +196,7 @@ namespace server.monsters
         }
 
         public void AddMonster(Monster monster, long weight = 1)
-        {
+        {    
             MonsterSpawnLink? link = MonsterSpawnLink.Create(MonsterSpawnId, monster.DatabaseId, weight);
             if (link != null)
             {
@@ -293,6 +288,7 @@ namespace server.monsters
                         {
                             //TODO add in random position when we have a spawn dist.
                             Monster monst = new Monster(link.MonsterId, MapPosition, Wander_Distance);
+                            monst.Spawn = this;
                             lock (monsterLock)
                             {
                                 monsters.Add(monst);
@@ -304,6 +300,17 @@ namespace server.monsters
             }
             return null;
         }
+
+        public void RemoveDeadMonster(Monster monsterToRemove)
+        {
+            lock (monsterLock)
+            {
+                monsters.Remove(monsterToRemove);
+                spawnTimes.Enqueue(DateTime.Now);
+                //TODO SPawn loot.
+            }
+        }
+
 
         public List<Monster> GetAllMonster()
         {
@@ -327,7 +334,7 @@ namespace server.monsters
             DateTime now = DateTime.Now;
             while (spawnTimes.TryPeek(out temp))
             {
-                TimeSpan timetospawn = temp - now;
+                TimeSpan timetospawn = now - temp;
                 if (timetospawn.TotalMilliseconds >= SpawnTimer && spawnTimes.TryDequeue(out temp))
                 {
                     needToSpawn++;
