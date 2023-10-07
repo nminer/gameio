@@ -352,7 +352,7 @@ namespace server.monsters
 
         public void setLocation(Point location)
         {
-            MapPosition = location;
+            MapPosition = new Point(location.X, location.Y);
             mySolid = new Circle(MapPosition, 15);
         }
 
