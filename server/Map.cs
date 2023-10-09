@@ -793,7 +793,7 @@ namespace server
                 {
                     foreach (MonsterSpawn spawner in Spawns)
                     {
-                        spawner.CheckSpawnMonsters();
+                        spawner.CheckSpawnMonsters(this);
                         List<Monster> monsters = spawner.GetAllMonster();
                         foreach (Monster monst in monsters)
                         {
@@ -811,7 +811,7 @@ namespace server
         /// </summary>
         /// <param name="circle"></param>
         /// <returns></returns>
-        private bool CheckCollisionWithSolids(Circle circle, ICreature? selfCreature = null)
+        public bool CheckCollisionWithSolids(Circle circle, ICreature? selfCreature = null)
         {
             lock (solidsLock)
             {

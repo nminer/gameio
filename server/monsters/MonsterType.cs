@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 
 namespace server.monsters
 {
-    internal class MonsterType
+    //TODO Add a dose monster have animation
+    public class MonsterType
     {
         private object dbDataLock = new object();
 
@@ -77,6 +78,30 @@ namespace server.monsters
             }
         }
 
+        public long Height
+        {
+            get
+            {
+                if (animations.Count == 0)
+                {
+                    return 0;
+                }
+                MonsterAnimation animation = animations[0];
+                return animation.DrawHeight;
+            }
+        }
+        public long Width
+        {
+            get
+            {
+                if (animations.Count == 0)
+                {
+                    return 0;
+                }
+                MonsterAnimation animation = animations[0];
+                return animation.DrawWidth;
+            }
+        }
 
         public MonsterType(long monsterTypeId)
         {

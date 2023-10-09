@@ -26,6 +26,7 @@ namespace server.monsters
         private DateTime? targetTimer;
 
         private MonsterType type;
+        public MonsterType MonsterType { get { return type; } }
 
         private object damageTakenLock = new object();
         /// <summary>
@@ -109,7 +110,7 @@ namespace server.monsters
         /// <summary>
         /// the current animation.
         /// </summary>
-        private string currentAnimation = "standDown";
+        private string currentAnimation = "spawn";
 
         /// <summary>
         /// the monster current Stamina.
@@ -213,9 +214,6 @@ namespace server.monsters
                 return mySolid;
             }
         }
-        private GameSound? AttackSound;
-        private GameSound? IdleSound;
-        private GameSound? ChaseSound;
 
         public Point MapPosition = new Point(0, 0);
 
@@ -384,27 +382,6 @@ namespace server.monsters
             chaseDistance = (Int64)row["Chase_Distance"];
             minDamage = (Int64)row["Min_Damage"];
             maxDamage = (Int64)row["Max_Damage"];
-            loadSounds(row);
-        }
-
-        private void loadSounds(DataRow row)
-        {
-            if ((Int64)row["Attack_Sound_Id"] >  0)
-            {
-                AttackSound = new GameSound((Int64)row["Attack_Sound_Id"]);
-            }
-            if ((Int64)row["Idle_Sound_Id"] > 0)
-            {
-                IdleSound = new GameSound((Int64)row["Idle_Sound_Id"]);
-            }
-            if ((Int64)row["Chase_Sound_Id"] > 0)
-            {
-                ChaseSound = new GameSound((Int64)row["Chase_Sound_Id"]);
-            }
-            if ((Int64)row["Death_Sound_Id"] > 0)
-            {
-                ChaseSound = new GameSound((Int64)row["Death_Sound_Id"]);
-            }
         }
 
         private void loadMonsterType(long typeId)
@@ -419,8 +396,8 @@ namespace server.monsters
         /// <param name="shapePosition"></param>
         static public Monster? Create(MonsterAttributes attr)
         {
-            string insertNewSolid = $"INSERT INTO Monsters (Monster_Type_Id, Name, Level, Health, Stamina, Mana, Strength, Speed, Wisdom, Aggressive_Distance, Chase_Distance, Min_Damage, Max_Damage, Attack_Sound_Id, Idle_Sound_Id, Chase_Sound_Id, Death_Sound_Id)" +
-                $" VALUES($Monster_Type_Id, $Name, $Level, $Health, $Stamina, $Mana, $Strength, $Speed, $Wisdom, $Aggressive_Distance, $Chase_Distance, $Min_Damage, $Max_Damage, $Attack_Sound_Id, $Idle_Sound_Id, $Chase_Sound_Id, $Death_Sound_Id);";
+            string insertNewSolid = $"INSERT INTO Monsters (Monster_Type_Id, Name, Level, Health, Stamina, Mana, Strength, Speed, Wisdom, Aggressive_Distance, Chase_Distance, Min_Damage, Max_Damage)" +
+                $" VALUES($Monster_Type_Id, $Name, $Level, $Health, $Stamina, $Mana, $Strength, $Speed, $Wisdom, $Aggressive_Distance, $Chase_Distance, $Min_Damage, $Max_Damage);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Monster_Type_Id", attr.Monster_Type_Id);
             command.Parameters.AddWithValue("$Name", attr.Name);
@@ -435,10 +412,6 @@ namespace server.monsters
             command.Parameters.AddWithValue("$Chase_Distance", attr.Chase_Distance);
             command.Parameters.AddWithValue("$Min_Damage", attr.Min_Damage);
             command.Parameters.AddWithValue("$Max_Damage", attr.Max_Damage);
-            command.Parameters.AddWithValue("$Attack_Sound_Id", attr.Idle_Sound_Id);
-            command.Parameters.AddWithValue("$Idle_Sound_Id", attr.Idle_Sound_Id);
-            command.Parameters.AddWithValue("$Chase_Sound_Id", attr.Chase_Sound_Id);
-            command.Parameters.AddWithValue("$Death_Sound_Id", attr.Death_Sound_Id);
             SQLiteTransaction transaction = null;
             try
             {
@@ -495,7 +468,11 @@ namespace server.monsters
             {
                 decCoolDown();
                 counters.ResetRecharge();
-                if (!HasCoolDown && Health == 0)
+                if (!HasCoolDown && currentAnimation == "spawn")
+                {
+                    currentAnimation = "standDown";
+                    SetCoolDown(100);
+                } else if (!HasCoolDown && Health == 0)
                 {
                     // monster dead and need to be removed.
                     if (Spawn != null)
@@ -522,7 +499,7 @@ namespace server.monsters
                         map.AddDamage(new Damage(target.Solid.Center, damage, 211, 0, 0));
                         map.AddSoundAffect(target.GetTakeHitSound(false));
                     }
-                    SetCoolDown(Stamina > 2 ? 40 : 60);
+                    SetCoolDown(Stamina > 2 ? 100 : 200);
                     actionString = "swing";
                     currentAnimation = actionString + directionString;
                     counters.ResetRecharge();
@@ -618,7 +595,7 @@ namespace server.monsters
 
         public bool TakeDamage(long damageAmount, User? user)
         {
-            if (Health <= 0)
+            if (Health <= 0 || currentAnimation == "spawn")
             {
                 return false;
             }
@@ -860,27 +837,6 @@ namespace server.monsters
         /// the max damage the monster will hit for.
         /// </summary>
         public long Max_Damage { get; set; } = 10;
-
-
-        /// <summary>
-        /// the sound played for when the monster hits.
-        /// </summary>
-        public long Attack_Sound_Id { get; set; } = 0;
-
-        /// <summary>
-        /// random played sound while monster is just sitting idle.
-        /// </summary>
-        public long Idle_Sound_Id { get; set; } = 0;
-
-        /// <summary>
-        /// sound for when monster start chasing.
-        /// </summary>
-        public long Chase_Sound_Id { get; set; } = 0;
-
-        /// <summary>
-        /// sound played when monster dies.
-        /// </summary>
-        public long Death_Sound_Id { get; set; } = 0;
 
         public MonsterAttributes() { 
         }

@@ -122,6 +122,7 @@ namespace server
             maa.X = 64;
             maa.Y = 704;
             maa.Frames = 8;
+            maa.Slowdown = 7;
             pigman.AddNewAnimation(maa);
             maa.Animation = Monster.AnimationNames.walkDown;
             maa.Y = 640;
@@ -136,6 +137,7 @@ namespace server
             maa.Y = 1280;
             maa.X = 320;
             maa.Frames = 1;
+            maa.Slowdown = 10;
             pigman.AddNewAnimation(maa);
             maa.Animation = Monster.AnimationNames.dieingDown;
             maa.X = 64;

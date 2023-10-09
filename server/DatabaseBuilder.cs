@@ -276,10 +276,6 @@ internal class DatabaseBuilder
 					'Chase_Distance' INTEGER NOT NULL DEFAULT 100,
 					'Min_Damage' INTEGER NOT NULL DEFAULT 1,
 					'Max_Damage' INTEGER NOT NULL DEFAULT 10,
-					'Attack_Sound_Id' INTEGER NOT NULL DEFAULT 0,
-					'Idle_Sound_Id' INTEGER NOT NULL DEFAULT 0,
-					'Chase_Sound_Id' INTEGER NOT NULL DEFAULT 0,
-					'Death_Sound_Id' INTEGER NOT NULL DEFAULT 0,
 					PRIMARY KEY('Monster_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterTable, Connection);

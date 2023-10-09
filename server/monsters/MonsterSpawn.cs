@@ -289,10 +289,6 @@ namespace server.monsters
                             //TODO add in random position when we have a spawn dist.
                             Monster monst = new Monster(link.MonsterId, MapPosition, Wander_Distance);
                             monst.Spawn = this;
-                            lock (monsterLock)
-                            {
-                                monsters.Add(monst);
-                            }
                             return monst;
                         }
                     }
@@ -322,7 +318,7 @@ namespace server.monsters
             return list;
         }
 
-        public List<Monster> CheckSpawnMonsters()
+        public List<Monster> CheckSpawnMonsters(Map map)
         {
             List<Monster> returnMonsters = new List<Monster>();
             long needToSpawn = MonsterCount - spawnTimes.Count - monsters.Count;
@@ -348,7 +344,19 @@ namespace server.monsters
                 Monster? monst = SpawnMonster();
                 if (monst != null)
                 {
-                    returnMonsters.Add(monst);
+                    if (!map.CheckCollisionWithSolids(monst.Solid, monst)) { 
+                        map.AddSoundAffect(new SoundAffect("sounds/monsters/spawn.mp3", false, monst.MapPosition, 200, 400));
+                        Point spawnEffectSmokePoint = new Point(monst.MapPosition.X - 64, monst.MapPosition.Y - 68);
+                        Point spawnEffectRingPoint = new Point(monst.MapPosition.X - 64, monst.MapPosition.Y - 62);
+                        map.AddVisualEffect(new VisualEffect("img/spells/flat_effect_blueish_smoke.png", spawnEffectSmokePoint, new Point(0, 0), 24, 128, 128, 5, monst.MapPosition.Y));
+                        map.AddVisualEffect(new VisualEffect("img/spells/ring_blueish_smoke.png", spawnEffectRingPoint, new Point(0, 0), 40, 128, 128, 2, monst.MapPosition.Y - 2));
+                        monst.SetCoolDown(100);
+                        returnMonsters.Add(monst);
+                        lock (monsterLock)
+                        {
+                            monsters.Add(monst);
+                        }
+                    }
                 }
             }
             return returnMonsters;

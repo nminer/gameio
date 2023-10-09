@@ -11,7 +11,7 @@ using static server.monsters.Monster;
 
 namespace server.monsters
 {
-    internal class MonsterAnimation
+    public class MonsterAnimation
     {
         private object dbDataLock = new object();
 
