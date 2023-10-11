@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using server.mapObjects;
-using System.Xml.Linq;
 using Newtonsoft.Json;
 
 namespace server.monsters
@@ -26,6 +20,13 @@ namespace server.monsters
 
         private List<MonsterAnimation> animations = new List<MonsterAnimation>();
         private Object animationsLock = new Object();
+
+        /// <summary>
+        /// key is the sound name or the "action" the monster is doing when sound is played.
+        /// the list is for multiple random selected sounds to play for same action.
+        /// </summary>
+        private Dictionary<String, List<MonsterSound>> sounds = new Dictionary<String, List<MonsterSound>>();
+        private Object soundsLock = new Object();
 
         /// <summary>
         /// The monster type Id in the database.
@@ -122,6 +123,7 @@ namespace server.monsters
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
                 LoadAnimations();
+                LoadSounds();
             }
         }
 
@@ -171,6 +173,74 @@ namespace server.monsters
                         animations.Add(ms);
                     }
 
+                }
+            }
+        }
+
+        public MonsterType AddSound(MapSound sound, String soundName)
+        {
+            MonsterSound? ma = MonsterSound.Create(MonsterTypeId, sound.SoundId, soundName);
+            if (ma != null)
+            {
+                addSound(ma);
+            }
+            return this;
+        }
+
+        private void addSound(MonsterSound sound)
+        {
+            lock (soundsLock)
+            {
+                if (sounds.ContainsKey(sound.SoundName))
+                {
+                    sounds[sound.SoundName].Add(sound);
+                } else
+                {
+                    sounds.Add(sound.SoundName, new List<MonsterSound> { sound });
+                }
+            }
+        }
+
+        /// <summary>
+        /// returns the Monster sound for passed in name is it has one.
+        /// </summary>
+        /// <param name="soundName"></param>
+        /// <returns></returns>
+        public MonsterSound? GetSound(String soundName)
+        {
+            lock (soundsLock)
+            {
+                if (!sounds.ContainsKey(soundName))
+                {
+                    return null;
+                }
+                int i = Mods.IntBetween(0, sounds[soundName].Count - 1);
+                return sounds[soundName][i];
+            }
+        }
+
+        private void LoadSounds()
+        {
+            lock (soundsLock)
+            {
+                sounds.Clear();
+                SQLiteDataAdapter adapterSounds = new SQLiteDataAdapter();
+
+                SQLiteCommandBuilder builderSounds = new SQLiteCommandBuilder(adapterSounds);
+
+                DataSet dataSounds = new DataSet();
+                string querySounds = $"SELECT * FROM Monster_Sounds WHERE Monster_Type_Id=$id;";
+                SQLiteCommand commandMonsterSounds = new SQLiteCommand(querySounds, DatabaseBuilder.Connection);
+                commandMonsterSounds.Parameters.AddWithValue("$id", MonsterTypeId);
+                adapterSounds.SelectCommand = commandMonsterSounds;
+                adapterSounds.Fill(dataSounds);
+                if (dataSounds.Tables.Count > 0 && dataSounds.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow r in dataSounds.Tables[0].Rows)
+                    {
+                        MonsterSound ms = new MonsterSound((Int64)r["Monster_Sound_Id"]);
+                        addSound(ms);
+                    }
                 }
             }
         }

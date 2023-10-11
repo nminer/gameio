@@ -218,6 +218,9 @@ class Monster {
     }
 
     drawHealthBar(c, xOffset, yOffset) {
+        if (!this.animation) {
+            return;
+        }
         if (this.health != this.maxHealth && this.health > 0) {
             c.fillStyle = 'rgba(0,0,0,.4)';
             c.fillRect(this.X + xOffset - (this.animation.drawWidth * .3) - 2, this.Y + yOffset - (this.animation.drawHeight * .8) - 2 + 4, (this.animation.drawWidth * .6) + 4, 10);
@@ -232,6 +235,9 @@ class Monster {
     }
 
     drawName(c, xOffset, yOffset) {
+        if (!this.animation) {
+            return;
+        }
         this.drawHealthBar(c, xOffset, yOffset);
         this.name.draw(c, this.X + xOffset, this.Y + yOffset - (this.animation.drawHeight * .8));
     }

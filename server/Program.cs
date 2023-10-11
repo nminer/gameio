@@ -23,6 +23,9 @@ bool inshap3 = Shape.IsPointInShape(testShap2, new Point());
 bool inshap4 = Shape.IsPointInShape(testShap2, new Point(2, 2));
 bool inshap5= Shape.IsPointInShape(testShap2, new Point(4, 2));
 
+Circle c = new Circle(new Point(2, 2), 1);
+Point p = c.PointOnCircumference(360);
+
 
 DatabaseBuilder db = new DatabaseBuilder();
 

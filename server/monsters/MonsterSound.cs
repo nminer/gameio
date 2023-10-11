@@ -5,10 +5,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using server.mapObjects;
 
-namespace server.mapObjects
+namespace server.monsters
 {
-    public class MapSound
+    public class MonsterSound
     {
         private object dbDataLock = new object();
 
@@ -20,14 +21,12 @@ namespace server.mapObjects
 
         private DataRow? row;
 
-        public Point mapPosition = new Point(0, 0);
-
-        private GameSound? sound = null;
+        private GameSound? gameSound;
 
         /// <summary>
-        /// The Map Sound Id in the database.
+        /// The monster sound Id in the database.
         /// </summary>
-        public Int64 MapSoundId
+        public Int64 MonsterSoundId
         {
             get
             {
@@ -37,12 +36,15 @@ namespace server.mapObjects
                     {
                         return 0;
                     }
-                    return (Int64)row["Map_Sound_Id"];
+                    return (Int64)row["Monster_Sound_Id"];
                 }
             }
         }
 
-        public string Description
+        /// <summary>
+        /// the id of the monster type this sound is a part of.
+        /// </summary>
+        public Int64 MonsterTypeId
         {
             get
             {
@@ -50,17 +52,17 @@ namespace server.mapObjects
                 {
                     if (data == null)
                     {
-                        return "";
+                        return 0;
                     }
-                    return (string)row["Description"];
+                    return (Int64)row["Monster_Type_Id"];
                 }
             }
         }
 
         /// <summary>
-        /// The sound id for this sound in the database.
+        /// the id of the monster type this sound is a part of.
         /// </summary>
-        public Int64 SoundId
+        public Int64 Sound_Id
         {
             get
             {
@@ -76,9 +78,9 @@ namespace server.mapObjects
         }
 
         /// <summary>
-        /// The Map id in the database.
+        /// the name of the sound hit, spawn in ....
         /// </summary>
-        public Int64 MapId
+        public string SoundName
         {
             get
             {
@@ -86,37 +88,32 @@ namespace server.mapObjects
                 {
                     if (data == null)
                     {
-                        return 0;
+                        return "";
                     }
-                    return (Int64)row["Map_Id"];
+                    return (string)row["Sound_Name"];
                 }
             }
         }
 
-        public MapSound(long mapSoundId)
+        public MonsterSound(long monsterSoundId)
         {
-            LoadFromId(mapSoundId);
+            LoadFromId(monsterSoundId);
         }
 
-        private void LoadFromId(long mapSoundId)
+        private void LoadFromId(long monsterSoundId)
         {
             lock (dbDataLock)
             {
                 adapter = new SQLiteDataAdapter();
                 builder = new SQLiteCommandBuilder(adapter);
                 data = new DataSet();
-                string findShape = $"SELECT * FROM Map_Sounds WHERE Map_Sound_Id=$id;";
+                string findShape = $"SELECT * FROM Monster_Sounds WHERE Monster_Sound_Id=$id;";
                 SQLiteCommand command = new SQLiteCommand(findShape, DatabaseBuilder.Connection);
-                command.Parameters.AddWithValue("$id", mapSoundId);
+                command.Parameters.AddWithValue("$id", monsterSoundId);
                 adapter.SelectCommand = command;
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
-                long soundId = (Int64)row["Sound_Id"];
-                if (soundId > 0)
-                {
-                    sound = new GameSound(soundId);
-                }
-                mapPosition = new Point((Int64)row["Map_X"], (Int64)row["Map_Y"]);
+                gameSound = new GameSound((Int64)row["Sound_Id"]);
             }
         }
 
@@ -125,16 +122,14 @@ namespace server.mapObjects
         /// this is default 0 0 if left null.
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public MapSound? Create(Map map, Point mapPosistion, long soundId, string description = "")
+        static public MonsterSound? Create(long MonsterTypeId, long SoundId, string soundName)
         {
-            string insertNewSolid = $"INSERT INTO Map_Sounds (Description, Sound_Id, Map_Id, Map_X, Map_Y)" +
-                $" VALUES($Description, $SoundId, $MapId, $MapX, $MapY);";
+            string insertNewSolid = $"INSERT INTO Monster_Sounds (Monster_Type_Id, Sound_Id, Sound_Name)" +
+                $" VALUES($Monster_Type_Id, $Sound_Id, $Sound_Name);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
-            command.Parameters.AddWithValue("$Description", description);
-            command.Parameters.AddWithValue("$SoundId", soundId);
-            command.Parameters.AddWithValue("$MapId", map.Id);
-            command.Parameters.AddWithValue("$MapX", mapPosistion.X);
-            command.Parameters.AddWithValue("$MapY", mapPosistion.Y);
+            command.Parameters.AddWithValue("$Monster_Type_Id", MonsterTypeId);
+            command.Parameters.AddWithValue("$Sound_Id", SoundId);
+            command.Parameters.AddWithValue("$Sound_Name", soundName);
             SQLiteTransaction transaction = null;
             try
             {
@@ -143,7 +138,7 @@ namespace server.mapObjects
                 {
                     long rowID = DatabaseBuilder.Connection.LastInsertRowId;
                     transaction.Commit();
-                    return new MapSound(rowID);
+                    return new MonsterSound(rowID);
                 }
                 transaction.Commit();
             }
@@ -153,13 +148,6 @@ namespace server.mapObjects
                 return null;
             }
             return null;
-        }
-
-        public object? GetJsonSoundObject(Point? position = null)
-        {
-            if (sound == null) return null;
-            if (position is null) position = mapPosition;
-            return sound.GetJsonSoundObject(position);
         }
     }
 }

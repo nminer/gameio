@@ -554,13 +554,38 @@ namespace server
             user.Map_Id = Id;
             lock(userListLock) // need to lock lists
             {
-
                 user.X_Coord = x;
                 user.Y_Coord = y;
-                CheckCollisionWithSolids(user.Solid, user);
+                Point center = new Point(x, y);
+                long radiusMultiplier = 2;
+                double angle = 10;
+                bool userHasCollision = CheckCollisionWithSolids(user.Solid, user);
+                while (userHasCollision)
+                {
+                    double r = user.Solid.Radius * radiusMultiplier;
+                    Circle tempCheckCircle = new Circle(center, r);
+                    for (double tempAngle = 0; tempAngle < 360; tempAngle = tempAngle + angle)
+                    {
+                        Point userNewCenter = tempCheckCircle.PointOnCircumference(tempAngle);
+                        user.X_Coord = userNewCenter.X;
+                        user.Y_Coord = userNewCenter.Y;
+                        userHasCollision = CheckCollisionWithSolids(user.Solid, user);
+                        if (!userHasCollision)
+                        {
+                            break;
+                        }
+                    }
+                    radiusMultiplier += 2;
+                    angle /= 2;
+                    if (angle < 1)
+                    {
+                        angle = 1;
+                    }
+                }
                 users.Add(user);
             }
         }
+
 
         public void RemoveUser(User user)
         {

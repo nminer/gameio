@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,11 +34,19 @@ namespace server.mapObjects
             return Distance(circleToCheck) < 0;
         }
 
-        public static Point FindPointOnCur(Circle circle, double degrees)
+        public Point PointOnCircumference(double degrees)
         {
-            double x_oncircle = circle.Center.X + circle.Radius * Math.Cos(degrees * Math.PI / 180);
-            double y_oncircle = circle.Center.Y + circle.Radius * Math.Sin(degrees * Math.PI / 180);
-            return new Point(x_oncircle, y_oncircle);
+            return FindPointOnCircumference(this, degrees);
+        }
+
+
+        public static Point FindPointOnCircumference(Circle circle, double degrees)
+        {
+            // we will keep 0 as pointing down so we need to add 90.
+            double d = degrees + 90;
+            double x_oncircle = circle.Center.X + circle.Radius * Math.Cos(d * Math.PI / 180);
+            double y_oncircle = circle.Center.Y + circle.Radius * Math.Sin(d * Math.PI / 180);
+            return new Point(Math.Round(x_oncircle, 2), Math.Round(y_oncircle, 2));
         }
     }
 }

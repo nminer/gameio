@@ -769,6 +769,26 @@ namespace server.monsters
             return Enum.GetName(typeof(AnimationNames), nameEnum);
         }
 
+        public enum SoundNames
+        {
+            attack,
+            die,
+        }
+        public static SoundNames? SoundNamesToEnum(String soundNameString)
+        {
+            SoundNames name;
+            if (Enum.TryParse(soundNameString, out name))
+            {
+                return name;
+            }
+            return null;
+        }
+
+        public static string? SoundNamesEnumToName(SoundNames nameEnum)
+        {
+            return Enum.GetName(typeof(SoundNames), nameEnum);
+        }
+
     }
 
     public class MonsterAttributes

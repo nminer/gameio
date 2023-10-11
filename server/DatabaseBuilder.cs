@@ -177,7 +177,7 @@ internal class DatabaseBuilder
 
 		// define sounds
         string createSoundsTable = @"CREATE TABLE 'Sounds' (
-	            'sound_Id'	INTEGER NOT NULL UNIQUE,
+	            'Sound_Id'	INTEGER NOT NULL UNIQUE,
 				'Sound_Path'	TEXT NOT NULL,
 	            'Name'	TEXT NOT NULL,
 				'Repeat'	INTEGER NOT NULL DEFAULT 0,
@@ -186,7 +186,7 @@ internal class DatabaseBuilder
 				'Delay_Max'	INTEGER NOT NULL DEFAULT 0,
 				'Full_Volume_Radius'	INTEGER NOT NULL DEFAULT 0,
 				'Fade_Volume_Radius'	INTEGER NOT NULL DEFAULT 0,
-	            PRIMARY KEY('sound_Id' AUTOINCREMENT)
+	            PRIMARY KEY('Sound_Id' AUTOINCREMENT)
             );";
         Execute(createSoundsTable, Connection);
 
@@ -260,6 +260,16 @@ internal class DatabaseBuilder
 					PRIMARY KEY('Monster_Animation_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterAnimatinoTable, Connection);
+
+        // define monster sounds table 
+        string createMonsterSoundsTable = @"CREATE TABLE 'Monster_Sounds' (
+					'Monster_Sound_Id' INTEGER NOT NULL UNIQUE,
+					'Monster_Type_Id' INTEGER NOT NULL,
+					'Sound_Id' INTEGER NOT NULL,
+					'Sound_Name'	TEXT NOT NULL,
+					PRIMARY KEY('Monster_Sound_Id' AUTOINCREMENT)
+				);";
+        Execute(createMonsterSoundsTable, Connection);
 
         // define monster animation table 
         string createMonsterTable = @"CREATE TABLE 'Monsters' (
