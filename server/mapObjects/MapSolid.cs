@@ -105,6 +105,21 @@ namespace server.mapObjects
             }
         }
 
+        public bool IsSolidInside
+        {
+            get
+            {
+                if (ShapeId > 0)
+                {
+                    return shape.IsSolidInside;
+                } else if (SolidId > 0)
+                {
+                    return solid.IsSolidInside;
+                }
+                return false;
+            }
+        }
+
         public MapSolid(long mapSolidId)
         {
             LoadMapSolid(mapSolidId);
@@ -234,6 +249,19 @@ namespace server.mapObjects
         {
             if (solid is null) return null;
             return solid.GetJsonAnimationObject(mapPosition);
+        }
+
+        public bool PointInside(Point point)
+        {
+            if (ShapeId > 0)
+            {
+                return shape.PointInside(point);
+            }
+            else if (SolidId > 0)
+            {
+                return solid.PointInside(point);
+            }
+            return false;
         }
     }
 }

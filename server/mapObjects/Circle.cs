@@ -32,5 +32,12 @@ namespace server.mapObjects
         {
             return Distance(circleToCheck) < 0;
         }
+
+        public static Point FindPointOnCur(Circle circle, double degrees)
+        {
+            double x_oncircle = circle.Center.X + circle.Radius * Math.Cos(degrees * Math.PI / 180);
+            double y_oncircle = circle.Center.Y + circle.Radius * Math.Sin(degrees * Math.PI / 180);
+            return new Point(x_oncircle, y_oncircle);
+        }
     }
 }

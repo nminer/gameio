@@ -120,6 +120,14 @@ namespace server.mapObjects
             get { return shape.ShapeId; }
         }
 
+        public bool IsSolidInside
+        {
+            get
+            {
+                return shape.IsSolidInside;
+            }
+        }
+
         public Solid(long solidId)
         {
             LoadFromId(solidId);
@@ -131,10 +139,11 @@ namespace server.mapObjects
         /// <param name="shapePosition"></param>
         /// <param name="height"></param>
         /// <param name="width"></param>
-        public Solid(Point shapePosition, double height, double width)
+        public Solid(Point shapePosition, double height, double width, bool solidInside)
         {
             this.shapePosition = shapePosition;
             shape = new Shape(height, width);
+            shape.IsSolidInside = solidInside;
             //shape.AddPoint(0, 0).AddPoint(width, 0).AddPoint(width, height).AddPoint(0, height);
         }
 
@@ -274,6 +283,11 @@ namespace server.mapObjects
             if (animation is null) return null;
             if (position is null) position = new Point(0, 0);
             return animation.GetJsonAnimationObject(position, (drawPosition + position).Y);
+        }
+
+        public bool PointInside(Point point)
+        {
+            return shape.PointInside(point);
         }
     }
 }

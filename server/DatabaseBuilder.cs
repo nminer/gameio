@@ -142,6 +142,7 @@ internal class DatabaseBuilder
 	            'Description'	TEXT NOT NULL,
 				'Json_Points'	TEXT NOT NULL,
 				'Is_Closed_Shape'	INTEGER NOT NULL DEFAULT 1,
+				'Solid_Inside'      INTEGER NOT NULL DEFAULT 1,
 	            PRIMARY KEY('Shape_Id' AUTOINCREMENT)
             );";
         Execute(createShapesTable, Connection);

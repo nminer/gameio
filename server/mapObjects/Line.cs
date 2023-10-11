@@ -28,6 +28,15 @@ namespace server.mapObjects
 
         public Point Point2 { get { return point2; } }
 
+        public bool IsSolidInside
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+
         public Line(double x1, double y1, double x2, double y2)
         {
             point1 = new Point(x1, y1);
@@ -57,5 +66,10 @@ namespace server.mapObjects
             return ModCollision.Distance(new Line(point1 + position, point2 + position), circle);
         }
 
+        public bool PointInside(Point point)
+        {
+            //TODO see if point lies on line.
+            return false;
+        }
     }
 }

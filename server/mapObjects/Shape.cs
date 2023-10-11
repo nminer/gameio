@@ -20,6 +20,12 @@ namespace server.mapObjects
         /// holds the list of points that make up this shape.
         /// </summary>
         private List<Point> points = new List<Point>();
+        public Point[] Points {
+            get
+            {
+                return points.ToArray();
+            }
+        }
 
         private object dbDataLock = new object();
 
@@ -90,6 +96,25 @@ namespace server.mapObjects
         }
         private bool isClosedShape = true;
 
+        public bool IsSolidInside
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    return isSolidInside;
+                }
+            }
+            set
+            {
+                lock (dbDataLock)
+                {
+                    isSolidInside = value;
+                }
+            }
+        }
+        private bool isSolidInside = true;
+        
 
         public Shape(long  shapeId)
         {
@@ -200,6 +225,7 @@ namespace server.mapObjects
                 adapter.Fill(data);
                 row = data.Tables[0].Rows[0];
                 isClosedShape = (Int64)row["Is_Closed_Shape"] == 1;
+                isSolidInside = (Int64)row["Solid_Inside"] == 1;
                 points = JsonConvert.DeserializeObject<List<Point>>((string)row["Json_Points"]);
                 linesBuilt = false;
                 FindCenter();
@@ -213,13 +239,14 @@ namespace server.mapObjects
                 if (row == null)
                 {
                     // insert new Shape
-                    string insertNewShape = $"INSERT INTO Shapes (Description, Json_Points, Is_Closed_Shape) VALUES($description, $json, $isShape);";
+                    string insertNewShape = $"INSERT INTO Shapes (Description, Json_Points, Is_Closed_Shape, Solid_Inside) VALUES($description, $json, $isShape, $Solid_Inside);";
                     SQLiteCommand command = new SQLiteCommand(insertNewShape, DatabaseBuilder.Connection);
                     SQLiteTransaction transaction = null;
                     transaction = DatabaseBuilder.Connection.BeginTransaction();
                     command.Parameters.AddWithValue("$description", description);
                     command.Parameters.AddWithValue("$json", ToJson());
                     command.Parameters.AddWithValue("$isShape", isClosedShape ? 1 : 0);
+                    command.Parameters.AddWithValue("$Solid_Inside", isSolidInside ? 1 : 0);
                     if (command.ExecuteNonQuery() != 1)
                     {
                         throw new Exception("Could Not create new Shape.");
@@ -232,6 +259,7 @@ namespace server.mapObjects
                 {
                     row["Json_Points"] = ToJson();
                     row["Is_Closed_Shape"] = isClosedShape ? 1 : 0;
+                    row["Solid_Inside"] = isSolidInside ? 1 : 0;
                     builder.ConflictOption = ConflictOption.OverwriteChanges;
                     builder.GetUpdateCommand();
                     adapter.Update(data);
@@ -271,6 +299,38 @@ namespace server.mapObjects
             if (position is null) { position = new Point(0, 0); }
             Circle temp = new Circle(center.Center + position, center.Radius);
             return temp.Distance(circle);
+        }
+        
+        // returns true if the point is inside the shape.
+        public bool PointInside(Point point)
+        {
+            return IsPointInShape(this, point);
+        }
+
+        /// <summary>
+        /// Determines if the given point is inside the polygon
+        /// </summary>
+        /// <returns>true if the point is inside the polygon; otherwise, false</returns>
+        public static bool IsPointInShape(Shape shape, Point testPoint)
+        {
+            bool result = false;
+            Point[] polygon = shape.Points;
+            int j = polygon.Length - 1;
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y ||
+                    polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
+                {
+                    if (polygon[i].X + (testPoint.Y - polygon[i].Y) /
+                       (polygon[j].Y - polygon[i].Y) *
+                       (polygon[j].X - polygon[i].X) < testPoint.X)
+                    {
+                        result = !result;
+                    }
+                }
+                j = i;
+            }
+            return result;
         }
 
     }

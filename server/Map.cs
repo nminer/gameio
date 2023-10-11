@@ -235,7 +235,7 @@ namespace server
             // add the solid outline.
             lock (solidsLock)
             {
-                solids.Add(new Solid(new Point(0, 0), Height, Width));
+                solids.Add(new Solid(new Point(0, 0), Height, Width, false));
             }
             LoadPortals();
             LoadMapSolids();
@@ -552,10 +552,12 @@ namespace server
         public void AddUser(User user, double x=0, double y=0)
         {
             user.Map_Id = Id;
-            user.X_Coord = x;
-            user.Y_Coord = y;
-            lock(userListLock)
+            lock(userListLock) // need to lock lists
             {
+
+                user.X_Coord = x;
+                user.Y_Coord = y;
+                CheckCollisionWithSolids(user.Solid, user);
                 users.Add(user);
             }
         }
@@ -819,6 +821,11 @@ namespace server
                 {
                     if (solid.Distance(circle) > 0) {
                         continue; // if we are not near the solid skip checking all the lines.
+                    }
+                    bool centerInSolid = solid.PointInside(circle.Center);
+                    if ((solid.IsSolidInside && centerInSolid) || (!solid.IsSolidInside && !centerInSolid))
+                    {
+                        return true;
                     }
                     foreach (Line line in solid.Lines())
                     {
