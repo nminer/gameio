@@ -408,7 +408,7 @@ namespace server
                         continue;
                     }
                     long damage = user.GitHitDamage();
-                    if (m.TakeDamage(damage, user))
+                    if (m.TakeDamage(damage, user, this))
                     {
                         AddDamage(new Damage(m.MapPosition, damage, 211, 0, 0));
                         return;
@@ -429,7 +429,7 @@ namespace server
                     continue;
                 }
                 long damage = user.GitHitDamage();
-                if (u.Health <=0 || !u.TakeDamage(damage))
+                if (u.Health <=0 || !u.TakeDamage(damage, this))
                 {
                     continue;
                 }

@@ -458,7 +458,7 @@ namespace server.monsters
         public void calculateNextMove(Map map)
         {
             Point moveAmount = new Point();
-            setTarget(map);
+            
             // if we have a target move to hit it.
             // if no target and out of wonder range. go home. if closer to home then move then set to home.
             // no target and in wonder range random wonder
@@ -486,6 +486,7 @@ namespace server.monsters
                 }
                 return;
             }
+            setTarget(map);
             if (target != null)
             {
                 Point targetPosition = new Point(target.X_Coord, target.Y_Coord);
@@ -494,10 +495,11 @@ namespace server.monsters
                 {
                     // hit
                     long damage = GitHitDamage();
-                    if (target.TakeDamage(damage, this))
+                    if (target.TakeDamage(damage, this, map))
                     {
                         map.AddDamage(new Damage(target.Solid.Center, damage, 211, 0, 0));
                         map.AddSoundAffect(target.GetTakeHitSound(false));
+                        setSoundAffect(map, SoundNames.attack);
                     }
                     SetCoolDown(Stamina > 2 ? 100 : 200);
                     actionString = "swing";
@@ -588,12 +590,12 @@ namespace server.monsters
             return damage;
         }
 
-        public bool TakeDamage(long damageAmount)
+        public bool TakeDamage(long damageAmount, Map map)
         {
-            return TakeDamage(damageAmount, null);
+            return TakeDamage(damageAmount, null, map);
         }
 
-        public bool TakeDamage(long damageAmount, User? user)
+        public bool TakeDamage(long damageAmount, User? user, Map map)
         {
             if (Health <= 0 || currentAnimation == "spawn")
             {
@@ -618,9 +620,11 @@ namespace server.monsters
             {
                 if (Health == 0)
                 {
+                    setSoundAffect(map, SoundNames.die);
                     SocketServer.SendMessageToUser(user, damageAmount.ToString(), $"You Killed {Name}");
                 } else
                 {
+                    setSoundAffect(map, SoundNames.getHit);
                     SocketServer.SendMessageToUser(user, damageAmount.ToString(), $"You hit {Name}");
                 }
 
@@ -733,6 +737,15 @@ namespace server.monsters
             return nextMoveAmount;
         }
 
+        public void setSoundAffect(Map map, SoundNames soundName)
+        {
+            MonsterSound? sound =  MonsterType.GetSound(soundName);
+            if (sound != null && sound.Sound != null)
+            {
+                map.AddSoundAffect(new SoundAffect(sound.Sound.SoundPath, false, this.MapPosition, sound.Sound.FullVolumeRadius, sound.Sound.FadeVolumeRadius));
+            }
+        }
+
         public enum AnimationNames
         {
             walkDown,
@@ -773,6 +786,7 @@ namespace server.monsters
         {
             attack,
             die,
+            getHit,
         }
         public static SoundNames? SoundNamesToEnum(String soundNameString)
         {

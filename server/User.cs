@@ -845,7 +845,7 @@ namespace server
         /// </summary>
         /// <param name="damageAmount"></param>
         /// <returns></returns>
-        public bool TakeDamage(long damageAmount)
+        public bool TakeDamage(long damageAmount, Map map)
         {
             lock (dbDataLock)
             {
@@ -859,11 +859,11 @@ namespace server
             return true;
         }
 
-        public bool TakeDamage(long damageAmount, Monster monster)
+        public bool TakeDamage(long damageAmount, Monster monster, Map map)
         {
             lock (dbDataLock)
             {
-                if (TakeDamage(damageAmount))
+                if (TakeDamage(damageAmount, map))
                 {
                     if (Health > 0)
                     {

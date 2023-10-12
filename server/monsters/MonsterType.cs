@@ -2,6 +2,7 @@
 using System.Data;
 using server.mapObjects;
 using Newtonsoft.Json;
+using static server.monsters.Monster;
 
 namespace server.monsters
 {
@@ -177,9 +178,10 @@ namespace server.monsters
             }
         }
 
-        public MonsterType AddSound(MapSound sound, String soundName)
+        public MonsterType AddSound(GameSound sound, SoundNames soundName)
         {
-            MonsterSound? ma = MonsterSound.Create(MonsterTypeId, sound.SoundId, soundName);
+            string soundNameString = Monster.SoundNamesEnumToName(soundName);
+            MonsterSound? ma = MonsterSound.Create(MonsterTypeId, sound.SoundId, soundNameString);
             if (ma != null)
             {
                 addSound(ma);
@@ -206,16 +208,17 @@ namespace server.monsters
         /// </summary>
         /// <param name="soundName"></param>
         /// <returns></returns>
-        public MonsterSound? GetSound(String soundName)
+        public MonsterSound? GetSound(SoundNames soundName)
         {
+            string soundNameString = Monster.SoundNamesEnumToName(soundName);
             lock (soundsLock)
             {
-                if (!sounds.ContainsKey(soundName))
+                if (!sounds.ContainsKey(soundNameString))
                 {
                     return null;
                 }
-                int i = Mods.IntBetween(0, sounds[soundName].Count - 1);
-                return sounds[soundName][i];
+                int i = Mods.IntBetween(0, sounds[soundNameString].Count - 1);
+                return sounds[soundNameString][i];
             }
         }
 

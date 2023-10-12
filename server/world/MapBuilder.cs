@@ -162,6 +162,18 @@ namespace server
             maa.After_Animation_Name = "standUp";
             maa.Y = 768;
             pigman.AddNewAnimation(maa);
+            GameSound? pigManHit1 = GameSound.CreateNewSound("pig man hit 1", "sounds/monsters/pigman/hit-1.wav", fadeRadius: 500, fullRadius: 100);
+            GameSound? pigManHit2 = GameSound.CreateNewSound("pig man hit 2", "sounds/monsters/pigman/hit-2.wav", fadeRadius: 500, fullRadius: 100);
+            GameSound? pigManHit3 = GameSound.CreateNewSound("pig man hit 3", "sounds/monsters/pigman/hit-3.wav", fadeRadius: 500, fullRadius: 100);
+            GameSound? pigManGetHit1 = GameSound.CreateNewSound("pig man get hit 1", "sounds/monsters/pigman/die-1.wav", fadeRadius: 500, fullRadius: 100);
+            GameSound? pigManGetHit2 = GameSound.CreateNewSound("pig man get hit 2", "sounds/monsters/pigman/die-2.wav", fadeRadius: 500, fullRadius: 100);
+            GameSound? pigManDie = GameSound.CreateNewSound("pig man die", "sounds/monsters/pigman/belch.wav", fadeRadius: 500, fullRadius: 100);
+            pigman.AddSound(pigManHit1, Monster.SoundNames.attack);
+            pigman.AddSound(pigManHit2, Monster.SoundNames.attack);
+            pigman.AddSound(pigManHit3, Monster.SoundNames.attack);
+            pigman.AddSound(pigManGetHit1, Monster.SoundNames.getHit);
+            pigman.AddSound(pigManGetHit2, Monster.SoundNames.getHit);
+            pigman.AddSound(pigManDie, Monster.SoundNames.die);
 
             //Monster.AnimationNames.standDown, "img/monsters/pigman.png", 0, 640, 64, 64, 80, 80, 1, 10);
             Monster pig = Monster.Create(

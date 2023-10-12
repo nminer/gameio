@@ -22,7 +22,7 @@ namespace server.monsters
 
         public Point GetNetMoveAmount();
 
-        public bool TakeDamage(long damageAmount);
+        public bool TakeDamage(long damageAmount, Map map);
 
 
         public SoundAffect GetTakeHitSound(bool critacalHi);

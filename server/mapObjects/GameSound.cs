@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace server.mapObjects
 {
-    class GameSound
+    public class GameSound
     {
 
         private object dbDataLock = new object();

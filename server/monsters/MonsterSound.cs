@@ -22,6 +22,10 @@ namespace server.monsters
         private DataRow? row;
 
         private GameSound? gameSound;
+        public GameSound? Sound
+        {
+            get { return this.gameSound; }
+        }
 
         /// <summary>
         /// The monster sound Id in the database.
