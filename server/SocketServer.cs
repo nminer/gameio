@@ -122,8 +122,12 @@ namespace server
         static void PlayerMonsterRequest(Guid guid, JObject jsonMessage)
         {
             string command = (string)jsonMessage["monsterRequest"];
-            MonsterType mt = new MonsterType(1);
-            wsserver.SendAsync(guid, mt.GetJsonMonsterTypeString());
+            long  x = 0;
+            if (Int64.TryParse(command, out x))
+            {
+                MonsterType mt = new MonsterType(x);
+                wsserver.SendAsync(guid, mt.GetJsonMonsterTypeString());
+            }
         }
 
         static void PlayerCommand(Guid guid, JObject jsonMessage)

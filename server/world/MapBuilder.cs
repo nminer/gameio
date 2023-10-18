@@ -191,12 +191,59 @@ namespace server
                     Aggressive_Distance = 400,
                     Chase_Distance = 450,
                     Min_Damage = 1,
-                    Max_Damage = 10
+                    Max_Damage = 2,
                 });// pigman.MonsterTypeId, "Pig", 1, 100, 100, 100, 10, 10, 10, 300, 300, 1, 10);
             MonsterSpawn spawn1 = MonsterSpawn.Create(outside.Id, 1840, 2222, 0, 1, 10000, 0);
             spawn1.AddMonster(pig);
+            MonsterSpawn spawn2 = MonsterSpawn.Create(outside.Id, 1890, 2242, 0, 1, 10000, 0);
+            spawn1.AddMonster(pig);
+            spawn2.AddMonster(pig);
 
-        
+
+            // spider 
+            MonsterType spiderType = MonsterType.Create("spider", "spider monster");
+            MonsterAnimationAttributes spiderAnimation = new MonsterAnimationAttributes()
+            {
+                Animation = Monster.AnimationNames.standLeft,
+                Image_Path = "img/monsters/spider.png",
+                X = 0,
+                Y = 40,
+                Height = 40,
+                Width = 128,
+                Draw_Height = 38,
+                Draw_Width = 128,
+                Frames = 4,
+                Slowdown = 10
+            };
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.standUp;
+            spiderAnimation.Y = 118;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.standRight;
+            spiderAnimation.Y = 196;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.standDown;
+            spiderAnimation.Y = 246;
+            spiderType.AddNewAnimation(spiderAnimation);
+            Monster spider = Monster.Create(
+                new MonsterAttributes()
+                {
+                    Monster_Type_Id = spiderType.MonsterTypeId,
+                    Name = "spider",
+                    Level = 1,
+                    Health = 100,
+                    Stamina = 100,
+                    Mana = 10,
+                    Speed = 20,
+                    Strength = 10,
+                    Wisdom = 1,
+                    Aggressive_Distance = 400,
+                    Chase_Distance = 450,
+                    Min_Damage = 1,
+                    Max_Damage = 2,
+                });
+            MonsterSpawn spawn3 = MonsterSpawn.Create(outside.Id, 1890, 2362, 0, 1, 10000, 0);
+            spawn3.AddMonster(spider);
         }
     }
 }

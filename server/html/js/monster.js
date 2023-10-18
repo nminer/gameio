@@ -213,7 +213,7 @@ class Monster {
         if (!this.animation) {
             return;
         }
-        this.animation.draw(this.X + xOffset - (this.animation.drawWidth / 2), this.Y + yOffset - (this.animation.drawWidth * .8));
+        this.animation.draw(this.X + xOffset - (this.animation.drawWidth / 2), this.Y + yOffset - (this.animation.drawHeight - 15));
         this.animation.step();
     }
 
