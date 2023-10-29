@@ -209,25 +209,40 @@ namespace server
                 Animation = Monster.AnimationNames.standLeft,
                 Image_Path = "img/monsters/spider.png",
                 X = 0,
-                Y = 40,
-                Height = 40,
+                Y = 30,
+                Height = 44,
                 Width = 128,
-                Draw_Height = 38,
+                Draw_Height = 40,
                 Draw_Width = 128,
-                Solid_X = 40,
-                Solid_Y = 65,
+                Solid_X = 64,
+                Solid_Y = 24,
                 Frames = 4,
-                Slowdown = 10
+                Slowdown = 20
             };
             spiderType.AddNewAnimation(spiderAnimation);
             spiderAnimation.Animation = Monster.AnimationNames.standUp;
-            spiderAnimation.Y = 118;
+            spiderAnimation.Y = 110;
             spiderType.AddNewAnimation(spiderAnimation);
             spiderAnimation.Animation = Monster.AnimationNames.standRight;
-            spiderAnimation.Y = 196;
+            spiderAnimation.Y = 184;
             spiderType.AddNewAnimation(spiderAnimation);
             spiderAnimation.Animation = Monster.AnimationNames.standDown;
-            spiderAnimation.Y = 246;
+            spiderAnimation.Y = 240;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.walkUp;
+            spiderAnimation.Y = 110;
+            spiderAnimation.X = 512;
+            spiderAnimation.Frames = 7;
+            spiderAnimation.Slowdown = 0;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.walkLeft;
+            spiderAnimation.Y = 30;       
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.walkRight;
+            spiderAnimation.Y = 184;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.walkDown;
+            spiderAnimation.Y = 240;
             spiderType.AddNewAnimation(spiderAnimation);
             Monster spider = Monster.Create(
                 new MonsterAttributes()
