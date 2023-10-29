@@ -168,6 +168,43 @@ namespace server.monsters
                 }
             }
         }
+
+        /// <summary>
+        /// where the solid of the monsters is from the draw top left
+        /// </summary>
+        public Int64 Solid_X
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 0;
+                    }
+                    return (Int64)row["Solid_X"];
+                }
+            }
+        }
+
+        /// <summary>
+        /// where the solid of the monsters is from the draw top left
+        /// </summary>
+        public Int64 Solid_Y
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 0;
+                    }
+                    return (Int64)row["Solid_Y"];
+                }
+            }
+        }
+
         /// <summary>
         /// number of frames in the animation
         /// </summary>
@@ -263,8 +300,8 @@ namespace server.monsters
         /// <param name="shapePosition"></param>
         static public MonsterAnimation? Create(MonsterAnimationAttributes animationAttr)
         {
-            string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Animation, Image_Path, X, Y, Height, Width, Draw_Height, Draw_Width, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal)" +
-                $" VALUES($Monster_Type_Id, $Animation, $Image_Path, $X, $Y, $Height, $Width, $Draw_Height, $Draw_Width, $Frames, $Slowdown, $After_Animation_Name, $Star_Frame, $Horizontal);";
+            string insertNewSolid = $"INSERT INTO Monster_Animations (Monster_Type_Id, Animation, Image_Path, X, Y, Height, Width, Draw_Height, Draw_Width, Solid_X, Solid_Y, Frames, Slowdown, After_Animation_Name, Star_Frame, Horizontal)" +
+                $" VALUES($Monster_Type_Id, $Animation, $Image_Path, $X, $Y, $Height, $Width, $Draw_Height, $Draw_Width, $Solid_X, $Solid_Y, $Frames, $Slowdown, $After_Animation_Name, $Star_Frame, $Horizontal);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Monster_Type_Id", animationAttr.Monster_Type_Id);
             command.Parameters.AddWithValue("$Animation", Monster.AnimationEnumToName(animationAttr.Animation));
@@ -275,6 +312,8 @@ namespace server.monsters
             command.Parameters.AddWithValue("$Width", animationAttr.Width);
             command.Parameters.AddWithValue("$Draw_Height", animationAttr.Draw_Height);
             command.Parameters.AddWithValue("$Draw_Width", animationAttr.Draw_Width);
+            command.Parameters.AddWithValue("$Solid_X", animationAttr.Solid_X);
+            command.Parameters.AddWithValue("$Solid_Y", animationAttr.Solid_Y);
             command.Parameters.AddWithValue("$Frames", animationAttr.Frames);
             command.Parameters.AddWithValue("$Slowdown", animationAttr.Slowdown);
             command.Parameters.AddWithValue("$After_Animation_Name", animationAttr.After_Animation_Name);
@@ -314,6 +353,8 @@ namespace server.monsters
                 width = Width,
                 drawHeight = DrawHeight,
                 drawWidth = DrawWidth,
+                solidX = Solid_X,
+                solidY = Solid_Y,
                 slowdown = Slowdown,
                 after = AfterAnimationName,
                 startFrame = StarFrame,
@@ -388,6 +429,16 @@ namespace server.monsters
         /// the draw width for in game.
         /// </summary>
         public long Draw_Width { get; set; } = 80;
+
+        /// <summary>
+        /// where the sold of the monster is from top left of draw
+        /// </summary>
+        public long Solid_X { get; set; } = 40;
+
+        /// <summary>
+        /// where the sold of the monster is from top left of draw
+        /// </summary>
+        public long Solid_Y { get; set; } = 65;
 
         /// <summary>
         /// number of frames for the animation.

@@ -93,7 +93,7 @@ namespace server
 
 
             // first go at monster
-            MonsterType pigman = MonsterType.Create("Pig Man", "fist monster is a pig man");
+            MonsterType pigman = MonsterType.Create("Pig Man", 15,"fist monster is a pig man");
             //let standDownAnimation = new CharAnimation(images, 1, 0, 640, 64, 64, this, this);
             MonsterAnimationAttributes maa = new MonsterAnimationAttributes()
             {
@@ -105,6 +105,8 @@ namespace server
                 Width = 64,
                 Draw_Height = 80,
                 Draw_Width = 80,
+                Solid_X = 40,
+                Solid_Y = 65,
                 Frames = 1,
                 Slowdown = 10
             };
@@ -201,7 +203,7 @@ namespace server
 
 
             // spider 
-            MonsterType spiderType = MonsterType.Create("spider", "spider monster");
+            MonsterType spiderType = MonsterType.Create("spider", 20, "spider monster");
             MonsterAnimationAttributes spiderAnimation = new MonsterAnimationAttributes()
             {
                 Animation = Monster.AnimationNames.standLeft,
@@ -212,6 +214,8 @@ namespace server
                 Width = 128,
                 Draw_Height = 38,
                 Draw_Width = 128,
+                Solid_X = 40,
+                Solid_Y = 65,
                 Frames = 4,
                 Slowdown = 10
             };

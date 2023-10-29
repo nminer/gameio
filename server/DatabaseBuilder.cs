@@ -234,13 +234,15 @@ internal class DatabaseBuilder
         // define monster animations table 
         string createMonsterTypeTable = @"CREATE TABLE 'Monster_Types' (
 					'Monster_Type_Id'	INTEGER NOT NULL UNIQUE,
-					'Type'	TEXT NOT NULL,					
+					'Type'	TEXT NOT NULL,	
+					'Solid_Radius' REAL NOT NULL DEFAULT 15,
 					'Description'	TEXT NOT NULL,
 					PRIMARY KEY('Monster_Type_Id' AUTOINCREMENT)
 				);";
         Execute(createMonsterTypeTable, Connection);
 
         // define monster animation table 
+		// solid x and y are from top right of draw height and draw width
         string createMonsterAnimatinoTable = @"CREATE TABLE 'Monster_Animations' (
 					'Monster_Animation_Id' INTEGER NOT NULL UNIQUE,
 					'Monster_Type_Id' INTEGER NOT NULL,
@@ -252,6 +254,8 @@ internal class DatabaseBuilder
 					'Width'	INTEGER NOT NULL DEFAULT 0,
 					'Draw_Height' INTEGER NOT NULL DEFAULT 0,
 					'Draw_Width'	INTEGER NOT NULL DEFAULT 0,
+					'Solid_X'	INTEGER NOT NULL DEFAULT 0,
+					'Solid_Y'	INTEGER NOT NULL DEFAULT 0,
 					'Frames'	INTEGER NOT NULL DEFAULT 0,
 					'Slowdown'	INTEGER NOT NULL DEFAULT 0,
 					'After_Animation_Name'	TEXT NOT NULL DEFAULT '',

@@ -206,16 +206,17 @@ namespace server.monsters
 
         private long maxDamage;
 
+        public Point MapPosition = new Point(0, 0);
+
         public Circle mySolid = new Circle(new Point(0, 0), 15);
+
         public Circle Solid
         {
             get
             {
                 return mySolid;
             }
-        }
-
-        public Point MapPosition = new Point(0, 0);
+        }        
 
         private object coolDownLock = new object();
         private Double CoolDown = 0.0;
@@ -350,8 +351,9 @@ namespace server.monsters
 
         public void setLocation(Point location)
         {
-            MapPosition = new Point(location.X, location.Y);
-            mySolid = new Circle(MapPosition, 15);
+            MapPosition.X = location.X; MapPosition.Y = location.Y;
+            //MapPosition = new Point(location.X, location.Y);
+            mySolid = new Circle(MapPosition, type.Solid_Radius);
         }
 
         private void LoadFromId(long monsterId)

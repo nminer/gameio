@@ -13,18 +13,6 @@ Console.WriteLine("Here we go! Hello, World!");
 //{
 //    list.Add((int)curv.GetY(i));
 //}
-Shape testShap = new Shape();
-testShap.AddPoint(1,1).AddPoint(1,5).AddPoint(10,5).AddPoint(10,1);
-bool inshap = Shape.IsPointInShape(testShap, new Point());
-bool inshap2 = Shape.IsPointInShape(testShap, new Point(2,2));
-Shape testShap2 = new Shape();
-testShap2.AddPoint(1, 1).AddPoint(1, 5).AddPoint(1.5, 1.5).AddPoint(10, 5).AddPoint(10, 1);
-bool inshap3 = Shape.IsPointInShape(testShap2, new Point());
-bool inshap4 = Shape.IsPointInShape(testShap2, new Point(2, 2));
-bool inshap5= Shape.IsPointInShape(testShap2, new Point(4, 2));
-
-Circle c = new Circle(new Point(2, 2), 1);
-Point p = c.PointOnCircumference(360);
 
 
 DatabaseBuilder db = new DatabaseBuilder();

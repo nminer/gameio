@@ -64,6 +64,21 @@ namespace server.monsters
                 }
             }
         }
+        
+        public Double Solid_Radius
+        {
+            get
+            {
+                lock (dbDataLock)
+                {
+                    if (data == null)
+                    {
+                        return 15;
+                    }
+                    return (Double)row["Solid_Radius"];
+                }
+            }
+        }
 
         public string Description
         {
@@ -252,12 +267,13 @@ namespace server.monsters
         /// new monster type this is used to hold/connect monster animations
         /// </summary>
         /// <param name="shapePosition"></param>
-        static public MonsterType? Create(string Type, string Description = "")
+        static public MonsterType? Create(string Type, Double solid_radius  = 15, string Description = "")
         {
-            string insertNewSolid = $"INSERT INTO Monster_Types (Type, Description)" +
-                $" VALUES($Type, $Description);";
+            string insertNewSolid = $"INSERT INTO Monster_Types (Type, Solid_Radius, Description)" +
+                $" VALUES($Type, $Solid_Radius, $Description);";
             SQLiteCommand command = new SQLiteCommand(insertNewSolid, DatabaseBuilder.Connection);
             command.Parameters.AddWithValue("$Type", Type);
+            command.Parameters.AddWithValue("$Solid_Radius", solid_radius);
             command.Parameters.AddWithValue("$Description", Description);
             SQLiteTransaction transaction = null;
             try

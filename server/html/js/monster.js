@@ -9,7 +9,7 @@ class MonsterType {
 }
 
 class NotLoadedAnimation {
-    constructor(name, image, frames, x, y, width, height, drawWidth, drawHeight, after, slowdown, startFrame, horizontal) {
+    constructor(name, image, frames, x, y, width, height, drawWidth, drawHeight, solidX, solidY, after, slowdown, startFrame, horizontal) {
         this.name = name;
         this.image = image;
         this.frames = frames;
@@ -19,6 +19,8 @@ class NotLoadedAnimation {
         this.height = height;
         this.drawWidth = drawWidth;
         this.drawHeight = drawHeight;
+        this.solidX = solidX;
+        this.solidY = solidY;
         this.after = after;
         this.slowDown = slowdown;
         this.startFrame = startFrame;
@@ -41,7 +43,7 @@ class MonsterAnimation {
      * @param {number} height height of each frame
      * @param {any} slowdown this is how much to slow the animation down(loops before next image.)
      */
-    constructor(image, frames, x, y, width, height, drawWidth, drawHeight, baseSlowdown, slowdown, beingAnimated, afterAnimationName, startFrame = 0, horizontal = true) {
+    constructor(image, frames, x, y, width, height, drawWidth, drawHeight, solidX, solidY, baseSlowdown, slowdown, beingAnimated, afterAnimationName, startFrame = 0, horizontal = true) {
         this.image = image;
         this.frames = frames;
         this.x = x;
@@ -50,6 +52,8 @@ class MonsterAnimation {
         this.height = height;
         this.drawWidth = drawWidth;
         this.drawHeight = drawHeight;
+        this.solidX = solidX;
+        this.solidY = solidY;
         this.currentFrame = startFrame;
         this.drawX = x;
         this.drawY = y;
@@ -181,7 +185,7 @@ class Monster {
     loadAnimation(animations) {
         for (let i = 0; i < animations.length; i++) {
             let toadd = animations[i];
-            this.animations.set(toadd.name, new MonsterAnimation(toadd.image, toadd.frames, toadd.x, toadd.y, toadd.width, toadd.height, toadd.drawWidth, toadd.drawHeight, toadd.slowdown, this, this, toadd.after, toadd.startFrame, toadd.horizontal));
+            this.animations.set(toadd.name, new MonsterAnimation(toadd.image, toadd.frames, toadd.x, toadd.y, toadd.width, toadd.height, toadd.drawWidth, toadd.drawHeight, toadd.solidX, toadd.solidY, toadd.slowdown, this, this, toadd.after, toadd.startFrame, toadd.horizontal));
         }
     }
 
@@ -206,14 +210,14 @@ class Monster {
     }
 
     draw(c, xOffset, yOffset) {
-        c.fillStyle = 'rgba(0,0,0,.2)';
-        if (this.animationName != "dieingDown") {
-            drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
-        }
+        //c.fillStyle = 'rgba(0,0,0,.2)';
+        //if (this.animationName != "dieingDown") {
+        //    drawEllipseByCenter(c, this.X + xOffset, this.Y + yOffset + 10, 35, 15);
+        //}
         if (!this.animation) {
             return;
         }
-        this.animation.draw(this.X + xOffset - (this.animation.drawWidth / 2), this.Y + yOffset - (this.animation.drawHeight - 15));
+        this.animation.draw(this.X + xOffset - this.animation.solidX, this.Y + yOffset - this.animation.solidY);
         this.animation.step();
     }
 
@@ -282,7 +286,7 @@ function loadMonsterType(data) {
     for (i = 0; i < monsterAnimations.length; i++) {
         let ma = monsterAnimations[i];
         let img = ImageLoader.GetImage("./" + ma["image"]);
-        notanimation = new NotLoadedAnimation(ma['name'], img, ma['frames'], ma['x'], ma['y'], ma['width'], ma['height'], ma['drawWidth'], ma['drawHeight'], ma['after'], ma['slowdown'], ma['startFrame'], ma['horizontal']);
+        notanimation = new NotLoadedAnimation(ma['name'], img, ma['frames'], ma['x'], ma['y'], ma['width'], ma['height'], ma['drawWidth'], ma['drawHeight'], ma['solidX'], ma['solidY'], ma['after'], ma['slowdown'], ma['startFrame'], ma['horizontal']);
         toAdd.push(notanimation);
     }
     monsterLookup.set(data['type'], toAdd);
