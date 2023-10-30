@@ -244,6 +244,49 @@ namespace server
             spiderAnimation.Animation = Monster.AnimationNames.walkDown;
             spiderAnimation.Y = 240;
             spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.deadDown;
+            spiderAnimation.Y = 240;
+            spiderAnimation.X = 2944;
+            spiderAnimation.Frames = 1;
+            spiderAnimation.Slowdown = 10;
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.dieingDown;
+            spiderAnimation.X = 2432;
+            spiderAnimation.Y = 240;
+            spiderAnimation.Frames = 5;
+            spiderAnimation.After_Animation_Name = "deadDown";
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.swingUp;
+            spiderAnimation.Y = 104;
+            spiderAnimation.X = 1664;
+            spiderAnimation.Frames = 4;
+            spiderAnimation.Slowdown = 10;
+            spiderAnimation.After_Animation_Name = "standUp";
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.swingLeft;
+            spiderAnimation.Y = 30;
+            spiderAnimation.After_Animation_Name = "standLeft";
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.swingRight;
+            spiderAnimation.Y = 184;
+            spiderAnimation.After_Animation_Name = "standRight";
+            spiderType.AddNewAnimation(spiderAnimation);
+            spiderAnimation.Animation = Monster.AnimationNames.swingDown;
+            spiderAnimation.Y = 240;
+            spiderAnimation.After_Animation_Name = "standDown";
+            spiderType.AddNewAnimation(spiderAnimation);
+
+            GameSound? spiderSwing1 = GameSound.CreateNewSound("spider swing 1", "sounds/monsters/spider/spider_swing.mp3", fadeRadius: 500, fullRadius: 100);
+            GameSound? spiderSwing2 = GameSound.CreateNewSound("spider swing 2", "sounds/monsters/spider/spider_swing2.mp3", fadeRadius: 500, fullRadius: 100);
+            GameSound? spiderHit1 = GameSound.CreateNewSound("spider hit 1", "sounds/monsters/spider/spider_hit.mp3", fadeRadius: 500, fullRadius: 100);
+            GameSound? spiderHit2 = GameSound.CreateNewSound("spider hit 2", "sounds/monsters/spider/spider_hit2.mp3", fadeRadius: 500, fullRadius: 100);
+            GameSound? spiderDie = GameSound.CreateNewSound("spider die", "sounds/monsters/spider/spider_die.mp3", fadeRadius: 500, fullRadius: 100);
+            spiderType.AddSound(spiderSwing1, Monster.SoundNames.attack);
+            spiderType.AddSound(spiderSwing2, Monster.SoundNames.attack);
+            spiderType.AddSound(spiderHit1, Monster.SoundNames.getHit);
+            spiderType.AddSound(spiderHit2, Monster.SoundNames.getHit);
+            spiderType.AddSound(spiderDie, Monster.SoundNames.die);
+
             Monster spider = Monster.Create(
                 new MonsterAttributes()
                 {

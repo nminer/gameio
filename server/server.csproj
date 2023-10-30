@@ -6812,6 +6812,21 @@
     <None Update="html\sounds\monsters\spawn.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="html\sounds\monsters\spider\spider_die.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\monsters\spider\spider_hit.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\monsters\spider\spider_hit2.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\monsters\spider\spider_swing.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="html\sounds\monsters\spider\spider_swing2.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="html\sounds\outside\beach.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
