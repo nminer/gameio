@@ -493,6 +493,8 @@ namespace server.monsters
             {
                 Point targetPosition = new Point(target.X_Coord, target.Y_Coord);
                 double dist = target.Solid.Distance(Solid);
+                double direction = Solid.Center.Direction(targetPosition);
+                setDirectionString(direction);
                 if (dist <= GetHitDistance())
                 {
                     // hit
@@ -551,23 +553,27 @@ namespace server.monsters
             {
                 Point p = new Point();
                 double newDirection = p.Direction(nextMoveAmount);
-                if (newDirection < 45 || newDirection > 315)
-                {
-                    directionString = "Down";
-                }
-                else if (newDirection >= 45 && newDirection <= 135)
-                {
-                    directionString = "Left";
-                }
-                else if (newDirection > 135 && newDirection <= 225)
-                {
-                    directionString = "Up";
-                }
-                else
-                {
-                    directionString = "Right";
-                }
-                
+                setDirectionString(newDirection);
+            }
+        }
+
+        private void setDirectionString(double direction)
+        {
+            if (direction < 45 || direction > 315)
+            {
+                directionString = "Down";
+            }
+            else if (direction >= 45 && direction <= 135)
+            {
+                directionString = "Left";
+            }
+            else if (direction > 135 && direction <= 225)
+            {
+                directionString = "Up";
+            }
+            else
+            {
+                directionString = "Right";
             }
         }
 
